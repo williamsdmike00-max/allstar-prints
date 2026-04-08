@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-brand-dark text-white font-sans antialiased;
+  }
+  * {
+    @apply box-border;
+  }
+}
+
+@layer utilities {
+  .text-gradient-red {
+    @apply bg-gradient-to-r from-brand-red to-rose-400 bg-clip-text text-transparent;
+  }
+  .text-gradient-white {
+    @apply bg-gradient-to-br from-white to-brand-silver bg-clip-text text-transparent;
+  }
+  .section-padding {
+    @apply px-5 md:px-10 lg:px-20;
+  }
+  .container-xl {
+    @apply max-w-7xl mx-auto w-full;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0D0D0F; }
+::-webkit-scrollbar-thumb { background: #1C1C26; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #EE2A24; }
+
+/* Focus outline */
+:focus-visible { outline: 2px solid #EE2A24; outline-offset: 2px; }
