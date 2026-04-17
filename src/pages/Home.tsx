@@ -202,10 +202,7 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 w-full container-xl section-padding py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-
-            {/* Left: headline + CTAs */}
-            <div className="text-center lg:text-left space-y-8">
+          <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-8">
               {/* Urgency badge */}
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-red/15 to-brand-red/10 border border-brand-red/30 text-brand-red text-xs font-black uppercase tracking-widest px-5 py-3 rounded-full shadow-lg backdrop-blur-sm">
                 <Zap size={14} fill="currentColor" />
@@ -219,13 +216,13 @@ export default function Home() {
                   <span className="text-gradient-red block">Delivered Fast.</span>
                 </h1>
 
-                <p className="text-brand-silver text-xl leading-relaxed max-w-xl mx-auto lg:mx-0">
+                <p className="text-brand-silver text-xl leading-relaxed max-w-xl mx-auto">
                   Your trusted local print shop for custom t-shirts, hoodies, and team apparel. Free mockups, quality guaranteed, and ready in 5-7 days. Serving [Your City] and surrounding areas.
                 </p>
               </div>
 
               {/* Primary CTAs */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center">
                 <Link
                   to="/pricing"
                   className="group inline-flex items-center justify-center gap-3 bg-gradient-to-r from-brand-red to-brand-red-dark hover:from-brand-red-dark hover:to-brand-red text-white font-black uppercase tracking-wide text-sm px-10 py-5 rounded-xl shadow-2xl shadow-brand-red/25 transition-all duration-300 hover:-translate-y-1 hover:shadow-3xl hover:shadow-brand-red/40"
@@ -243,7 +240,7 @@ export default function Home() {
               </div>
 
               {/* Social proof micro-line */}
-              <div className="flex items-center justify-center lg:justify-start gap-6 pt-8">
+              <div className="flex items-center justify-center gap-6 pt-8">
                 <div className="flex -space-x-3">
                   {['DW', 'SK', 'MT', 'JR', 'AB', 'DL'].map((init, i) => (
                     <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-red to-brand-navy border-3 border-brand-dark flex items-center justify-center text-[11px] font-black text-white shadow-lg">
@@ -256,43 +253,6 @@ export default function Home() {
                     {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-brand-red" fill="currentColor" />)}
                   </div>
                   <span className="text-sm text-brand-silver font-semibold">500+ local orders • 5.0 stars</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: inline quick-quote form */}
-            <div className="relative order-first lg:order-last">
-              {/* Glow behind card */}
-              <div className="absolute -inset-8 rounded-3xl bg-gradient-to-br from-brand-red/12 via-brand-navy/15 to-brand-blue/8 blur-3xl pointer-events-none" />
-              <div className="relative bg-gradient-to-br from-brand-dark3 to-brand-dark4 border border-white/15 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-sm">
-                {/* Form header */}
-                <div className="bg-gradient-to-r from-brand-red via-brand-red to-brand-red-dark px-8 py-6 flex items-center justify-between">
-                  <div>
-                    <p className="text-white font-black text-lg uppercase tracking-wide">Get Your Free Quote</p>
-                    <p className="text-white/80 text-sm mt-1">Response within 2 hours • No commitment</p>
-                  </div>
-                  <div className="text-4xl select-none">🖨️</div>
-                </div>
-                <div className="w-full">
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: `
-                        <iframe
-                          src="https://api.leadconnectorhq.com/widget/form/443Y2aOaV0nnaJZh9CkU"
-                          style="width:100%;height:760px;border:none;border-radius:0 0 1.5rem 1.5rem"
-                          id="inline-443Y2aOaV0nnaJZh9CkU"
-                          data-layout="{'id':'INLINE'}"
-                          data-trigger-type="alwaysShow"
-                          data-activation-type="alwaysActivated"
-                          data-deactivation-type="neverDeactivate"
-                          data-form-name="Website Quote Form"
-                          data-height="760"
-                          title="Website Quote Form"
-                        ></iframe>
-                        <script src="https://link.msgsndr.com/js/form_embed.js"></script>
-                      `
-                    }}
-                  />
                 </div>
               </div>
             </div>
