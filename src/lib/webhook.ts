@@ -32,6 +32,8 @@ export interface WebhookPayload {
   [key: string]: unknown
 }
 
+const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/9Q2FZWe88ng4QFaejG5G/webhook-trigger/9ef217d6-375e-429e-8d95-26557503f12a'
+
 function resolveWebhookUrl(formType: FormType): string {
   const perForm: Record<FormType, string | undefined> = {
     quick_quote:    import.meta.env.VITE_GHL_QUOTE_WEBHOOK_URL   || undefined,
@@ -43,7 +45,7 @@ function resolveWebhookUrl(formType: FormType): string {
   return (
     perForm[formType] ||
     import.meta.env.VITE_GHL_WEBHOOK_URL ||
-    ''
+    GHL_WEBHOOK_URL
   )
 }
 
