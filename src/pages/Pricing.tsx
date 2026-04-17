@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { CheckCircle, ArrowRight, Info, Clock, Zap, Star } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import TrustBar from '../components/ui/TrustBar'
-import { submitToGHL } from '../lib/webhook'
+import { submitForm } from '../lib/web3forms'
 import SEO from '../components/ui/SEO'
 
 // ─────────────────────────────────────────────
@@ -144,22 +144,20 @@ export default function Pricing() {
     e.preventDefault()
     setSubmitting(true)
     try {
-      await submitToGHL({
-        form_type: 'full_quote',
-        source: window.location.href,
-        timestamp: new Date().toISOString(),
-        firstName: form.firstName,
-        lastName: form.lastName,
+      await submitForm({
+        subject: 'New Quote Request — Allstar Prints',
+        from_name: `${form.firstName} ${form.lastName}`,
+        name: `${form.firstName} ${form.lastName}`,
         email: form.email,
         phone: form.phone,
         service: form.service,
         apparel_type: form.apparelType,
-        quantity_range: form.quantity,
+        quantity: form.quantity,
         sizes: form.sizes,
         deadline: form.deadline,
         artwork_status: form.artworkStatus,
         notes: form.notes,
-        tags: 'quote-request, website-lead',
+        source: window.location.href,
       })
       setSubmitted(true)
     } catch (err) {

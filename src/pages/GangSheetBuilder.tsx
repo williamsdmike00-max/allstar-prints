@@ -27,7 +27,7 @@ import {
   ArrowRight, Upload, LayoutGrid, CheckCircle, Clock,
   Zap, FileCheck, X, Info, ChevronDown, Star,
 } from 'lucide-react'
-import { submitToGHL, splitName } from '../lib/webhook'
+import { submitForm, splitName } from '../lib/web3forms'
 import SEO from '../components/ui/SEO'
 import FAQAccordion from '../components/ui/FAQAccordion'
 import TrustBar from '../components/ui/TrustBar'
@@ -243,25 +243,22 @@ function UploadZone({ selectedSheet }: { selectedSheet: SheetSize }) {
     setSubmitting(true)
     try {
       const { firstName, lastName } = splitName(form.name)
-      await submitToGHL({
-        form_type: 'gang_sheet',
-        source: window.location.href,
-        timestamp: new Date().toISOString(),
-        firstName,
-        lastName,
+      await submitForm({
+        subject: 'New Gang Sheet Order — Allstar Prints',
+        from_name: form.name,
         name: form.name,
         email: form.email,
         phone: form.phone,
+        first_name: firstName,
+        last_name: lastName,
         sheet_size: selectedSheet.label,
-        sheet_dims: selectedSheet.dims,
-        sheet_qty: form.sheetQty,
+        sheet_quantity: form.sheetQty,
         estimated_price: selectedSheet.id !== 'custom'
           ? `$${(selectedSheet.pricePerSheet * parseInt(form.sheetQty || '1')).toFixed(2)}`
           : 'Custom — needs quote',
-        file_names: files.map((f) => f.name).join(', '),
-        file_count: files.length,
+        files_uploaded: files.map((f) => f.name).join(', ') || 'None',
         notes: form.notes,
-        tags: 'gang-sheet, dtf, website-lead',
+        source: window.location.href,
       })
       setSubmitted(true)
     } catch (err) {

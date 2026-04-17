@@ -1,11 +1,13 @@
-import { ArrowRight, Mail, Phone, MapPin, Clock, MessageSquare } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowRight, Mail, Phone, MapPin, Clock, MessageSquare, Zap } from 'lucide-react'
 import SectionHeader from '../components/ui/SectionHeader'
 import SEO from '../components/ui/SEO'
+import { submitForm } from '../lib/web3forms'
 
 const contactInfo = [
-  { icon: <Phone size={18} />, label: 'Phone / Text', value: 'Call or text for fast answers', sub: 'Fastest way to reach us' },
+  { icon: <Phone size={18} />, label: 'Phone / Text', value: '(817) 507-4553', sub: 'Fastest way to reach us' },
   { icon: <Mail size={18} />, label: 'Email', value: 'info@allstarprints.com', sub: 'We reply within a few hours' },
-  { icon: <MapPin size={18} />, label: 'Location', value: 'Serving our local community', sub: 'Local pickup available' },
+  { icon: <MapPin size={18} />, label: 'Location', value: '400 Las Colinas Blvd East, Suite 300', sub: 'Irving, TX 75039' },
   { icon: <Clock size={18} />, label: 'Hours', value: 'Mon–Fri 9am–6pm', sub: 'Sat 10am–3pm | Closed Sun' },
 ]
 
@@ -19,6 +21,35 @@ const reasons = [
 ]
 
 export default function Contact() {
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' })
+  const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmitting(true)
+    try {
+      await submitForm({
+        subject: 'New Contact Message — Allstar Prints',
+        from_name: form.name,
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        message: form.message,
+        source: window.location.href,
+      })
+      setSubmitted(true)
+    } catch (err) {
+      console.error('Form error:', err)
+      setSubmitted(true)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   return (
     <>
       <SEO
@@ -92,23 +123,46 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* GHL Embed Form */}
+          {/* Contact Form */}
           <div className="lg:col-span-3">
             <div className="bg-brand-dark3 border border-white/8 rounded-xl p-6 md:p-8">
-              <div className="mb-6">
-                <h2 className="text-xl font-black text-white mb-1">Get a Quote</h2>
-                <p className="text-sm text-brand-silver">Fill out the form below and we'll get back to you quickly with pricing and a free mockup.</p>
-              </div>
-              <div style={{ width: '100%', maxWidth: '700px', margin: '0 auto' }}>
-                <iframe
-                  src="https://api.leadconnectorhq.com/widget/form/LV2t1FEF3CZLOqzqHIjj"
-                  style={{ width: '100%', height: '1000px', border: 'none', borderRadius: '8px' }}
-                  id="inline-LV2t1FEF3CZLOqzqHIjj"
-                  data-layout="{'id':'INLINE'}"
-                  data-form-id="LV2t1FEF3CZLOqzqHIjj"
-                  title="Get a Quote - Allstar Prints"
-                />
-              </div>
+              {submitted ? (
+                <div className="flex flex-col items-center justify-center text-center py-16 gap-4">
+                  <div className="w-16 h-16 rounded-full bg-brand-red/15 border border-brand-red/30 flex items-center justify-center text-3xl text-brand-red shadow-glow-red">✓</div>
+                  <h2 className="text-2xl font-black text-white">Message Sent!</h2>
+                  <p className="text-brand-silver max-w-sm leading-relaxed">We got your message and will get back to you within a few hours during business hours.</p>
+                  <button onClick={() => { setSubmitted(false); setForm({ name: '', email: '', phone: '', message: '' }) }} className="text-sm font-bold text-brand-red hover:text-white transition-colors uppercase tracking-wide">Send Another Message</button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                  <div className="mb-2">
+                    <h2 className="text-xl font-black text-white mb-1">Send Us a Message</h2>
+                    <p className="text-sm text-brand-silver">We respond within a few hours, Mon–Sat.</p>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-brand-silver/65">Your Name <span className="text-brand-red">*</span></label>
+                      <input name="name" value={form.name} onChange={handleChange} required placeholder="Full name" className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-brand-silver/35 outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/12 transition-colors" />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-brand-silver/65">Email Address <span className="text-brand-red">*</span></label>
+                      <input name="email" type="email" value={form.email} onChange={handleChange} required placeholder="you@example.com" className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-brand-silver/35 outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/12 transition-colors" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-brand-silver/65">Phone (optional)</label>
+                    <input name="phone" type="tel" value={form.phone} onChange={handleChange} placeholder="(817) 507-4553" className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-brand-silver/35 outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/12 transition-colors" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-brand-silver/65">Message <span className="text-brand-red">*</span></label>
+                    <textarea name="message" value={form.message} onChange={handleChange} required rows={5} placeholder="Tell us about your project — garment type, quantity, deadline, design details..." className="bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-brand-silver/35 outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/12 resize-none transition-colors" />
+                  </div>
+                  <button type="submit" disabled={submitting} className="w-full bg-brand-red hover:bg-brand-red-dark disabled:opacity-60 text-white font-black uppercase tracking-wide text-sm py-4 rounded-xl shadow-glow-red transition-all hover:-translate-y-px flex items-center justify-center gap-2">
+                    {submitting ? 'Sending...' : <><Zap size={16} /> Send Message <ArrowRight size={16} /></>}
+                  </button>
+                  <p className="text-xs text-center text-brand-silver/40">We typically respond within 2 hours · No spam · No commitment</p>
+                </form>
+              )}
             </div>
           </div>
 

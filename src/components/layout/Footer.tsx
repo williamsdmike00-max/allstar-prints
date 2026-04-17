@@ -15,6 +15,8 @@ const company = [
   { label: 'About Us', href: '/about' },
   { label: 'FAQ', href: '/faq' },
   { label: 'Contact', href: '/contact' },
+  { label: 'Privacy Policy', href: '/privacy-policy' },
+  { label: 'Terms of Service', href: '/terms-of-service' },
 ]
 
 export default function Footer() {
@@ -90,7 +92,7 @@ export default function Footer() {
           <ul className="flex flex-col gap-3">
             <li className="flex items-start gap-2.5 text-sm text-brand-silver">
               <Phone size={14} className="text-brand-red mt-0.5 flex-shrink-0" />
-              <span>Call or text for fast quotes</span>
+              <a href="tel:8175074553" className="hover:text-white transition-colors">(817) 507-4553</a>
             </li>
             <li className="flex items-start gap-2.5 text-sm text-brand-silver">
               <Mail size={14} className="text-brand-red mt-0.5 flex-shrink-0" />
@@ -98,7 +100,7 @@ export default function Footer() {
             </li>
             <li className="flex items-start gap-2.5 text-sm text-brand-silver">
               <MapPin size={14} className="text-brand-red mt-0.5 flex-shrink-0" />
-              <span>Serving our local community & surrounding areas</span>
+              <span>400 Las Colinas Blvd East, Suite 300<br />Irving, TX 75039</span>
             </li>
             <li className="flex items-start gap-2.5 text-sm text-brand-silver">
               <Clock size={14} className="text-brand-red mt-0.5 flex-shrink-0" />

@@ -2,7 +2,7 @@ import { useState, useRef, DragEvent, ChangeEvent } from 'react'
 import { Upload, FileCheck, AlertCircle, ArrowRight, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SectionHeader from '../components/ui/SectionHeader'
-import { submitToGHL, splitName } from '../lib/webhook'
+import { submitForm, splitName } from '../lib/web3forms'
 import SEO from '../components/ui/SEO'
 
 const acceptedTypes = [
@@ -70,19 +70,18 @@ export default function UploadArtwork() {
     setSubmitting(true)
     try {
       const { firstName, lastName } = splitName(name)
-      await submitToGHL({
-        form_type: 'upload_artwork',
-        source: window.location.href,
-        timestamp: new Date().toISOString(),
-        firstName,
-        lastName,
+      await submitForm({
+        subject: 'New Artwork Upload — Allstar Prints',
+        from_name: name,
         name,
         email,
         phone,
+        first_name: firstName,
+        last_name: lastName,
         notes,
-        file_names: files.map((f) => f.name).join(', '),
+        files_uploaded: files.map((f) => f.name).join(', ') || 'No files — see notes',
         file_count: files.length,
-        tags: 'artwork-upload, website-lead',
+        source: window.location.href,
       })
       setSubmitted(true)
     } catch (err) {
