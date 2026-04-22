@@ -81,6 +81,7 @@ export default function About() {
                 </div>
                 <p className="text-sm font-black text-white">Trusted Locally</p>
                 <p className="text-xs text-brand-silver">500+ orders delivered</p>
+                <p className="text-xs font-bold text-brand-red mt-1">In Business Since 2017</p>
               </div>
             </div>
           </div>
@@ -96,7 +97,7 @@ export default function About() {
           </h2>
           <div className="flex flex-col gap-5 text-brand-silver leading-relaxed">
             <p>
-              Allstar Prints was started with one goal: make it easy for people in our community to get high-quality custom apparel without jumping through hoops or dealing with impersonal, slow-moving print factories.
+              <strong className="text-white">In business since 2017</strong>, Allstar Prints was built with one goal: make it easy for people in our community to get high-quality custom apparel without jumping through hoops or dealing with impersonal, slow-moving print factories.
             </p>
             <p>
               We've printed for youth basketball leagues, local restaurants, church groups, school graduations, family reunions, and everything in between. No job is too small and no deadline is too tight for us to try.
