@@ -1,5 +1,13 @@
 import { Link } from 'react-router-dom'
-import { Mail, Phone, MapPin, Clock, Star } from 'lucide-react'
+import { Mail, Phone, MapPin, Clock, Star, Instagram, Facebook } from 'lucide-react'
+
+function TikTokIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.25 8.25 0 0 0 4.83 1.55V6.79a4.85 4.85 0 0 1-1.06-.1z" />
+    </svg>
+  )
+}
 
 const services = [
   { label: 'Custom T-Shirts', href: '/custom-tshirts' },
@@ -56,6 +64,35 @@ export default function Footer() {
             {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
             <span className="text-brand-silver text-xs ml-1">Trusted locally</span>
           </div>
+          <div className="flex items-center gap-3 mt-5">
+            <a
+              href="https://instagram.com/allstarprintsllc"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Allstar Prints on Instagram"
+              className="text-brand-silver/50 hover:text-brand-red transition-colors"
+            >
+              <Instagram size={18} />
+            </a>
+            <a
+              href="https://facebook.com/allstarprintsllc"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Allstar Prints on Facebook"
+              className="text-brand-silver/50 hover:text-brand-red transition-colors"
+            >
+              <Facebook size={18} />
+            </a>
+            <a
+              href="https://tiktok.com/@allstarprintsllc"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Allstar Prints on TikTok"
+              className="text-brand-silver/50 hover:text-brand-red transition-colors"
+            >
+              <TikTokIcon size={18} />
+            </a>
+          </div>
         </div>
 
         {/* Services */}
@@ -96,7 +133,7 @@ export default function Footer() {
             </li>
             <li className="flex items-start gap-2.5 text-sm text-brand-silver">
               <Mail size={14} className="text-brand-red mt-0.5 flex-shrink-0" />
-              <span>info@allstarprints.com</span>
+              <a href="mailto:contact@allstarprintsllc.com" className="hover:text-white transition-colors">contact@allstarprintsllc.com</a>
             </li>
             <li className="flex items-start gap-2.5 text-sm text-brand-silver">
               <MapPin size={14} className="text-brand-red mt-0.5 flex-shrink-0" />

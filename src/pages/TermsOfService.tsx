@@ -27,7 +27,7 @@ export default function TermsOfService() {
               400 Las Colinas Blvd East, Suite 300<br />
               Irving, TX 75039<br />
               Phone: (817) 507-4553<br />
-              Email: info@allstarprints.com</p>
+              Email: contact@allstarprintsllc.com</p>
             </div>
 
             <div>
@@ -89,7 +89,7 @@ export default function TermsOfService() {
               <p>Questions about these Terms? Contact us:<br />
               Allstar Prints LLC<br />
               400 Las Colinas Blvd East, Suite 300, Irving, TX 75039<br />
-              (817) 507-4553 | info@allstarprints.com</p>
+              (817) 507-4553 | contact@allstarprintsllc.com</p>
             </div>
 
           </div>

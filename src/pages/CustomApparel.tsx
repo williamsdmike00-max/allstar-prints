@@ -161,7 +161,7 @@ export default function CustomApparel() {
               <img src="/images/jerseys.jpg" alt="Custom sports jerseys printed by Allstar Prints" className="aspect-[4/5] w-full rounded-xl object-cover" />
               <div className="flex flex-col gap-4 pt-6">
                 <img src="/images/business-polo.jpg" alt="Custom business polo shirts" className="aspect-square w-full rounded-xl object-cover" />
-                <img src="/images/tshirt-bulk.jpg" alt="Bulk custom shirts for family reunion or group event" className="aspect-square w-full rounded-xl object-cover" />
+                <img src="/images/tshirt-bulk.png" alt="Bulk business uniform shirts" className="aspect-square w-full rounded-xl object-cover" />
               </div>
             </div>
           </div>

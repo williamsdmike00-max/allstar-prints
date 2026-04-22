@@ -105,8 +105,8 @@ export default function CustomTshirts() {
           <div className="grid grid-cols-2 gap-4">
             <img src="/images/tshirt-flatlay.jpg" alt="Custom t-shirt flat lay product shot" className="aspect-[3/4] w-full rounded-xl object-cover" />
             <div className="flex flex-col gap-4 pt-6">
-              <img src="/images/tshirt-lifestyle.jpg" alt="Custom team shirts lifestyle photo" className="aspect-square w-full rounded-xl object-cover" />
-              <img src="/images/tshirt-event.jpg" alt="Custom event t-shirts" className="aspect-square w-full rounded-xl object-cover" />
+              <img src="/images/tshirt-lifestyle.png" alt="Custom team shirts printed by Allstar Prints" className="aspect-square w-full rounded-xl object-cover" />
+              <img src="/images/tshirt-event1.png" alt="Custom event apparel shirts" className="aspect-square w-full rounded-xl object-cover" />
             </div>
           </div>
         </div>

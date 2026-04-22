@@ -27,7 +27,7 @@ export default function PrivacyPolicy() {
               400 Las Colinas Blvd East, Suite 300<br />
               Irving, TX 75039<br />
               Phone: (817) 507-4553<br />
-              Email: info@allstarprints.com</p>
+              Email: contact@allstarprintsllc.com</p>
             </div>
 
             <div>
@@ -79,7 +79,7 @@ export default function PrivacyPolicy() {
 
             <div>
               <h2 className="text-white text-xl font-bold mb-3">8. Your Rights</h2>
-              <p>You may request access to, correction of, or deletion of your personal information by contacting us at info@allstarprints.com or (817) 507-4553.</p>
+              <p>You may request access to, correction of, or deletion of your personal information by contacting us at contact@allstarprintsllc.com or (817) 507-4553.</p>
             </div>
 
             <div>
@@ -92,7 +92,7 @@ export default function PrivacyPolicy() {
               <p>If you have questions about this Privacy Policy, contact us at:<br />
               Allstar Prints LLC<br />
               400 Las Colinas Blvd East, Suite 300, Irving, TX 75039<br />
-              (817) 507-4553 | info@allstarprints.com</p>
+              (817) 507-4553 | contact@allstarprintsllc.com</p>
             </div>
 
           </div>

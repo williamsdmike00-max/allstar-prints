@@ -6,7 +6,7 @@ import { submitForm } from '../lib/web3forms'
 
 const contactInfo = [
   { icon: <Phone size={18} />, label: 'Phone / Text', value: '(817) 507-4553', sub: 'Fastest way to reach us' },
-  { icon: <Mail size={18} />, label: 'Email', value: 'info@allstarprints.com', sub: 'We reply within a few hours' },
+  { icon: <Mail size={18} />, label: 'Email', value: 'contact@allstarprintsllc.com', sub: 'We reply within a few hours' },
   { icon: <MapPin size={18} />, label: 'Location', value: '400 Las Colinas Blvd East, Suite 300', sub: 'Irving, TX 75039' },
   { icon: <Clock size={18} />, label: 'Hours', value: 'Mon–Fri 9am–6pm', sub: 'Sat 10am–3pm | Closed Sun' },
 ]
