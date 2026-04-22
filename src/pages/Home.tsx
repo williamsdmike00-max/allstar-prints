@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import {
   ArrowRight, CheckCircle, Printer, Layers, Shirt,
   Package, Star, Zap, Users, Award, Clock, ShieldCheck,
-  BadgeCheck,
+  BadgeCheck, Sparkles,
 } from 'lucide-react'
 import SEO from '../components/ui/SEO'
 import ServiceCard from '../components/ui/ServiceCard'
@@ -304,6 +304,45 @@ export default function Home() {
             Browse all apparel types
             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </Link>
+        </div>
+      </section>
+
+      {/* ── AI DESIGN GENERATOR PROMO ── */}
+      <section className="section-padding py-16 container-xl mx-auto">
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-brand-dark3 via-brand-dark2 to-brand-dark3 border border-brand-red/20 p-10 md:p-14 flex flex-col md:flex-row items-center gap-10">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 right-0 w-[300px] h-[300px] rounded-full bg-brand-red/6 blur-3xl translate-x-1/2 -translate-y-1/2" />
+          </div>
+          <div className="relative flex-1 text-center md:text-left">
+            <div className="inline-flex items-center gap-2 bg-brand-red/10 border border-brand-red/30 text-brand-red text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5">
+              <Sparkles size={13} /> New — Free Tool
+            </div>
+            <h2 className="text-3xl md:text-4xl font-black text-white leading-tight mb-4">
+              Don't Have a Design Yet?<br />
+              <span className="text-gradient-red">Our AI Will Make One.</span>
+            </h2>
+            <p className="text-brand-silver leading-relaxed max-w-lg mb-6">
+              Use our free AI shirt design generator — pick your event, colors, and style, and get a print-ready design in seconds. Then we'll print it.
+            </p>
+            <Link
+              to="/design-generator"
+              className="inline-flex items-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white font-bold uppercase tracking-wider text-sm px-8 py-4 rounded-md shadow-glow-red transition-all hover:-translate-y-0.5"
+            >
+              <Sparkles size={16} /> Try the AI Designer — Free
+            </Link>
+          </div>
+          <div className="relative flex-shrink-0 grid grid-cols-3 gap-2 text-center">
+            {['Birthday', 'Sports Team', 'Business'].map((label) => (
+              <div key={label} className="px-3 py-3 rounded-xl bg-brand-dark4 border border-white/8 text-xs font-bold text-brand-silver">
+                {label}
+              </div>
+            ))}
+            {['Wedding', 'Church Group', 'Graduation'].map((label) => (
+              <div key={label} className="px-3 py-3 rounded-xl bg-brand-dark4 border border-white/8 text-xs font-bold text-brand-silver">
+                {label}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

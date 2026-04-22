@@ -13,6 +13,7 @@ import FAQ from './pages/FAQ'
 import GangSheetBuilder from './pages/GangSheetBuilder'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
+import DesignGenerator from './pages/DesignGenerator'
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="faq" element={<FAQ />} />
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
           <Route path="terms-of-service" element={<TermsOfService />} />
+          <Route path="design-generator" element={<DesignGenerator />} />
         </Route>
       </Routes>
     </BrowserRouter>

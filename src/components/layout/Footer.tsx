@@ -30,6 +30,7 @@ const services = [
   { label: 'DTF Printing', href: '/dtf-printing' },
   { label: 'Gang Sheet Builder', href: '/gang-sheet-builder' },
   { label: 'Custom Apparel', href: '/custom-apparel' },
+  { label: '✨ AI Design Generator', href: '/design-generator' },
 ]
 
 const company = [
