@@ -2,7 +2,7 @@ import { useState, useRef, DragEvent, ChangeEvent } from 'react'
 import { Upload, FileCheck, AlertCircle, ArrowRight, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SectionHeader from '../components/ui/SectionHeader'
-import { submitForm, splitName } from '../lib/web3forms'
+import { submitFormWithFiles, splitName } from '../lib/web3forms'
 import SEO from '../components/ui/SEO'
 
 const acceptedTypes = [
@@ -23,14 +23,8 @@ const tips = [
   { icon: '❌', text: 'Avoid sending files under 72 DPI' },
 ]
 
-interface UploadedFile {
-  name: string
-  size: number
-  type: string
-}
-
 export default function UploadArtwork() {
-  const [files, setFiles] = useState<UploadedFile[]>([])
+  const [files, setFiles] = useState<File[]>([])
   const [dragging, setDragging] = useState(false)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -41,8 +35,7 @@ export default function UploadArtwork() {
   const fileRef = useRef<HTMLInputElement>(null)
 
   const addFiles = (fileList: FileList) => {
-    const newFiles = Array.from(fileList).map((f) => ({ name: f.name, size: f.size, type: f.type }))
-    setFiles((prev) => [...prev, ...newFiles])
+    setFiles((prev) => [...prev, ...Array.from(fileList)])
   }
 
   const onDrop = (e: DragEvent<HTMLDivElement>) => {
@@ -70,22 +63,24 @@ export default function UploadArtwork() {
     setSubmitting(true)
     try {
       const { firstName, lastName } = splitName(name)
-      await submitForm({
-        subject: 'New Artwork Upload — Allstar Prints',
-        from_name: name,
-        name,
-        email,
-        phone,
-        first_name: firstName,
-        last_name: lastName,
-        notes,
-        files_uploaded: files.map((f) => f.name).join(', ') || 'No files — see notes',
-        file_count: files.length,
-        source: window.location.href,
-      })
+      await submitFormWithFiles(
+        {
+          subject: 'New Artwork Upload — Allstar Prints',
+          from_name: name,
+          name,
+          email,
+          phone,
+          first_name: firstName,
+          last_name: lastName,
+          notes: notes || 'No notes provided',
+          files_uploaded: files.map((f) => f.name).join(', ') || 'No files — see notes',
+          source: window.location.href,
+        },
+        files,
+      )
       setSubmitted(true)
     } catch (err) {
-      console.error('Webhook error:', err)
+      console.error('Upload error:', err)
       setSubmitted(true)
     } finally {
       setSubmitting(false)

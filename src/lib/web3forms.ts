@@ -22,6 +22,29 @@ export async function submitForm(payload: Record<string, unknown>): Promise<void
   }
 }
 
+export async function submitFormWithFiles(fields: Record<string, string>, files: File[]): Promise<void> {
+  const formData = new FormData()
+  formData.append('access_key', WEB3FORMS_KEY)
+
+  for (const [key, value] of Object.entries(fields)) {
+    formData.append(key, value)
+  }
+
+  files.forEach((file) => {
+    formData.append('file[]', file, file.name)
+  })
+
+  const response = await fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    body: formData,
+  })
+
+  const data = await response.json()
+  if (!data.success) {
+    throw new Error(data.message || 'Form submission failed')
+  }
+}
+
 /** Derive firstName/lastName from a full name string */
 export function splitName(fullName: string): { firstName: string; lastName: string } {
   const parts = fullName.trim().split(/\s+/)
