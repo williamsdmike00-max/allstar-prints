@@ -169,8 +169,8 @@ const trustBadges = [
   },
   {
     icon: <Users size={20} />,
-    title: 'Local Business',
-    sub: 'Real people, real support',
+    title: 'Trusted Since 2017',
+    sub: 'Local business, real support',
     color: 'border-amber-500/25 bg-amber-500/6',
     iconColor: 'text-amber-400',
   },
@@ -252,7 +252,7 @@ export default function Home() {
                   <div className="flex gap-1">
                     {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-brand-red" fill="currentColor" />)}
                   </div>
-                  <span className="text-sm text-brand-silver font-semibold">500+ local orders • 5.0 stars</span>
+                  <span className="text-sm text-brand-silver font-semibold">500+ local orders • 5.0 stars • <strong className="text-white">In business since 2017</strong></span>
                 </div>
               </div>
             </div>
