@@ -2,7 +2,8 @@ import { useState, useRef, DragEvent, ChangeEvent } from 'react'
 import { Upload, FileCheck, AlertCircle, ArrowRight, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SectionHeader from '../components/ui/SectionHeader'
-import { submitFormWithFiles, splitName } from '../lib/web3forms'
+import { submitForm, splitName } from '../lib/web3forms'
+import { uploadFilesToStorage } from '../lib/storage'
 import SEO from '../components/ui/SEO'
 
 const acceptedTypes = [
@@ -32,6 +33,7 @@ export default function UploadArtwork() {
   const [notes, setNotes] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const addFiles = (fileList: FileList) => {
@@ -61,27 +63,28 @@ export default function UploadArtwork() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
+    setSubmitError(null)
     try {
       const { firstName, lastName } = splitName(name)
-      await submitFormWithFiles(
-        {
-          subject: 'New Artwork Upload — Allstar Prints',
-          from_name: name,
-          name,
-          email,
-          phone,
-          first_name: firstName,
-          last_name: lastName,
-          notes: notes || 'No notes provided',
-          files_uploaded: files.map((f) => f.name).join(', ') || 'No files — see notes',
-          source: window.location.href,
-        },
-        files,
-      )
+      const fileUrls = await uploadFilesToStorage(files)
+      await submitForm({
+        subject: 'New Artwork Upload — Allstar Prints',
+        from_name: name,
+        replyto: email,
+        name,
+        email,
+        phone,
+        first_name: firstName,
+        last_name: lastName,
+        notes: notes || 'No notes provided',
+        files_uploaded: files.map((f) => f.name).join(', ') || 'No files — see notes',
+        download_links: fileUrls.length > 0 ? fileUrls.join('\n') : 'No files uploaded',
+        source: window.location.href,
+      })
       setSubmitted(true)
     } catch (err) {
       console.error('Upload error:', err)
-      setSubmitted(true)
+      setSubmitError('Something went wrong submitting your files. Please try again or email us directly at contact@allstarprintsllc.com')
     } finally {
       setSubmitting(false)
     }
@@ -244,7 +247,7 @@ export default function UploadArtwork() {
                     onChange={(e) => setNotes(e.target.value)}
                     rows={4}
                     placeholder="Tell us about your project — garment type, print colors, quantity, placement, deadline, and anything else we should know..."
-                    className="bg-white/4 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-brand-silver/40 outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 resize-none transition-colors"
+                    className="bg-white/4 border border-white/10 rounded-lg px-4 py-3 text-sm text-white caret-white placeholder:text-brand-silver/40 outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 resize-none transition-colors [color-scheme:dark]"
                   />
                 </div>
 
@@ -252,6 +255,13 @@ export default function UploadArtwork() {
                   <div className="flex items-start gap-2 p-3 bg-brand-navy/20 border border-brand-blue/20 rounded-lg">
                     <AlertCircle size={14} className="text-brand-blue flex-shrink-0 mt-0.5" />
                     <p className="text-xs text-brand-silver">No files added yet. You can still submit — just describe your design in the notes above and we'll follow up.</p>
+                  </div>
+                )}
+
+                {submitError && (
+                  <div className="flex items-start gap-2 p-3 bg-red-900/30 border border-brand-red/40 rounded-lg">
+                    <AlertCircle size={14} className="text-brand-red flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-brand-silver">{submitError}</p>
                   </div>
                 )}
 

@@ -28,6 +28,7 @@ import {
   Zap, FileCheck, X, Info, ChevronDown, Star,
 } from 'lucide-react'
 import { submitForm, splitName } from '../lib/web3forms'
+import { uploadFilesToStorage } from '../lib/storage'
 import SEO from '../components/ui/SEO'
 import FAQAccordion from '../components/ui/FAQAccordion'
 import TrustBar from '../components/ui/TrustBar'
@@ -220,6 +221,7 @@ function UploadZone({ selectedSheet }: { selectedSheet: SheetSize }) {
   const [form, setForm] = useState<UploadState>({ name: '', email: '', phone: '', notes: '', sheetQty: '1' })
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const addFiles = (list: FileList) =>
@@ -241,11 +243,14 @@ function UploadZone({ selectedSheet }: { selectedSheet: SheetSize }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
+    setSubmitError(null)
     try {
       const { firstName, lastName } = splitName(form.name)
+      const fileUrls = await uploadFilesToStorage(files)
       await submitForm({
         subject: 'New Gang Sheet Order — Allstar Prints',
         from_name: form.name,
+        replyto: form.email,
         name: form.name,
         email: form.email,
         phone: form.phone,
@@ -257,13 +262,14 @@ function UploadZone({ selectedSheet }: { selectedSheet: SheetSize }) {
           ? `$${(selectedSheet.pricePerSheet * parseInt(form.sheetQty || '1')).toFixed(2)}`
           : 'Custom — needs quote',
         files_uploaded: files.map((f) => f.name).join(', ') || 'None',
+        download_links: fileUrls.length > 0 ? fileUrls.join('\n') : 'No files uploaded',
         notes: form.notes,
         source: window.location.href,
       })
       setSubmitted(true)
     } catch (err) {
-      console.error('Webhook error:', err)
-      setSubmitted(true)
+      console.error('Gang sheet submission error:', err)
+      setSubmitError('Something went wrong submitting your order. Please try again or email us directly at contact@allstarprintsllc.com')
     } finally {
       setSubmitting(false)
     }
@@ -393,6 +399,13 @@ function UploadZone({ selectedSheet }: { selectedSheet: SheetSize }) {
           className="bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-brand-silver/35 outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/12 resize-none transition-colors"
         />
       </div>
+
+      {submitError && (
+        <div className="flex items-start gap-2 p-3 bg-red-900/30 border border-brand-red/40 rounded-lg">
+          <Info size={14} className="text-brand-red flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-brand-silver">{submitError}</p>
+        </div>
+      )}
 
       <button
         type="submit"
