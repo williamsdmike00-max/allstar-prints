@@ -1,37 +1,42 @@
-import { createClient } from '@supabase/supabase-js'
-
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string
 const BUCKET = 'artwork-uploads'
 
-function getClient() {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    throw new Error('Supabase env vars not set. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local')
-  }
-  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-}
-
 /**
- * Uploads an array of files to Supabase Storage and returns their public URLs.
- * Each file is stored under a timestamped folder to avoid collisions.
+ * Uploads files to Supabase Storage via the REST API and returns public URLs.
+ * Uses direct fetch instead of the JS client to avoid JWT parsing issues.
  */
 export async function uploadFilesToStorage(files: File[]): Promise<string[]> {
   if (files.length === 0) return []
 
-  const supabase = getClient()
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error('Supabase env vars not set. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local')
+  }
+
   const folder = `${Date.now()}`
   const urls: string[] = []
 
   for (const file of files) {
-    const path = `${folder}/${file.name}`
-    const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
-      cacheControl: '3600',
-      upsert: false,
-    })
-    if (error) throw new Error(`Failed to upload ${file.name}: ${error.message}`)
+    const encodedPath = `${folder}/${encodeURIComponent(file.name)}`
 
-    const { data } = supabase.storage.from(BUCKET).getPublicUrl(path)
-    urls.push(data.publicUrl)
+    const response = await fetch(
+      `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${encodedPath}`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': file.type || 'application/octet-stream',
+        },
+        body: file,
+      },
+    )
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}))
+      throw new Error(`Failed to upload ${file.name}: ${err.error ?? response.statusText}`)
+    }
+
+    urls.push(`${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${encodedPath}`)
   }
 
   return urls
