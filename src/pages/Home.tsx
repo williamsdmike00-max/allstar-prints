@@ -278,10 +278,11 @@ function HeroShirtImage({ src, motion = 60 }: { src: string; motion?: number }) 
         alt="Allstar Prints custom t-shirt"
         style={{
           width: '100%',
-          maxWidth: 560,
+          maxWidth: 1680,
           height: 'auto',
           display: 'block',
-          transform: `translateY(${bob}px) rotateX(${rx}deg) rotateY(${ry}deg)`,
+          transform: `translateY(${bob}px) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.05)`,
+          transformOrigin: 'center',
           transformStyle: 'preserve-3d',
           transition: 'transform .12s linear',
           filter: 'drop-shadow(0 40px 30px rgba(15,17,21,.35))',
@@ -1738,7 +1739,8 @@ const PAGE_CSS = `
   @keyframes apFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
   @keyframes apPulseLine { 0%,100%{transform:scaleY(.4); opacity:.4} 50%{transform:scaleY(1); opacity:1} }
   @media (min-width: 900px){
-    .ap-hero-grid{ grid-template-columns: 1.05fr 1fr !important; gap:48px !important; }
+    .ap-hero-grid{ grid-template-columns: 0.85fr 1.5fr !important; gap:48px !important; }
+    .ap-hero-shirt{ min-height: min(95vh, 1100px) !important; }
   }
   @media (min-width: 980px){
     .ap-cust-grid{ grid-template-columns: 1.4fr 1fr !important; gap: 40px !important; }
