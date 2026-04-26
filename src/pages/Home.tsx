@@ -1,652 +1,1684 @@
+import { useState, useEffect, useRef, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  ArrowRight, CheckCircle, Printer, Layers, Shirt,
-  Package, Star, Zap, Users, Award, Clock, ShieldCheck,
-  BadgeCheck, Sparkles,
-} from 'lucide-react'
 import SEO from '../components/ui/SEO'
-import ServiceCard from '../components/ui/ServiceCard'
-import TestimonialCard from '../components/ui/TestimonialCard'
-import FAQAccordion from '../components/ui/FAQAccordion'
-import SectionHeader from '../components/ui/SectionHeader'
 
 // ─────────────────────────────────────────────
-// Static data
+// Design tokens
 // ─────────────────────────────────────────────
+const C = {
+  bgCream: '#F4EDE0',
+  bgBone: '#ECE4D2',
+  inkBlack: '#0F1115',
+  inkSoft: '#1A1D24',
+  paper: '#FFFFFE',
+  red: '#FF3B2F',
+  blue: '#1E40FF',
+  gold: '#F2B632',
+  rule: 'rgba(15,17,21,0.12)',
+}
 
-const services = [
-  {
-    icon: <Shirt />,
-    title: 'Custom T-Shirts',
-    description: 'Bold prints for teams, businesses, events, and everyday wear. Any quantity, any color.',
-    href: '/custom-tshirts',
-    tag: 'Most Popular',
-    featured: true,
-  },
-  {
-    icon: <Printer />,
-    title: 'DTF Printing',
-    description: 'Full-color, photo-quality transfers with no minimums. Perfect for one piece or a hundred.',
-    href: '/dtf-printing',
-    tag: 'No Minimums',
-  },
-  {
-    icon: <Layers />,
-    title: 'Custom Apparel',
-    description: 'Hoodies, jerseys, hats, and more. Everything you need to build a complete branded look.',
-    href: '/custom-apparel',
-  },
-]
+const DEFAULTS = {
+  shirtColor: '#5A1A23',
+  inkColor: '#FF3B2F',
+  accent: '#FF3B2F',
+  motion: 60,
+  design: 'ALLSTAR',
+  shirtModel: 'heavy' as 'heavy' | 'classic',
+}
 
-const categories = [
-  { icon: '🏆', label: 'Sports Teams' },
-  { icon: '🏢', label: 'Businesses' },
-  { icon: '🎓', label: 'Schools' },
-  { icon: '🎉', label: 'Events' },
-  { icon: '👨‍👩‍👧‍👦', label: 'Family Reunions' },
-  { icon: '⛪', label: 'Churches & Groups' },
-  { icon: '🎗️', label: 'Fundraisers' },
-  { icon: '🌟', label: 'Personal Brands' },
-]
+type Tweaks = typeof DEFAULTS
 
-const steps = [
-  {
-    num: '01',
-    icon: <Package size={26} />,
-    title: 'Choose Your Product',
-    desc: 'Pick the garment that fits — shirts, hoodies, hats, jerseys. Not sure? We\'ll guide you.',
-  },
-  {
-    num: '02',
-    icon: <Layers size={26} />,
-    title: 'Submit or Create a Design',
-    desc: 'Upload your file or describe your idea. We offer free design help with every order.',
-  },
-  {
-    num: '03',
-    icon: <Star size={26} />,
-    title: 'Approve Your Free Mockup',
-    desc: 'We send a digital proof first. You approve it before we print a single piece.',
-  },
-  {
-    num: '04',
-    icon: <Zap size={26} />,
-    title: 'Pick Up or Ship',
-    desc: 'Ready in 5–7 business days. Rush orders available. Local pickup or we ship to you.',
-  },
-]
-
-const testimonials = [
-  {
-    quote: "Ordered 75 shirts for our basketball team and they came out perfect. Colors were spot-on and delivery was two days early. We won't go anywhere else.",
-    name: 'Coach D. Williams',
-    role: 'High School Athletics',
-    initials: 'DW',
-    rating: 5,
-  },
-  {
-    quote: "Needed custom polos for our whole staff with a 5-day turnaround. Allstar Prints handled it without breaking a sweat. Professional quality every time.",
-    name: 'Sandra K.',
-    role: 'Retail Store Owner',
-    initials: 'SK',
-    rating: 5,
-  },
-  {
-    quote: "The free mockup sold me. I uploaded a rough sketch and they turned it into something beautiful. My church group absolutely loved the final shirts.",
-    name: 'Marcus T.',
-    role: 'Community Group Leader',
-    initials: 'MT',
-    rating: 5,
-  },
-  {
-    quote: "Local business that actually cares. They helped us design our company logo and printed it perfectly on 200 shirts. Worth every penny.",
-    name: 'Jennifer R.',
-    role: 'Small Business Owner',
-    initials: 'JR',
-    rating: 5,
-  },
-  {
-    quote: "Fast, reliable, and the quality is outstanding. We've used them for three events now and they never disappoint. Highly recommend!",
-    name: 'David L.',
-    role: 'Event Coordinator',
-    initials: 'DL',
-    rating: 5,
-  },
-  {
-    quote: "Great communication throughout the process. They kept us updated and delivered exactly what we wanted. Will definitely use again.",
-    name: 'Maria G.',
-    role: 'School Administrator',
-    initials: 'MG',
-    rating: 5,
-  },
-]
-
-const faqs = [
-  {
-    question: "What's your minimum order quantity?",
-    answer: 'For DTF printing, there is no minimum — order just 1 piece. For screen printing, we typically start at 12. Contact us and we\'ll match you to the right method.',
-  },
-  {
-    question: 'How fast can you turn around an order?',
-    answer: 'Standard orders ready in 5–7 business days. Rush orders with 48-hour turnaround available on select products. Reach out early if you have a tight deadline.',
-  },
-  {
-    question: 'Can I bring my own design?',
-    answer: 'Yes. Upload your file through our artwork portal or email it directly. We accept PNG, JPG, PDF, AI, EPS, and SVG. 300 DPI minimum for best results.',
-  },
-  {
-    question: "What if I don't have a design?",
-    answer: "No problem. We offer free design assistance with all orders. Describe what you're looking for and we'll create something you love before we print.",
-  },
-]
-
+// Color helper
+function lighten(hex: string, amt: number) {
+  const c = hex.replace('#', '')
+  const r = parseInt(c.slice(0, 2), 16)
+  const g = parseInt(c.slice(2, 4), 16)
+  const b = parseInt(c.slice(4, 6), 16)
+  const f = (v: number) => Math.max(0, Math.min(255, Math.round(v + amt)))
+  return `rgb(${f(r)},${f(g)},${f(b)})`
+}
 
 // ─────────────────────────────────────────────
-// Trust badges
+// Star
 // ─────────────────────────────────────────────
-
-const trustBadges = [
-  {
-    icon: <Clock size={20} />,
-    title: '5–7 Day Turnaround',
-    sub: '48-hr rush available',
-    color: 'border-brand-red/25 bg-brand-red/6',
-    iconColor: 'text-brand-red',
-  },
-  {
-    icon: <BadgeCheck size={20} />,
-    title: 'No Minimum Orders',
-    sub: 'Order 1 or 1,000',
-    color: 'border-brand-blue/25 bg-brand-blue/6',
-    iconColor: 'text-brand-blue',
-  },
-  {
-    icon: <ShieldCheck size={20} />,
-    title: '100% Quality Guarantee',
-    sub: "We fix it if it's not right",
-    color: 'border-emerald-500/25 bg-emerald-500/6',
-    iconColor: 'text-emerald-400',
-  },
-  {
-    icon: <Users size={20} />,
-    title: 'Trusted Since 2017',
-    sub: 'Local business, real support',
-    color: 'border-amber-500/25 bg-amber-500/6',
-    iconColor: 'text-amber-400',
-  },
-]
+function Star({ size = 24, color = C.red }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="-25 -25 50 50">
+      <path
+        d="M 0 -22 L 6 -7 L 22 -7 L 9 3 L 14 18 L 0 9 L -14 18 L -9 3 L -22 -7 L -6 -7 Z"
+        fill={color}
+      />
+    </svg>
+  )
+}
 
 // ─────────────────────────────────────────────
-// Page component
+// SVG t-shirt with print-area children
+// ─────────────────────────────────────────────
+function ShirtSVG({
+  color = C.inkBlack,
+  model = 'heavy',
+  children,
+}: {
+  color?: string
+  model?: 'heavy' | 'classic'
+  children?: ReactNode
+}) {
+  const neck =
+    model === 'classic' ? 'M 175 60 Q 200 90 225 60' : 'M 170 55 Q 200 95 230 55'
+  const shadow = lighten(color, -30)
+  const highlight = lighten(color, 25)
+  const clipId = `shirtClip-${color.replace('#', '')}`
+  const foldId = `shirtFold-${color.replace('#', '')}`
+  const topId = `shirtTop-${color.replace('#', '')}`
+  const bellyId = `bellyShadow-${color.replace('#', '')}`
+
+  return (
+    <svg
+      viewBox="0 0 400 460"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ width: '100%', height: '100%', display: 'block' }}
+    >
+      <defs>
+        <linearGradient id={foldId} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor={shadow} stopOpacity="0.7" />
+          <stop offset="20%" stopColor={color} stopOpacity="0" />
+          <stop offset="80%" stopColor={color} stopOpacity="0" />
+          <stop offset="100%" stopColor={shadow} stopOpacity="0.7" />
+        </linearGradient>
+        <linearGradient id={topId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={highlight} stopOpacity="0.4" />
+          <stop offset="40%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+        <radialGradient id={bellyId} cx="0.5" cy="0.6" r="0.5">
+          <stop offset="0%" stopColor={shadow} stopOpacity="0.0" />
+          <stop offset="100%" stopColor={shadow} stopOpacity="0.55" />
+        </radialGradient>
+        <clipPath id={clipId}>
+          <path d="M 130 50 L 170 55 Q 200 95 230 55 L 270 50 L 340 90 L 360 175 L 320 195 L 320 420 Q 200 440 80 420 L 80 195 L 40 175 L 60 90 Z" />
+        </clipPath>
+      </defs>
+
+      <g>
+        <path
+          d="M 130 50 L 170 55 Q 200 95 230 55 L 270 50 L 340 90 L 360 175 L 320 195 L 320 420 Q 200 440 80 420 L 80 195 L 40 175 L 60 90 Z"
+          fill={color}
+        />
+        <rect x="0" y="0" width="400" height="460" fill={`url(#${foldId})`} clipPath={`url(#${clipId})`} />
+        <rect x="0" y="0" width="400" height="460" fill={`url(#${topId})`} clipPath={`url(#${clipId})`} />
+        <ellipse cx="200" cy="320" rx="160" ry="120" fill={`url(#${bellyId})`} clipPath={`url(#${clipId})`} opacity="0.6" />
+        <path d={neck} stroke={shadow} strokeWidth="3" fill="none" opacity="0.9" />
+        <path d="M 168 58 Q 200 100 232 58" stroke={highlight} strokeWidth="1.5" fill="none" opacity="0.4" />
+        <path d="M 80 195 Q 110 180 130 175" stroke={shadow} strokeWidth="2" fill="none" opacity="0.5" />
+        <path d="M 320 195 Q 290 180 270 175" stroke={shadow} strokeWidth="2" fill="none" opacity="0.5" />
+        <path d="M 80 415 Q 200 435 320 415" stroke={shadow} strokeWidth="2" fill="none" opacity="0.4" />
+        <path d="M 120 220 Q 150 280 130 380" stroke={shadow} strokeWidth="1" fill="none" opacity="0.18" />
+        <path d="M 280 220 Q 250 280 270 380" stroke={shadow} strokeWidth="1" fill="none" opacity="0.18" />
+      </g>
+
+      <foreignObject x="120" y="125" width="160" height="200" clipPath={`url(#${clipId})`}>
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {children}
+        </div>
+      </foreignObject>
+    </svg>
+  )
+}
+
+// ─────────────────────────────────────────────
+// Distressed ink design overlay
+// ─────────────────────────────────────────────
+function DesignOverlay({
+  text = 'ALLSTAR',
+  inkColor = C.red,
+}: {
+  text?: string
+  inkColor?: string
+}) {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <svg
+        viewBox="0 0 200 220"
+        style={{ width: '100%', height: '100%' }}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <filter id="inkRough" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves={2} seed={4} />
+            <feDisplacementMap in="SourceGraphic" scale={1.5} />
+            <feComposite in2="SourceGraphic" operator="in" />
+          </filter>
+          <pattern id="halftone" x="0" y="0" width="3" height="3" patternUnits="userSpaceOnUse">
+            <circle cx="1.5" cy="1.5" r="0.6" fill="rgba(255,255,255,0.18)" />
+          </pattern>
+        </defs>
+
+        <g transform="translate(100 50)" filter="url(#inkRough)">
+          <path
+            d="M 0 -22 L 6 -7 L 22 -7 L 9 3 L 14 18 L 0 9 L -14 18 L -9 3 L -22 -7 L -6 -7 Z"
+            fill={inkColor}
+          />
+        </g>
+
+        <text
+          x="100"
+          y="115"
+          textAnchor="middle"
+          fontFamily="Archivo Black, sans-serif"
+          fontSize="38"
+          fill={inkColor}
+          letterSpacing="-1"
+          filter="url(#inkRough)"
+        >
+          {text}
+        </text>
+
+        <text
+          x="100"
+          y="142"
+          textAnchor="middle"
+          fontFamily="JetBrains Mono, monospace"
+          fontSize="9"
+          fill={inkColor}
+          letterSpacing="3"
+          filter="url(#inkRough)"
+        >
+          EST · DALLAS · FORT WORTH
+        </text>
+
+        <g transform="translate(100 170)" filter="url(#inkRough)">
+          <path
+            d="M -55 -8 L 55 -8 L 60 0 L 55 8 L -55 8 L -60 0 Z"
+            fill={inkColor}
+          />
+          <text
+            x="0"
+            y="3"
+            textAnchor="middle"
+            fontFamily="Archivo Black, sans-serif"
+            fontSize="11"
+            fill="white"
+            letterSpacing="2"
+          >
+            VETERAN OWNED
+          </text>
+        </g>
+
+        <rect x="0" y="0" width="200" height="220" fill="url(#halftone)" opacity="0.5" />
+      </svg>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────
+// Rotating shirt with parallax
+// ─────────────────────────────────────────────
+function RotatingShirt({
+  color,
+  inkColor,
+  model,
+  design,
+  motionLevel = 60,
+}: {
+  color: string
+  inkColor: string
+  model: 'heavy' | 'classic'
+  design: string
+  motionLevel?: number
+}) {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [angle, setAngle] = useState(-12)
+  const [pointer, setPointer] = useState({ x: 0, y: 0 })
+
+  useEffect(() => {
+    let raf = 0
+    const tick = (now: number) => {
+      const t = now / 1500
+      const bob = Math.sin(t) * 8 * (motionLevel / 100)
+      setAngle(-12 + bob)
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [motionLevel])
+
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      if (!wrapRef.current) return
+      const r = wrapRef.current.getBoundingClientRect()
+      const cx = r.left + r.width / 2
+      const cy = r.top + r.height / 2
+      const x = (e.clientX - cx) / r.width
+      const y = (e.clientY - cy) / r.height
+      setPointer({ x: Math.max(-1, Math.min(1, x)), y: Math.max(-1, Math.min(1, y)) })
+    }
+    window.addEventListener('pointermove', onMove)
+    return () => window.removeEventListener('pointermove', onMove)
+  }, [])
+
+  const rx = -pointer.y * 12
+  const ry = pointer.x * 18 + angle
+
+  return (
+    <div
+      ref={wrapRef}
+      style={{
+        perspective: '1200px',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 540,
+          aspectRatio: '400 / 460',
+          transform: `rotateX(${rx}deg) rotateY(${ry}deg)`,
+          transformStyle: 'preserve-3d',
+          transition: 'transform .12s linear',
+          filter: 'drop-shadow(0 60px 40px rgba(15,17,21,.35))',
+        }}
+      >
+        <ShirtSVG color={color} model={model}>
+          <DesignOverlay text={design} inkColor={inkColor} />
+        </ShirtSVG>
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────
+// Studio backdrops + product-style shirt mockup
 // ─────────────────────────────────────────────
 
+// Surface variants — clean studio backdrops (paper sweep + floor + vignette).
+// Designed to read as a real product shoot, not a cartoon scene.
+const SURFACES: Record<
+  string,
+  { wall: string; floor: string; floorTone: string; light?: string }
+> = {
+  warm:    { wall: '#F2EAD7', floor: '#D9CDB1', floorTone: 'rgba(0,0,0,.10)', light: 'rgba(255,245,225,.55)' },
+  cool:    { wall: '#E5E7E4', floor: '#C7CBC6', floorTone: 'rgba(0,0,0,.10)', light: 'rgba(255,255,255,.55)' },
+  sand:    { wall: '#E8DCC4', floor: '#C9B891', floorTone: 'rgba(0,0,0,.12)', light: 'rgba(255,240,210,.55)' },
+  walnut:  { wall: '#3D2E22', floor: '#2A1F17', floorTone: 'rgba(0,0,0,.32)', light: 'rgba(255,210,140,.20)' },
+  paper:   { wall: '#F6F1E5', floor: '#E2D8C2', floorTone: 'rgba(0,0,0,.10)', light: 'rgba(255,255,255,.6)' },
+  graphite:{ wall: '#1F2226', floor: '#15171B', floorTone: 'rgba(0,0,0,.40)', light: 'rgba(255,180,140,.18)' },
+}
+
+function Surface({ kind }: { kind: string }) {
+  const s = SURFACES[kind] || SURFACES.warm
+  return (
+    <div style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }}>
+      {/* wall (back) */}
+      <div style={{ position: 'absolute', inset: 0, background: s.wall }} />
+      {/* paper-sweep floor */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 0, right: 0, bottom: 0,
+          height: '42%',
+          background: `linear-gradient(180deg, ${s.floor} 0%, ${s.floor} 70%, ${s.floorTone} 100%)`,
+          borderTopLeftRadius: '60% 18%',
+          borderTopRightRadius: '60% 18%',
+        }}
+      />
+      {/* soft top light */}
+      {s.light && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '-10%', left: '50%', transform: 'translateX(-50%)',
+            width: '85%', height: '60%',
+            background: `radial-gradient(ellipse at center, ${s.light} 0%, transparent 65%)`,
+            pointerEvents: 'none',
+          }}
+        />
+      )}
+      {/* corner vignette */}
+      <div
+        style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.25) 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+    </div>
+  )
+}
+
+// A product-style shirt: the polished ShirtSVG floating on the surface
+// with a soft contact shadow underneath.
+function ShirtMockup({
+  shirtColor,
+  inkColor,
+  design,
+  model = 'heavy',
+  tilt = 0,
+}: {
+  shirtColor: string
+  inkColor: string
+  design: string
+  model?: 'heavy' | 'classic'
+  tilt?: number
+}) {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        paddingBottom: '6%',
+      }}
+    >
+      <div style={{ position: 'relative', width: '78%', maxWidth: 360 }}>
+        {/* contact shadow on the surface */}
+        <div
+          style={{
+            position: 'absolute',
+            left: '8%', right: '8%',
+            bottom: '-3%',
+            height: 28,
+            background: 'radial-gradient(ellipse at center, rgba(0,0,0,.45) 0%, rgba(0,0,0,0) 70%)',
+            filter: 'blur(2px)',
+          }}
+        />
+        <div
+          style={{
+            position: 'relative',
+            transform: `rotate(${tilt}deg)`,
+            filter: 'drop-shadow(0 22px 18px rgba(15,17,21,.28)) drop-shadow(0 2px 1px rgba(15,17,21,.18))',
+          }}
+        >
+          <ShirtSVG color={shirtColor} model={model}>
+            <DesignOverlay text={design} inkColor={inkColor} />
+          </ShirtSVG>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+type Product = {
+  name: string
+  brand: string
+  price: string
+  tag: string
+  color: string
+  surface: string  // SURFACES key
+  shot: string
+  tilt?: number
+  model?: 'heavy' | 'classic'
+}
+
+function LifestyleCard({
+  p,
+  accent,
+  inkColor,
+  design,
+  onPick,
+}: {
+  p: Product
+  accent: string
+  inkColor: string
+  design: string
+  onPick: () => void
+}) {
+  const [hover, setHover] = useState(false)
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onClick={onPick}
+      style={{
+        position: 'relative',
+        borderRadius: 20,
+        overflow: 'hidden',
+        background: C.inkBlack,
+        cursor: 'pointer',
+        aspectRatio: '4 / 5',
+        boxShadow: hover ? '0 32px 80px rgba(15,17,21,.32)' : '0 8px 20px rgba(15,17,21,.08)',
+        transform: hover ? 'translateY(-4px)' : 'none',
+        transition: 'all .4s cubic-bezier(.2,.8,.2,1)',
+      }}
+    >
+      <Surface kind={p.surface} />
+
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 1,
+          transform: hover ? 'scale(1.04)' : 'scale(1)',
+          transition: 'transform .6s cubic-bezier(.2,.8,.2,1)',
+        }}
+      >
+        <ShirtMockup
+          shirtColor={p.color}
+          inkColor={inkColor}
+          design={design}
+          model={p.model}
+          tilt={p.tilt}
+        />
+      </div>
+
+      <div
+        style={{
+          position: 'absolute',
+          top: 14,
+          left: 14,
+          zIndex: 3,
+          background: accent,
+          color: 'white',
+          fontSize: 10,
+          fontWeight: 800,
+          letterSpacing: '.1em',
+          padding: '6px 11px',
+          borderRadius: 99,
+          textTransform: 'uppercase',
+        }}
+      >
+        {p.tag}
+      </div>
+
+      <div
+        style={{
+          position: 'absolute',
+          top: 14,
+          right: 14,
+          zIndex: 3,
+          fontFamily: 'JetBrains Mono, monospace',
+          fontSize: 10,
+          color: 'rgba(255,255,255,.85)',
+          letterSpacing: '.08em',
+          background: 'rgba(0,0,0,.32)',
+          padding: '4px 9px',
+          borderRadius: 99,
+          backdropFilter: 'blur(6px)',
+        }}
+      >
+        {p.shot}
+      </div>
+
+      <div
+        style={{
+          position: 'absolute',
+          left: 14,
+          right: 14,
+          bottom: 14,
+          zIndex: 3,
+          background: 'rgba(244,237,224,.94)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: 14,
+          padding: '14px 16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <div>
+          <div style={{ fontFamily: 'Archivo Black, sans-serif', fontSize: 16, letterSpacing: '-.01em', color: C.inkBlack }}>
+            {p.name}
+          </div>
+          <div style={{ fontSize: 11, color: C.inkSoft, marginTop: 1 }}>{p.brand}</div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontFamily: 'Archivo Black, sans-serif', fontSize: 18, color: C.inkBlack }}>
+            {p.price === 'Quote' ? 'Custom' : `$${p.price}`}
+          </div>
+          <div style={{ fontSize: 9, color: C.inkSoft, textTransform: 'uppercase', letterSpacing: '.06em' }}>
+            {p.price === 'Quote' ? 'quote' : p.price.startsWith('+') ? 'upgrade' : 'each'}
+          </div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          position: 'absolute',
+          bottom: hover ? 88 : 64,
+          right: 22,
+          zIndex: 4,
+          width: 42,
+          height: 42,
+          borderRadius: 99,
+          background: accent,
+          color: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 18,
+          opacity: hover ? 1 : 0,
+          transition: 'all .3s',
+          boxShadow: '0 12px 30px rgba(0,0,0,.3)',
+        }}
+      >
+        →
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────
+// Section bits
+// ─────────────────────────────────────────────
+function Stat({ n, l }: { n: string; l: string }) {
+  return (
+    <div>
+      <div style={{ fontFamily: 'Archivo Black, sans-serif', fontSize: 32, lineHeight: 1, letterSpacing: '-.02em' }}>
+        {n}
+      </div>
+      <div
+        style={{
+          fontSize: 12,
+          color: C.inkSoft,
+          textTransform: 'uppercase',
+          letterSpacing: '.1em',
+          marginTop: 6,
+        }}
+      >
+        {l}
+      </div>
+    </div>
+  )
+}
+
+function FloatingChip({
+  children,
+  top,
+  left,
+  right,
+  delay = 0,
+}: {
+  children: ReactNode
+  top?: string
+  left?: string
+  right?: string
+  delay?: number
+}) {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top,
+        left,
+        right,
+        background: C.paper,
+        border: `1px solid ${C.rule}`,
+        borderRadius: 14,
+        padding: '10px 14px',
+        fontSize: 12,
+        boxShadow: '0 12px 30px rgba(15,17,21,.08)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+        animation: 'apFloat 3.4s ease-in-out infinite',
+        animationDelay: `${delay}s`,
+        maxWidth: 200,
+        zIndex: 3,
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+function BgType({ motion, accent }: { motion: number; accent: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const onScroll = () => {
+      if (!ref.current) return
+      const y = window.scrollY
+      const k = motion / 100
+      ref.current.style.transform = `translate3d(${-y * 0.3 * k}px, ${y * 0.1 * k}px, 0)`
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [motion])
+
+  return (
+    <div
+      ref={ref}
+      aria-hidden
+      style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 1,
+        pointerEvents: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          fontFamily: 'Archivo Black, sans-serif',
+          fontSize: 'clamp(180px, 28vw, 460px)',
+          color: 'transparent',
+          WebkitTextStroke: `2px ${accent}22`,
+          letterSpacing: '-.06em',
+          whiteSpace: 'nowrap',
+          opacity: 0.9,
+          mixBlendMode: 'multiply',
+        }}
+      >
+        ★ ALLSTAR ★ ALLSTAR
+      </div>
+    </div>
+  )
+}
+
+function Marquee({
+  items,
+  speed = 30,
+  accent,
+  dark = false,
+}: {
+  items: string[]
+  speed?: number
+  accent: string
+  dark?: boolean
+}) {
+  return (
+    <div
+      style={{
+        position: 'relative',
+        background: dark ? C.inkBlack : accent,
+        color: C.paper,
+        padding: '18px 0',
+        overflow: 'hidden',
+        borderTop: `1px solid ${C.inkBlack}`,
+        borderBottom: `1px solid ${C.inkBlack}`,
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          gap: 48,
+          whiteSpace: 'nowrap',
+          animation: `apMarquee ${speed}s linear infinite`,
+          fontFamily: 'Archivo Black, sans-serif',
+          fontSize: 'clamp(28px, 4vw, 56px)',
+          letterSpacing: '-.02em',
+        }}
+      >
+        {[...items, ...items, ...items].map((it, i) => (
+          <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 48 }}>
+            {it}
+            <Star size={28} color={dark ? accent : 'white'} />
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function SectionLabel({ n, l, accent }: { n: string; l: string; accent: string }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        fontSize: 13,
+        fontWeight: 700,
+        letterSpacing: '.1em',
+        textTransform: 'uppercase',
+      }}
+    >
+      <span
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: 99,
+          background: accent,
+          color: 'white',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 11,
+        }}
+      >
+        {n}
+      </span>
+      {l}
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────
+// Hero
+// ─────────────────────────────────────────────
+function Hero({ tweaks }: { tweaks: Tweaks }) {
+  return (
+    <section
+      style={{
+        position: 'relative',
+        minHeight: '100vh',
+        padding: '40px 28px 80px',
+        overflow: 'hidden',
+        background: C.bgCream,
+        color: C.inkBlack,
+      }}
+    >
+      <BgType motion={tweaks.motion} accent={tweaks.accent} />
+
+      <div
+        className="ap-hero-grid"
+        style={{
+          position: 'relative',
+          zIndex: 2,
+          display: 'grid',
+          gridTemplateColumns: '1fr',
+          gap: 24,
+          maxWidth: 1440,
+          margin: '0 auto',
+        }}
+      >
+        <div style={{ paddingTop: '4vh' }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              border: `1px solid ${C.inkBlack}`,
+              borderRadius: 999,
+              padding: '6px 14px',
+              fontSize: 12,
+              fontWeight: 600,
+              letterSpacing: '.04em',
+              textTransform: 'uppercase',
+              marginBottom: 24,
+            }}
+          >
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: 99,
+                background: '#0c0',
+                boxShadow: '0 0 0 4px rgba(0,200,0,.18)',
+              }}
+            />
+            Dallas–Fort Worth · Veteran Owned
+          </div>
+          <h1
+            style={{
+              fontFamily: 'Archivo Black, sans-serif',
+              fontSize: 'clamp(54px, 9vw, 148px)',
+              lineHeight: 0.86,
+              letterSpacing: '-.04em',
+            }}
+          >
+            Fast,
+            <br />
+            Custom{' '}
+            <span
+              style={{
+                fontFamily: 'Bricolage Grotesque, serif',
+                fontStyle: 'italic',
+                fontWeight: 700,
+                color: tweaks.accent,
+              }}
+            >
+              apparel.
+            </span>
+            <br />
+            Done right.
+          </h1>
+          <p
+            style={{
+              marginTop: 24,
+              maxWidth: 540,
+              fontSize: 'clamp(16px,1.4vw,20px)',
+              lineHeight: 1.4,
+              color: C.inkSoft,
+            }}
+          >
+            Custom t-shirts, hoodies, hats, and DTF transfers for teams, brands, events,
+            and one-off ideas you had at 2am. Quote in minutes. Proofs same day.
+          </p>
+          <div style={{ display: 'flex', gap: 12, marginTop: 32, flexWrap: 'wrap' }}>
+            <a
+              href="#customizer"
+              style={{
+                background: C.inkBlack,
+                color: C.paper,
+                padding: '18px 28px',
+                borderRadius: 999,
+                fontWeight: 700,
+                fontSize: 15,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 10,
+                textDecoration: 'none',
+              }}
+            >
+              Try the live customizer
+              <span
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: 99,
+                  background: tweaks.accent,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: 11,
+                }}
+              >
+                →
+              </span>
+            </a>
+            <a
+              href="#blanks"
+              style={{
+                border: `1.5px solid ${C.inkBlack}`,
+                padding: '17px 24px',
+                borderRadius: 999,
+                fontWeight: 700,
+                fontSize: 15,
+                color: C.inkBlack,
+                textDecoration: 'none',
+              }}
+            >
+              Browse blanks
+            </a>
+          </div>
+
+          <div style={{ display: 'flex', gap: 32, marginTop: 48, flexWrap: 'wrap' }}>
+            <Stat n="48hr" l="Rush available" />
+            <Stat n="$12/ea" l="At 51+ shirts" />
+            <Stat n="4.9★" l="From 380+ orders" />
+          </div>
+        </div>
+
+        <div
+          className="ap-hero-shirt"
+          style={{
+            position: 'relative',
+            minHeight: 'min(70vh, 720px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <RotatingShirt
+            color={tweaks.shirtColor}
+            inkColor={tweaks.inkColor}
+            model={tweaks.shirtModel}
+            design={tweaks.design}
+            motionLevel={tweaks.motion}
+          />
+          <FloatingChip top="6%" left="-2%" delay={0}>
+            <strong>Front print included</strong>
+            <span>Premium ringspun · no upcharge</span>
+          </FloatingChip>
+          <FloatingChip top="62%" right="-4%" delay={1.2}>
+            <strong>Bulk discount</strong>
+            <span>$12/shirt at 51+ · custom quote at 101+</span>
+          </FloatingChip>
+          <FloatingChip top="86%" left="8%" delay={0.6}>
+            <strong>48-hr rush</strong>
+            <span>+20% upcharge · same-day available</span>
+          </FloatingChip>
+        </div>
+      </div>
+
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 24,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontSize: 11,
+          letterSpacing: '.3em',
+          fontWeight: 600,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 8,
+          color: C.inkBlack,
+        }}
+      >
+        SCROLL
+        <span
+          style={{
+            width: 1,
+            height: 32,
+            background: C.inkBlack,
+            animation: 'apPulseLine 2s ease-in-out infinite',
+          }}
+        />
+      </div>
+    </section>
+  )
+}
+
+// ─────────────────────────────────────────────
+// Customizer
+// ─────────────────────────────────────────────
+function CustGroup({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div>
+      <div
+        style={{
+          fontSize: 11,
+          letterSpacing: '.12em',
+          textTransform: 'uppercase',
+          color: 'rgba(255,255,255,.5)',
+          marginBottom: 10,
+          fontWeight: 600,
+        }}
+      >
+        {label}
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function Customizer({
+  tweaks,
+  setTweaks,
+}: {
+  tweaks: Tweaks
+  setTweaks: (next: Partial<Tweaks>) => void
+}) {
+  const [side, setSide] = useState<'front' | 'back'>('front')
+  const [text, setText] = useState(tweaks.design || 'ALLSTAR')
+  const [color, setColor] = useState(tweaks.shirtColor)
+  const [ink, setInk] = useState(tweaks.inkColor)
+  const [size, setSize] = useState('M')
+  const [qty, setQty] = useState(24)
+  const [method, setMethod] = useState<'Standard' | 'Tri-Blend' | 'Heavy Cotton'>('Standard')
+
+  useEffect(() => {
+    setColor(tweaks.shirtColor)
+    setInk(tweaks.inkColor)
+    setText(tweaks.design)
+  }, [tweaks.shirtColor, tweaks.inkColor, tweaks.design])
+
+  const apply = () => setTweaks({ shirtColor: color, inkColor: ink, design: text })
+
+  const shirtColors = [
+    { name: 'Black', hex: '#0F1115' },
+    { name: 'White', hex: '#F5F2E8' },
+    { name: 'Bone', hex: '#E6DFCC' },
+    { name: 'Heather', hex: '#9AA0A8' },
+    { name: 'Forest', hex: '#1F3A2D' },
+    { name: 'Navy', hex: '#0E1B3D' },
+    { name: 'Maroon', hex: '#5A1A23' },
+    { name: 'Gold', hex: '#E5A82B' },
+  ]
+  const inkColors = [
+    { name: 'Red', hex: '#FF3B2F' },
+    { name: 'Blue', hex: '#1E40FF' },
+    { name: 'White', hex: '#F5F2E8' },
+    { name: 'Black', hex: '#0F1115' },
+    { name: 'Gold', hex: '#F2B632' },
+    { name: 'Mint', hex: '#5BD9A4' },
+  ]
+
+  // Per Allstar Prints LLC price sheet — t-shirts, front print included
+  const tierPrice = (n: number): number | null => {
+    if (n >= 101) return null // custom quote
+    if (n >= 51)  return 12
+    if (n >= 25)  return 14
+    if (n >= 12)  return 16
+    if (n >= 6)   return 18
+    if (n >= 2)   return 22
+    return 25
+  }
+  const upgrade = method === 'Heavy Cotton' ? 5 : method === 'Tri-Blend' ? 3 : 0
+  const base = tierPrice(qty)
+  const each = base != null ? (base + upgrade).toFixed(2) : null
+  const total = base != null && each != null ? (parseFloat(each) * qty).toFixed(0) : null
+
+  return (
+    <section
+      id="customizer"
+      style={{
+        position: 'relative',
+        background: C.inkBlack,
+        color: C.paper,
+        padding: '120px 28px',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          background: `radial-gradient(800px 500px at 30% 50%, ${ink}22, transparent 70%)`,
+        }}
+      />
+      <div style={{ maxWidth: 1300, margin: '0 auto', position: 'relative' }}>
+        <SectionLabel n="01" l="Live customizer" accent={tweaks.accent} />
+        <h2
+          style={{
+            fontFamily: 'Archivo Black, sans-serif',
+            fontSize: 'clamp(44px, 6vw, 96px)',
+            lineHeight: 0.9,
+            letterSpacing: '-.03em',
+            marginTop: 16,
+            maxWidth: 900,
+          }}
+        >
+          Design it. <span style={{ color: tweaks.accent }}>See it.</span> Order it.
+        </h2>
+        <p
+          style={{
+            maxWidth: 540,
+            marginTop: 16,
+            color: 'rgba(255,255,255,.7)',
+            fontSize: 16,
+            lineHeight: 1.5,
+          }}
+        >
+          Pick a blank, drop in art or type, set your quantity. Every change re-renders on the shirt in real time.
+        </p>
+
+        <div
+          className="ap-cust-grid"
+          style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 24, marginTop: 64 }}
+        >
+          <div
+            style={{
+              background: '#16191F',
+              borderRadius: 24,
+              border: '1px solid rgba(255,255,255,.08)',
+              padding: 24,
+              position: 'relative',
+              overflow: 'hidden',
+              minHeight: 460,
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage:
+                  'linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px)',
+                backgroundSize: '40px 40px',
+                maskImage: 'radial-gradient(ellipse at center, black 50%, transparent 100%)',
+                WebkitMaskImage: 'radial-gradient(ellipse at center, black 50%, transparent 100%)',
+              }}
+            />
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                position: 'relative',
+                zIndex: 2,
+              }}
+            >
+              <div style={{ display: 'flex', gap: 6 }}>
+                {(['front', 'back'] as const).map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setSide(s)}
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: 99,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: side === s ? 'white' : 'transparent',
+                      color: side === s ? C.inkBlack : 'rgba(255,255,255,.6)',
+                      border: side === s ? '1px solid white' : '1px solid rgba(255,255,255,.15)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '.06em',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+              <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'rgba(255,255,255,.5)' }}>
+                {color.toUpperCase()} · {ink.toUpperCase()}
+              </div>
+            </div>
+            <div style={{ height: 'min(56vh, 520px)', position: 'relative', zIndex: 2, marginTop: 8 }}>
+              <RotatingShirt
+                color={color}
+                inkColor={ink}
+                model={tweaks.shirtModel}
+                design={text}
+                motionLevel={Math.max(20, tweaks.motion * 0.5)}
+              />
+            </div>
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 20,
+                left: 20,
+                right: 20,
+                zIndex: 3,
+                display: 'flex',
+                gap: 8,
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+              }}
+            >
+              {([
+                { key: 'Standard',     label: 'Ringspun',         hint: 'Included' },
+                { key: 'Tri-Blend',    label: 'Tri-Blend',        hint: '+$3' },
+                { key: 'Heavy Cotton', label: 'Heavy Cotton',     hint: '+$5' },
+              ] as const).map((m) => (
+                <button
+                  key={m.key}
+                  onClick={() => setMethod(m.key)}
+                  style={{
+                    padding: '10px 16px',
+                    borderRadius: 99,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    background: method === m.key ? tweaks.accent : 'rgba(255,255,255,.06)',
+                    color: method === m.key ? 'white' : 'rgba(255,255,255,.7)',
+                    border: '1px solid rgba(255,255,255,.1)',
+                    backdropFilter: 'blur(8px)',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  {m.label}
+                  <span style={{ opacity: .7, fontWeight: 700 }}>{m.hint}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <CustGroup label="Your text">
+              <input
+                value={text}
+                onChange={(e) => setText(e.target.value.slice(0, 12).toUpperCase())}
+                placeholder="ALLSTAR"
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: '1px solid rgba(255,255,255,.15)',
+                  borderRadius: 14,
+                  padding: '18px 20px',
+                  color: 'white',
+                  fontFamily: 'Archivo Black, sans-serif',
+                  fontSize: 24,
+                  letterSpacing: '-.02em',
+                  outline: 'none',
+                }}
+              />
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,.4)', marginTop: 6, textAlign: 'right' }}>
+                {text.length}/12
+              </div>
+            </CustGroup>
+
+            <CustGroup label="Shirt color">
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                {shirtColors.map((c) => (
+                  <button
+                    key={c.name}
+                    onClick={() => setColor(c.hex)}
+                    title={c.name}
+                    style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 99,
+                      background: c.hex,
+                      border:
+                        color === c.hex ? '2px solid white' : '2px solid rgba(255,255,255,.1)',
+                      boxShadow: color === c.hex ? `0 0 0 4px ${tweaks.accent}55` : 'none',
+                      transition: 'all .2s',
+                      cursor: 'pointer',
+                    }}
+                  />
+                ))}
+              </div>
+            </CustGroup>
+
+            <CustGroup label="Ink color">
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                {inkColors.map((c) => (
+                  <button
+                    key={c.name}
+                    onClick={() => setInk(c.hex)}
+                    title={c.name}
+                    style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 99,
+                      background: c.hex,
+                      border: ink === c.hex ? '2px solid white' : '2px solid rgba(255,255,255,.1)',
+                      boxShadow: ink === c.hex ? `0 0 0 4px ${tweaks.accent}55` : 'none',
+                      cursor: 'pointer',
+                    }}
+                  />
+                ))}
+              </div>
+            </CustGroup>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <CustGroup label="Size">
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {['S', 'M', 'L', 'XL', '2XL'].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setSize(s)}
+                      style={{
+                        flex: 1,
+                        padding: '12px 0',
+                        borderRadius: 10,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        background: size === s ? 'white' : 'transparent',
+                        color: size === s ? C.inkBlack : 'rgba(255,255,255,.7)',
+                        border: '1px solid rgba(255,255,255,.15)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </CustGroup>
+              <CustGroup label={`Qty: ${qty}`}>
+                <input
+                  type="range"
+                  min="1"
+                  max="288"
+                  value={qty}
+                  onChange={(e) => setQty(+e.target.value)}
+                  style={{ width: '100%', accentColor: tweaks.accent }}
+                />
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    fontSize: 11,
+                    color: 'rgba(255,255,255,.4)',
+                    marginTop: 4,
+                  }}
+                >
+                  <span>1</span>
+                  <span>72</span>
+                  <span>288+</span>
+                </div>
+              </CustGroup>
+            </div>
+
+            <div
+              style={{
+                border: `1px solid ${tweaks.accent}55`,
+                borderRadius: 18,
+                padding: 20,
+                background: `linear-gradient(135deg, ${tweaks.accent}18, transparent)`,
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <div>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      letterSpacing: '.12em',
+                      textTransform: 'uppercase',
+                      color: 'rgba(255,255,255,.5)',
+                    }}
+                  >
+                    {total != null ? 'Estimated' : '101+ shirts'}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: 'Archivo Black, sans-serif',
+                      fontSize: total != null ? 48 : 32,
+                      lineHeight: 1,
+                      letterSpacing: '-.02em',
+                      marginTop: 4,
+                    }}
+                  >
+                    {total != null ? `$${total}` : 'Custom Quote'}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right', fontSize: 13, color: 'rgba(255,255,255,.6)' }}>
+                  {each != null ? (
+                    <>
+                      ${each} <span style={{ opacity: 0.5 }}>each</span>
+                      <br />
+                      <span style={{ opacity: 0.5 }}>
+                        {qty} × {method}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      Bulk pricing<br />
+                      <span style={{ opacity: 0.5 }}>Call (817) 507-4553</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div style={{ marginTop: 12, fontSize: 11, color: 'rgba(255,255,255,.45)', lineHeight: 1.5 }}>
+                Front print included · 1 color, 1 location. Add-ons: back +$5 · sleeve +$3 · name/number +$4. 50% deposit on 12+ shirts.
+              </div>
+              <button
+                onClick={apply}
+                style={{
+                  width: '100%',
+                  marginTop: 16,
+                  padding: '18px',
+                  background: tweaks.accent,
+                  color: 'white',
+                  borderRadius: 99,
+                  fontWeight: 800,
+                  fontSize: 15,
+                  letterSpacing: '.04em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 10,
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                Lock in this design <span>★</span>
+              </button>
+              <Link
+                to="/upload-artwork"
+                style={{
+                  display: 'block',
+                  textAlign: 'center',
+                  marginTop: 12,
+                  fontSize: 12,
+                  letterSpacing: '.08em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(255,255,255,.6)',
+                  textDecoration: 'underline',
+                }}
+              >
+                Or upload your own artwork
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─────────────────────────────────────────────
+// Process
+// ─────────────────────────────────────────────
+function Process({ accent }: { accent: string }) {
+  const steps = [
+    { n: '01', t: 'Upload or describe', d: 'Drop artwork, send a sketch, or just tell us the vibe. We’ll mock it up.' },
+    { n: '02', t: 'Approve the proof', d: 'Same-day digital proof. Tweak colors, placement, garment until it’s perfect.' },
+    { n: '03', t: 'We print it', d: 'Screen print, DTF transfer, or embroidery — pressed by hand in Dallas–Fort Worth.' },
+    { n: '04', t: 'You wear it', d: 'Local pickup or shipped anywhere. Most orders out the door in 48 hours.' },
+  ]
+  return (
+    <section
+      id="process"
+      style={{ padding: '120px 28px', background: C.bgCream, color: C.inkBlack }}
+    >
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <SectionLabel n="02" l="The process" accent={accent} />
+        <h2
+          style={{
+            fontFamily: 'Archivo Black, sans-serif',
+            fontSize: 'clamp(44px, 6vw, 88px)',
+            lineHeight: 0.9,
+            letterSpacing: '-.03em',
+            marginTop: 16,
+            maxWidth: 900,
+          }}
+        >
+          Quote to closet in <span style={{ color: accent }}>four steps.</span>
+        </h2>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: 1,
+            marginTop: 64,
+            background: C.rule,
+            border: `1px solid ${C.rule}`,
+            borderRadius: 24,
+            overflow: 'hidden',
+          }}
+        >
+          {steps.map((s) => (
+            <div
+              key={s.n}
+              style={{
+                padding: '32px 28px',
+                background: C.bgCream,
+                minHeight: 240,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontSize: 13,
+                  letterSpacing: '.1em',
+                  color: accent,
+                }}
+              >
+                {s.n}
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontFamily: 'Archivo Black, sans-serif',
+                    fontSize: 24,
+                    letterSpacing: '-.02em',
+                    marginBottom: 8,
+                  }}
+                >
+                  {s.t}
+                </div>
+                <div style={{ fontSize: 14, color: C.inkSoft, lineHeight: 1.45 }}>{s.d}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─────────────────────────────────────────────
+// Blanks (lifestyle gallery)
+// ─────────────────────────────────────────────
+function Blanks({
+  tweaks,
+  setTweaks,
+}: {
+  tweaks: Tweaks
+  setTweaks: (next: Partial<Tweaks>) => void
+}) {
+  // Aligned to the Allstar Prints LLC 2026 price sheet
+  const products: Product[] = [
+    { name: 'Premium Ringspun Tee', brand: 'Front print included', price: '12–25',  tag: 'Best seller',   color: '#0F1115', surface: 'paper',    shot: 'STUDIO · FLAT',     tilt: -2 },
+    { name: 'Tri-Blend Tee',        brand: 'Soft, lightweight',    price: '+3 ea',  tag: 'Soft hand',     color: '#9AA0A8', surface: 'cool',     shot: 'STUDIO · 50MM',     tilt: 1.5 },
+    { name: 'Heavy Cotton Tee',     brand: 'Premium heavyweight',  price: '+5 ea',  tag: 'Heavyweight',   color: '#1F3A2D', surface: 'sand',     shot: 'STUDIO · 35MM',     tilt: -1.5 },
+    { name: 'Long Sleeve Tee',      brand: 'Multi-season pick',    price: '12–25',  tag: 'Year-round',    color: '#5A1A23', surface: 'graphite', shot: 'STUDIO · LOW-KEY',  tilt: -2 },
+    { name: 'Pullover Hoodie',      brand: 'Embroidery ready',     price: 'Quote',  tag: 'Embroidery ★',  color: '#0E1B3D', surface: 'walnut',   shot: 'STUDIO · MOOD',     tilt: 2 },
+    { name: 'Snapback Hat',         brand: 'Embroidery or DTF',    price: 'Quote',  tag: 'Headwear',      color: '#E6DFCC', surface: 'warm',     shot: 'STUDIO · 50MM',     tilt: 1 },
+  ]
+  return (
+    <section
+      id="blanks"
+      style={{ padding: '120px 28px', background: C.bgBone, color: C.inkBlack }}
+    >
+      <div style={{ maxWidth: 1300, margin: '0 auto' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            flexWrap: 'wrap',
+            gap: 16,
+          }}
+        >
+          <div>
+            <SectionLabel n="03" l="Blank options" accent={tweaks.accent} />
+            <h2
+              style={{
+                fontFamily: 'Archivo Black, sans-serif',
+                fontSize: 'clamp(44px, 6vw, 88px)',
+                lineHeight: 0.9,
+                letterSpacing: '-.03em',
+                marginTop: 16,
+              }}
+            >
+              T-shirts, hoodies,{' '}
+              <span
+                style={{
+                  fontFamily: 'Bricolage Grotesque, serif',
+                  fontStyle: 'italic',
+                  color: tweaks.accent,
+                }}
+              >
+                hats
+              </span>{' '}
+              & DTF.
+            </h2>
+          </div>
+          <Link
+            to="/pricing"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              fontSize: 14,
+              fontWeight: 700,
+              borderBottom: `2px solid ${C.inkBlack}`,
+              paddingBottom: 4,
+              color: C.inkBlack,
+              textDecoration: 'none',
+            }}
+          >
+            See full pricing <span>→</span>
+          </Link>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 20,
+            marginTop: 64,
+          }}
+        >
+          {products.map((p) => (
+            <LifestyleCard
+              key={p.name}
+              p={p}
+              accent={tweaks.accent}
+              inkColor={tweaks.inkColor}
+              design={tweaks.design}
+              onPick={() => setTweaks({ shirtColor: p.color })}
+            />
+          ))}
+        </div>
+        <div
+          style={{
+            marginTop: 24,
+            fontFamily: 'JetBrains Mono, monospace',
+            fontSize: 11,
+            color: C.inkSoft,
+            textAlign: 'center',
+            letterSpacing: '.06em',
+            opacity: 0.7,
+          }}
+        >
+          ✱ Mockups shown — every order includes a free digital proof before we print
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─────────────────────────────────────────────
+// Page styles (keyframes + responsive)
+// ─────────────────────────────────────────────
+const PAGE_CSS = `
+  @keyframes apMarquee { 0%{transform:translateX(0)} 100%{transform:translateX(-33.333%)} }
+  @keyframes apFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes apPulseLine { 0%,100%{transform:scaleY(.4); opacity:.4} 50%{transform:scaleY(1); opacity:1} }
+  @media (min-width: 900px){
+    .ap-hero-grid{ grid-template-columns: 1.05fr 1fr !important; gap:48px !important; }
+  }
+  @media (min-width: 980px){
+    .ap-cust-grid{ grid-template-columns: 1.4fr 1fr !important; gap: 40px !important; }
+  }
+`
+
+// ─────────────────────────────────────────────
+// Page
+// ─────────────────────────────────────────────
 export default function Home() {
+  const [tweaks, setTweaksState] = useState<Tweaks>(DEFAULTS)
+  const setTweaks = (next: Partial<Tweaks>) =>
+    setTweaksState((prev) => ({ ...prev, ...next }))
+
   return (
     <>
       <SEO
-        title="Custom T-Shirts & Apparel Printing"
-        description="Allstar Prints LLC — Premium custom t-shirts, DTF printing, hoodies, and branded apparel for teams, businesses, schools, and events. Fast turnaround. Free mockups. Local & trusted."
+        title="Fast, Custom Apparel. Done Right."
+        description="Allstar Prints LLC — Screen-printed, embroidered, and DTG apparel for teams, brands, events, and one-off ideas. Quote in minutes. Proofs same day. Veteran-owned in Glenn Heights, TX."
         path="/"
       />
-      {/* ── HERO ── */}
-      <section className="relative min-h-[100vh] flex items-center overflow-hidden bg-gradient-to-br from-brand-dark via-brand-dark2 to-brand-dark">
-        {/* Background layers */}
-        <div className="absolute inset-0 opacity-35 pointer-events-none"
-             style={{
-               backgroundImage: `radial-gradient(ellipse 80% 70% at 20% 30%, rgba(26,51,91,0.8) 0%, transparent 70%),
-                                 radial-gradient(ellipse 60% 60% at 80% 70%, rgba(238,42,36,0.15) 0%, transparent 70%)`,
-             }}
-        />
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-          <span className="text-[60vw] leading-none text-white/[0.012] font-black">★</span>
-        </div>
+      <style>{PAGE_CSS}</style>
 
-        <div className="relative z-10 w-full container-xl section-padding py-32">
-          <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-8">
-              {/* Urgency badge */}
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-red/15 to-brand-red/10 border border-brand-red/30 text-brand-red text-xs font-black uppercase tracking-widest px-5 py-3 rounded-full shadow-lg backdrop-blur-sm">
-                <Zap size={14} fill="currentColor" />
-                ⚡ Rush Orders Available — 48-Hour Turnaround
-              </div>
+      <Hero tweaks={tweaks} />
 
-              <div className="space-y-6">
-                <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.95] tracking-tight">
-                  <span className="text-white block">Custom Apparel</span>
-                  <span className="text-white block">Printed Local,</span>
-                  <span className="text-gradient-red block">Delivered Fast.</span>
-                </h1>
+      <Marquee
+        items={['48-HR RUSH AVAILABLE', 'FRONT PRINT INCLUDED', 'PREMIUM RINGSPUN', 'BULK PRICING FROM $12', 'VETERAN OWNED', 'DALLAS · FORT WORTH']}
+        accent={tweaks.accent}
+        speed={Math.max(15, 50 - tweaks.motion / 3)}
+      />
 
-                <p className="text-brand-silver text-xl leading-relaxed max-w-xl mx-auto">
-                  Your trusted local print shop for custom t-shirts, hoodies, and team apparel. Free mockups, quality guaranteed, and ready in 5-7 days. Serving [Your City] and surrounding areas.
-                </p>
-              </div>
+      <Customizer tweaks={tweaks} setTweaks={setTweaks} />
 
-              {/* Primary CTAs */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center">
-                <Link
-                  to="/pricing"
-                  className="group inline-flex items-center justify-center gap-3 bg-gradient-to-r from-brand-red to-brand-red-dark hover:from-brand-red-dark hover:to-brand-red text-white font-black uppercase tracking-wide text-sm px-10 py-5 rounded-xl shadow-2xl shadow-brand-red/25 transition-all duration-300 hover:-translate-y-1 hover:shadow-3xl hover:shadow-brand-red/40"
-                >
-                  Get Free Quote
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  to="/upload-artwork"
-                  className="group inline-flex items-center justify-center gap-3 bg-white/5 backdrop-blur-sm border-2 border-white/20 hover:bg-white/10 hover:border-white/40 text-white font-bold uppercase tracking-wide text-sm px-10 py-5 rounded-xl transition-all duration-300 hover:-translate-y-1"
-                >
-                  Upload Design
-                  <Package size={18} className="group-hover:scale-110 transition-transform" />
-                </Link>
-              </div>
+      <Process accent={tweaks.accent} />
 
-              {/* Social proof micro-line */}
-              <div className="flex items-center justify-center gap-6 pt-8">
-                <div className="flex -space-x-3">
-                  {['DW', 'SK', 'MT', 'JR', 'AB', 'DL'].map((init, i) => (
-                    <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-red to-brand-navy border-3 border-brand-dark flex items-center justify-center text-[11px] font-black text-white shadow-lg">
-                      {init}
-                    </div>
-                  ))}
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => <Star key={i} size={14} className="text-brand-red" fill="currentColor" />)}
-                  </div>
-                  <span className="text-sm text-brand-silver font-semibold">500+ local orders • 5.0 stars • <strong className="text-white">In business since 2017</strong></span>
-                </div>
-              </div>
-            </div>
+      <Marquee
+        dark
+        items={['★ T-SHIRTS · HOODIES · HATS', 'DTF TRANSFERS', 'SAME-DAY PROOFS', 'PICKUP OR SHIP', '★ ALLSTAR PRINTS LLC']}
+        accent={tweaks.accent}
+        speed={Math.max(20, 60 - tweaks.motion / 3)}
+      />
 
-          </div>
-
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-brand-dark via-brand-dark/80 to-transparent pointer-events-none" />
-      </section>
-
-      {/* ── TRUST BADGES ── */}
-      <section className="bg-gradient-to-r from-brand-dark2 via-brand-dark to-brand-dark2 border-y border-white/5 py-16">
-        <div className="container-xl section-padding">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {trustBadges.map((badge) => (
-              <div key={badge.title} className={`group flex items-center gap-5 p-6 rounded-2xl border backdrop-blur-sm ${badge.color} transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:-translate-y-1`}>
-                <div className={`flex-shrink-0 p-3 rounded-xl bg-white/5 ${badge.iconColor} group-hover:scale-110 transition-transform duration-300`}>
-                  {badge.icon}
-                </div>
-                <div>
-                  <p className="text-base font-bold text-white leading-tight">{badge.title}</p>
-                  <p className="text-sm text-brand-silver/80 mt-1">{badge.sub}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── SERVICES ── */}
-      <section className="section-padding py-24 container-xl mx-auto">
-        <div className="text-center mb-16">
-          <SectionHeader
-            label="What We Do"
-            title="Custom Printing"
-            titleHighlight="Services"
-            subtitle="One stop for every custom apparel need — from a single piece to large group orders."
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {services.map((s) => (
-            <ServiceCard key={s.href} {...s} />
-          ))}
-        </div>
-        <div className="mt-12 text-center">
-          <Link
-            to="/custom-apparel"
-            className="group inline-flex items-center gap-3 text-base font-bold text-brand-red hover:text-white transition-all duration-300 uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-brand-red/10"
-          >
-            Browse all apparel types
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-      </section>
-
-      {/* ── AI DESIGN GENERATOR PROMO ── */}
-      <section className="section-padding py-16 container-xl mx-auto">
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-brand-dark3 via-brand-dark2 to-brand-dark3 border border-brand-red/20 p-10 md:p-14 flex flex-col md:flex-row items-center gap-10">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 right-0 w-[300px] h-[300px] rounded-full bg-brand-red/6 blur-3xl translate-x-1/2 -translate-y-1/2" />
-          </div>
-          <div className="relative flex-1 text-center md:text-left">
-            <div className="inline-flex items-center gap-2 bg-brand-red/10 border border-brand-red/30 text-brand-red text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5">
-              <Sparkles size={13} /> New — Free Tool
-            </div>
-            <h2 className="text-3xl md:text-4xl font-black text-white leading-tight mb-4">
-              Don't Have a Design Yet?<br />
-              <span className="text-gradient-red">Our AI Will Make One.</span>
-            </h2>
-            <p className="text-brand-silver leading-relaxed max-w-lg mb-6">
-              Use our free AI shirt design generator — pick your event, colors, and style, and get a print-ready design in seconds. Then we'll print it.
-            </p>
-            <Link
-              to="/design-generator"
-              className="inline-flex items-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white font-bold uppercase tracking-wider text-sm px-8 py-4 rounded-md shadow-glow-red transition-all hover:-translate-y-0.5"
-            >
-              <Sparkles size={16} /> Try the AI Designer — Free
-            </Link>
-          </div>
-          <div className="relative flex-shrink-0 grid grid-cols-3 gap-2 text-center">
-            {['Birthday', 'Sports Team', 'Business'].map((label) => (
-              <div key={label} className="px-3 py-3 rounded-xl bg-brand-dark4 border border-white/8 text-xs font-bold text-brand-silver">
-                {label}
-              </div>
-            ))}
-            {['Wedding', 'Church Group', 'Graduation'].map((label) => (
-              <div key={label} className="px-3 py-3 rounded-xl bg-brand-dark4 border border-white/8 text-xs font-bold text-brand-silver">
-                {label}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── LOCAL SERVICE ── */}
-      <section className="bg-gradient-to-br from-brand-navy via-brand-dark3 to-brand-navy border-y border-white/5 py-20">
-        <div className="container-xl section-padding">
-          <div className="text-center mb-16">
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-brand-red mb-4">Why Choose Local</p>
-            <h2 className="text-4xl md:text-5xl font-black text-white leading-tight mb-6">
-              Your Neighborhood <span className="text-gradient-red">Print Experts</span>
-            </h2>
-            <p className="text-brand-silver text-xl max-w-3xl mx-auto leading-relaxed">
-              We're not a faceless online service. We're your local print shop, committed to quality and community.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div className="text-center group">
-              <div className="w-20 h-20 bg-gradient-to-br from-brand-red/20 to-brand-red/10 border-2 border-brand-red/30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
-                <Users size={28} className="text-brand-red" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Personal Service</h3>
-              <p className="text-brand-silver text-base leading-relaxed">Real conversations, not chatbots. We know your community and understand your needs.</p>
-            </div>
-            <div className="text-center group">
-              <div className="w-20 h-20 bg-gradient-to-br from-brand-blue/20 to-brand-blue/10 border-2 border-brand-blue/30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
-                <Clock size={28} className="text-brand-blue" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Local Pickup</h3>
-              <p className="text-brand-silver text-base leading-relaxed">Most orders ready for pickup within 5-7 days. No shipping delays or extra costs.</p>
-            </div>
-            <div className="text-center group">
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-emerald-500/10 border-2 border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
-                <Award size={28} className="text-emerald-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Quality Guarantee</h3>
-              <p className="text-brand-silver text-base leading-relaxed">If it's not perfect, we'll fix it. Your satisfaction is our reputation in the community.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── WHO WE SERVE ── */}
-      <section className="bg-gradient-to-r from-brand-dark2 via-brand-dark to-brand-dark2 border-y border-white/5 py-20">
-        <div className="container-xl section-padding">
-          <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-brand-red mb-6">Who We Print For</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-6">
-            {categories.map((cat) => (
-              <div
-                key={cat.label}
-                className="group flex flex-col items-center gap-4 py-6 px-4 rounded-2xl bg-gradient-to-br from-brand-dark3 to-brand-dark4 border border-white/10 hover:border-brand-red/30 hover:-translate-y-2 transition-all duration-300 text-center cursor-default shadow-lg hover:shadow-2xl"
-              >
-                <span className="text-3xl group-hover:scale-110 transition-transform duration-300">{cat.icon}</span>
-                <span className="text-sm font-semibold text-brand-silver leading-tight group-hover:text-white transition-colors">{cat.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── HOW IT WORKS ── */}
-      <section className="section-padding py-24 container-xl mx-auto">
-        <div className="text-center mb-16">
-          <SectionHeader
-            label="The Process"
-            title="Ordering Is Fast &"
-            titleHighlight="Stress-Free"
-            subtitle="Four simple steps from idea to finished apparel. No confusion, no phone tag, no guessing."
-          />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {steps.map((step, i) => (
-            <div key={i} className="relative flex flex-col gap-6 p-8 rounded-2xl bg-gradient-to-br from-brand-dark3 to-brand-dark4 border border-white/10 hover:border-brand-red/30 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl group">
-              {i < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-12 left-[calc(100%+0px)] w-8 h-px bg-gradient-to-r from-brand-red/50 to-transparent z-0" />
-              )}
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-dark4 to-brand-dark border-2 border-brand-red flex items-center justify-center text-brand-red shadow-glow-red flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                {step.icon}
-              </div>
-              <div>
-                <span className="text-sm font-black uppercase tracking-widest text-brand-red/60">Step {step.num}</span>
-                <h3 className="text-lg font-bold text-white mt-2 mb-3 group-hover:text-brand-red transition-colors">{step.title}</h3>
-                <p className="text-base text-brand-silver leading-relaxed">{step.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-16 text-center">
-          <Link
-            to="/how-it-works"
-            className="group inline-flex items-center gap-3 text-base font-bold text-brand-red hover:text-white transition-all duration-300 uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-brand-red/10"
-          >
-            See the full process
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-      </section>
-
-      {/* ── WHY CHOOSE US ── */}
-      <section className="bg-gradient-to-r from-brand-dark2 via-brand-dark to-brand-dark2 border-y border-white/5 py-24">
-        <div className="container-xl section-padding">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <div>
-                <p className="text-sm font-bold uppercase tracking-[0.2em] text-brand-red mb-4">Why Allstar Prints</p>
-                <h2 className="text-4xl md:text-5xl font-black text-white leading-tight mb-6">
-                  Quality You Can See,<br />
-                  <span className="text-gradient-red">Trust You Can Feel</span>
-                </h2>
-                <p className="text-brand-silver text-xl leading-relaxed">
-                  Every piece we print represents our commitment to your success. From premium materials to flawless execution, we deliver results that exceed expectations.
-                </p>
-              </div>
-              <ul className="space-y-6">
-                {[
-                  {
-                    icon: <Award size={20} />,
-                    title: 'Premium materials — guaranteed',
-                    desc: "Top-quality blanks and inks that won't fade, crack, or peel. We test before we ship.",
-                  },
-                  {
-                    icon: <Users size={20} />,
-                    title: 'Real people answer your questions',
-                    desc: 'No ticketing system. No chatbot. You talk directly to the people printing your order.',
-                  },
-                  {
-                    icon: <Zap size={20} />,
-                    title: 'We meet your deadlines',
-                    desc: 'Standard orders in 5–7 days. Rush in 48 hours. We tell you upfront what\'s possible.',
-                  },
-                  {
-                    icon: <CheckCircle size={20} />,
-                    title: 'Free mockup before anything prints',
-                    desc: 'You approve your digital proof first. No surprises. No prints you didn\'t sign off on.',
-                  },
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-5">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-red/20 to-brand-red/10 border border-brand-red/30 flex items-center justify-center text-brand-red flex-shrink-0 mt-1">
-                      {item.icon}
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-bold text-white mb-2">{item.title}</h4>
-                      <p className="text-base text-brand-silver leading-relaxed">{item.desc}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <div className="pt-4">
-                <Link
-                  to="/pricing"
-                  className="group inline-flex items-center gap-3 bg-gradient-to-r from-brand-red to-brand-red-dark hover:from-brand-red-dark hover:to-brand-red text-white font-black uppercase tracking-wide text-sm px-8 py-4 rounded-xl shadow-2xl shadow-brand-red/25 transition-all duration-300 hover:-translate-y-1 hover:shadow-3xl hover:shadow-brand-red/40"
-                >
-                  Get My Free Quote
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-              <div className="aspect-[4/5] w-full rounded-2xl bg-gradient-to-br from-brand-red/20 via-brand-red/10 to-brand-navy/20 flex items-center justify-center shadow-2xl">
-                <div className="text-center">
-                  <div className="text-5xl mb-3">👕</div>
-                  <p className="text-sm text-brand-silver font-semibold">Custom Team Shirts</p>
-                </div>
-              </div>
-              <div className="flex flex-col gap-6">
-                <div className="aspect-square w-full rounded-2xl bg-gradient-to-br from-brand-blue/20 via-brand-blue/10 to-brand-dark4 flex items-center justify-center shadow-2xl">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">🏢</div>
-                    <p className="text-sm text-brand-silver font-semibold">Business Uniforms</p>
-                  </div>
-                </div>
-                <div className="aspect-square w-full rounded-2xl bg-gradient-to-br from-emerald-500/20 via-emerald-500/10 to-brand-dark4 flex items-center justify-center shadow-2xl">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">🎉</div>
-                    <p className="text-sm text-brand-silver font-semibold">Event Apparel</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── TESTIMONIALS ── */}
-      <section className="section-padding py-24 container-xl mx-auto">
-        {/* Aggregate header */}
-        <div className="text-center mb-16">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-brand-red mb-4">Real Reviews</p>
-          <h2 className="text-4xl md:text-5xl font-black text-white leading-tight mb-6">
-            500+ Happy Customers — <span className="text-gradient-red">Here's What They Say</span>
-          </h2>
-          <div className="flex items-center justify-center gap-3 mt-6">
-            <div className="flex gap-1">
-              {[...Array(5)].map((_, i) => <Star key={i} size={18} className="text-brand-red" fill="currentColor" />)}
-            </div>
-            <span className="text-lg text-brand-silver font-semibold">5.0 average • Trusted locally</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((t, i) => (
-            <TestimonialCard key={i} {...t} />
-          ))}
-        </div>
-      </section>
-
-      {/* ── INLINE CTA ── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-navy via-brand-dark3 to-brand-dark2 border-y border-white/5 py-20">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full bg-brand-red/6 blur-3xl" />
-          <div className="absolute -bottom-32 -right-32 w-[600px] h-[600px] rounded-full bg-brand-blue/4 blur-3xl" />
-        </div>
-        <div className="relative container-xl section-padding flex flex-col md:flex-row items-center justify-between gap-10">
-          <div className="text-center md:text-left flex-1">
-            <p className="text-sm font-bold uppercase tracking-widest text-brand-red mb-3">Don't Wait</p>
-            <h2 className="text-3xl md:text-4xl font-black text-white leading-tight mb-4">
-              Your deadline is closer than you think.<br />
-              <span className="text-gradient-red">Let's get started today.</span>
-            </h2>
-            <p className="text-brand-silver text-lg leading-relaxed">Free quote. Free mockup. No commitment until you approve.</p>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center gap-4 flex-shrink-0">
-            <Link
-              to="/upload-artwork"
-              className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-white/8 backdrop-blur-sm border-2 border-white/20 hover:bg-white/12 hover:border-white/40 text-white font-bold uppercase tracking-wider text-sm px-8 py-4 rounded-xl transition-all duration-300 hover:-translate-y-1"
-            >
-              Upload Design
-              <Package size={18} className="group-hover:scale-110 transition-transform" />
-            </Link>
-            <Link
-              to="/pricing"
-              className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-gradient-to-r from-brand-red to-brand-red-dark hover:from-brand-red-dark hover:to-brand-red text-white font-black uppercase tracking-wider text-sm px-8 py-4 rounded-xl shadow-2xl shadow-brand-red/25 transition-all duration-300 hover:-translate-y-1 hover:shadow-3xl hover:shadow-brand-red/40"
-            >
-              Get a Free Quote
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── FAQ PREVIEW ── */}
-      <section className="section-padding py-24 container-xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-          <div className="space-y-6">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-[0.2em] text-brand-red mb-4">Quick Answers</p>
-              <h2 className="text-4xl md:text-5xl font-black text-white leading-tight mb-6">
-                Frequently Asked<br />
-                <span className="text-gradient-red">Questions</span>
-              </h2>
-              <p className="text-brand-silver text-xl leading-relaxed">
-                Answers to the most common questions we get. Don't see yours? We respond fast.
-              </p>
-            </div>
-            <Link
-              to="/faq"
-              className="group inline-flex items-center gap-3 text-base font-bold text-brand-red hover:text-white transition-all duration-300 uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-brand-red/10"
-            >
-              View all FAQs
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-          <div className="space-y-4">
-            <FAQAccordion items={faqs} />
-          </div>
-        </div>
-      </section>
-
-      {/* ── FINAL CTA ── */}
-      <section className="section-padding py-24 bg-gradient-to-r from-brand-dark2 via-brand-dark to-brand-dark2 border-t border-white/5">
-        <div className="container-xl mx-auto text-center">
-          <div className="max-w-4xl mx-auto space-y-8">
-            <div className="space-y-6">
-              <p className="text-sm font-bold uppercase tracking-[0.2em] text-brand-red">Ready to Get Started?</p>
-              <h2 className="text-5xl md:text-6xl font-black text-white leading-tight">
-                Custom Apparel That<br />
-                <span className="text-gradient-red">Makes You Proud</span>
-              </h2>
-              <p className="text-brand-silver text-xl leading-relaxed max-w-2xl mx-auto">
-                Join hundreds of local teams, businesses, and organizations who trust Allstar Prints with their custom apparel needs.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <Link
-                to="/pricing"
-                className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-gradient-to-r from-brand-red to-brand-red-dark hover:from-brand-red-dark hover:to-brand-red text-white font-black uppercase tracking-wider text-sm px-12 py-5 rounded-xl shadow-2xl shadow-brand-red/25 transition-all duration-300 hover:-translate-y-1 hover:shadow-3xl hover:shadow-brand-red/40"
-              >
-                Get Free Quote
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                to="/contact"
-                className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-transparent border-2 border-white/20 hover:border-white/40 text-white font-bold uppercase tracking-wider text-sm px-12 py-5 rounded-xl transition-all duration-300 hover:bg-white/5 hover:-translate-y-1"
-              >
-                Call Us Today
-                <Users size={18} className="group-hover:scale-110 transition-transform" />
-              </Link>
-            </div>
-            <p className="text-brand-silver/80 text-base">
-              Free mockup • Quality guaranteed • Local pickup available
-            </p>
-          </div>
-        </div>
-      </section>
+      <Blanks tweaks={tweaks} setTweaks={setTweaks} />
     </>
   )
 }
