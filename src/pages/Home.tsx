@@ -230,51 +230,36 @@ function DesignOverlay({
 // ─────────────────────────────────────────────
 // Rotating shirt with parallax
 // ─────────────────────────────────────────────
-function RotatingShirt({
-  color,
-  inkColor,
-  model,
-  design,
-  motionLevel = 60,
-}: {
-  color: string
-  inkColor: string
-  model: 'heavy' | 'classic'
-  design: string
-  motionLevel?: number
-}) {
+// Hero shirt: real PNG with subtle pointer parallax + gentle bob (no rotation)
+function HeroShirtImage({ src, motion = 60 }: { src: string; motion?: number }) {
   const wrapRef = useRef<HTMLDivElement>(null)
-  const [angle, setAngle] = useState(-12)
   const [pointer, setPointer] = useState({ x: 0, y: 0 })
+  const [bob, setBob] = useState(0)
 
   useEffect(() => {
     let raf = 0
     const tick = (now: number) => {
-      const t = now / 1500
-      const bob = Math.sin(t) * 8 * (motionLevel / 100)
-      setAngle(-12 + bob)
+      setBob(Math.sin(now / 1500) * 6 * (motion / 100))
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [motionLevel])
+  }, [motion])
 
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
       if (!wrapRef.current) return
       const r = wrapRef.current.getBoundingClientRect()
-      const cx = r.left + r.width / 2
-      const cy = r.top + r.height / 2
-      const x = (e.clientX - cx) / r.width
-      const y = (e.clientY - cy) / r.height
+      const x = (e.clientX - (r.left + r.width / 2)) / r.width
+      const y = (e.clientY - (r.top + r.height / 2)) / r.height
       setPointer({ x: Math.max(-1, Math.min(1, x)), y: Math.max(-1, Math.min(1, y)) })
     }
     window.addEventListener('pointermove', onMove)
     return () => window.removeEventListener('pointermove', onMove)
   }, [])
 
-  const rx = -pointer.y * 12
-  const ry = pointer.x * 18 + angle
+  const rx = -pointer.y * 6
+  const ry = pointer.x * 8
 
   return (
     <div
@@ -288,21 +273,21 @@ function RotatingShirt({
         justifyContent: 'center',
       }}
     >
-      <div
+      <img
+        src={src}
+        alt="Allstar Prints custom t-shirt"
         style={{
           width: '100%',
-          maxWidth: 540,
-          aspectRatio: '400 / 460',
-          transform: `rotateX(${rx}deg) rotateY(${ry}deg)`,
+          maxWidth: 560,
+          height: 'auto',
+          display: 'block',
+          transform: `translateY(${bob}px) rotateX(${rx}deg) rotateY(${ry}deg)`,
           transformStyle: 'preserve-3d',
           transition: 'transform .12s linear',
-          filter: 'drop-shadow(0 60px 40px rgba(15,17,21,.35))',
+          filter: 'drop-shadow(0 40px 30px rgba(15,17,21,.35))',
+          willChange: 'transform',
         }}
-      >
-        <ShirtSVG color={color} model={model}>
-          <DesignOverlay text={design} inkColor={inkColor} />
-        </ShirtSVG>
-      </div>
+      />
     </div>
   )
 }
@@ -975,13 +960,7 @@ function Hero({ tweaks }: { tweaks: Tweaks }) {
             justifyContent: 'center',
           }}
         >
-          <RotatingShirt
-            color={tweaks.shirtColor}
-            inkColor={tweaks.inkColor}
-            model={tweaks.shirtModel}
-            design={tweaks.design}
-            motionLevel={tweaks.motion}
-          />
+          <HeroShirtImage src="/allstar-hero-shirt.png" motion={tweaks.motion} />
           <FloatingChip top="6%" left="-2%" delay={0}>
             <strong>Front print included</strong>
             <span>Premium ringspun · no upcharge</span>
