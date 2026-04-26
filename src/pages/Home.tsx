@@ -425,11 +425,19 @@ type Product = {
   brand: string
   price: string
   tag: string
-  color: string
-  surface: string  // SURFACES key
+  color: string                 // primary swatch color (drives customizer pick)
+  surface: string               // SURFACES key (used as fallback when no photo)
   shot: string
   tilt?: number
   model?: 'heavy' | 'classic'
+  mockup?: string               // /mockups/*.jpg — real product photo
+  printArea?: {                 // % positioning for the chest design overlay
+    top: string
+    left: string
+    width: string
+    height: string
+  }
+  showPrint?: boolean           // default true; false suppresses the chest overlay (e.g. hats)
 }
 
 function LifestyleCard({
@@ -463,25 +471,67 @@ function LifestyleCard({
         transition: 'all .4s cubic-bezier(.2,.8,.2,1)',
       }}
     >
-      <Surface kind={p.surface} />
-
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 1,
-          transform: hover ? 'scale(1.04)' : 'scale(1)',
-          transition: 'transform .6s cubic-bezier(.2,.8,.2,1)',
-        }}
-      >
-        <ShirtMockup
-          shirtColor={p.color}
-          inkColor={inkColor}
-          design={design}
-          model={p.model}
-          tilt={p.tilt}
-        />
-      </div>
+      {p.mockup ? (
+        <>
+          {/* Real SanMar product photo */}
+          <img
+            src={p.mockup}
+            alt={p.name}
+            loading="lazy"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              zIndex: 0,
+              transform: hover ? 'scale(1.04)' : 'scale(1)',
+              transition: 'transform .6s cubic-bezier(.2,.8,.2,1)',
+            }}
+          />
+          {/* Live design overlay on the chest, with multiply-blend for printed look */}
+          {p.showPrint !== false && (
+            <div
+              style={{
+                position: 'absolute',
+                top: p.printArea?.top ?? '34%',
+                left: p.printArea?.left ?? '38%',
+                width: p.printArea?.width ?? '24%',
+                height: p.printArea?.height ?? '22%',
+                zIndex: 2,
+                mixBlendMode: 'multiply',
+                opacity: 0.92,
+                pointerEvents: 'none',
+                transform: hover ? 'scale(1.04)' : 'scale(1)',
+                transition: 'transform .6s cubic-bezier(.2,.8,.2,1)',
+              }}
+            >
+              <DesignOverlay text={design} inkColor={inkColor} />
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <Surface kind={p.surface} />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 1,
+              transform: hover ? 'scale(1.04)' : 'scale(1)',
+              transition: 'transform .6s cubic-bezier(.2,.8,.2,1)',
+            }}
+          >
+            <ShirtMockup
+              shirtColor={p.color}
+              inkColor={inkColor}
+              design={design}
+              model={p.model}
+              tilt={p.tilt}
+            />
+          </div>
+        </>
+      )}
 
       <div
         style={{
@@ -1023,15 +1073,16 @@ function Customizer({
 
   const apply = () => setTweaks({ shirtColor: color, inkColor: ink, design: text })
 
+  // Gildan Softstyle 64000 — popular core palette
   const shirtColors = [
-    { name: 'Black', hex: '#0F1115' },
-    { name: 'White', hex: '#F5F2E8' },
-    { name: 'Bone', hex: '#E6DFCC' },
-    { name: 'Heather', hex: '#9AA0A8' },
-    { name: 'Forest', hex: '#1F3A2D' },
-    { name: 'Navy', hex: '#0E1B3D' },
-    { name: 'Maroon', hex: '#5A1A23' },
-    { name: 'Gold', hex: '#E5A82B' },
+    { name: 'Black',         hex: '#1A1A1A' },
+    { name: 'White',         hex: '#F5F5F0' },
+    { name: 'Natural',       hex: '#E8DDC4' },
+    { name: 'Sport Grey',    hex: '#B8BCC0' },
+    { name: 'Charcoal',      hex: '#4A4D52' },
+    { name: 'Navy',          hex: '#1F2A44' },
+    { name: 'Maroon',        hex: '#5C1F2A' },
+    { name: 'Forest Green',  hex: '#2A4A3C' },
   ]
   const inkColors = [
     { name: 'Red', hex: '#FF3B2F' },
@@ -1524,14 +1575,44 @@ function Blanks({
   tweaks: Tweaks
   setTweaks: (next: Partial<Tweaks>) => void
 }) {
-  // Aligned to the Allstar Prints LLC 2026 price sheet
+  // Real SanMar blanks, 1200W product photos served from /public/mockups/
   const products: Product[] = [
-    { name: 'Premium Ringspun Tee', brand: 'Front print included', price: '12–25',  tag: 'Best seller',   color: '#0F1115', surface: 'paper',    shot: 'STUDIO · FLAT',     tilt: -2 },
-    { name: 'Tri-Blend Tee',        brand: 'Soft, lightweight',    price: '+3 ea',  tag: 'Soft hand',     color: '#9AA0A8', surface: 'cool',     shot: 'STUDIO · 50MM',     tilt: 1.5 },
-    { name: 'Heavy Cotton Tee',     brand: 'Premium heavyweight',  price: '+5 ea',  tag: 'Heavyweight',   color: '#1F3A2D', surface: 'sand',     shot: 'STUDIO · 35MM',     tilt: -1.5 },
-    { name: 'Long Sleeve Tee',      brand: 'Multi-season pick',    price: '12–25',  tag: 'Year-round',    color: '#5A1A23', surface: 'graphite', shot: 'STUDIO · LOW-KEY',  tilt: -2 },
-    { name: 'Pullover Hoodie',      brand: 'Embroidery ready',     price: 'Quote',  tag: 'Embroidery ★',  color: '#0E1B3D', surface: 'walnut',   shot: 'STUDIO · MOOD',     tilt: 2 },
-    { name: 'Snapback Hat',         brand: 'Embroidery or DTF',    price: 'Quote',  tag: 'Headwear',      color: '#E6DFCC', surface: 'warm',     shot: 'STUDIO · 50MM',     tilt: 1 },
+    {
+      name: 'Premium Ringspun Tee', brand: 'Gildan Softstyle 64000', price: '12–25', tag: 'Best seller',
+      color: '#0F1115', surface: 'paper', shot: 'GILDAN · 64000',
+      mockup: '/mockups/3480-black.jpg',
+      printArea: { top: '30%', left: '38%', width: '24%', height: '22%' },
+    },
+    {
+      name: 'Tri-Blend Tee', brand: 'BELLA+CANVAS 3413', price: '+3 ea', tag: 'Soft hand',
+      color: '#3A3535', surface: 'cool', shot: 'BC · 3413',
+      mockup: '/mockups/bc3413-charcoal.jpg',
+      printArea: { top: '30%', left: '38%', width: '24%', height: '22%' },
+    },
+    {
+      name: 'Heavy Cotton Tee', brand: 'Gildan Ultra Cotton 2000', price: '+5 ea', tag: 'Heavyweight',
+      color: '#0F1115', surface: 'sand', shot: 'GILDAN · 2000',
+      mockup: '/mockups/gildan-2000-black.jpg',
+      printArea: { top: '30%', left: '38%', width: '24%', height: '22%' },
+    },
+    {
+      name: 'Long Sleeve Tee', brand: 'Gildan Ultra Cotton G2400', price: '12–25', tag: 'Year-round',
+      color: '#0F1115', surface: 'graphite', shot: 'GILDAN · G2400',
+      mockup: '/mockups/gildan-g2400-black.jpg',
+      printArea: { top: '32%', left: '38%', width: '24%', height: '22%' },
+    },
+    {
+      name: 'Pullover Hoodie', brand: 'Gildan Heavy Blend 18500', price: 'Quote', tag: 'Embroidery ★',
+      color: '#0E1B3D', surface: 'walnut', shot: 'GILDAN · 18500',
+      mockup: '/mockups/gildan-18500-navy.jpg',
+      printArea: { top: '36%', left: '38%', width: '24%', height: '22%' },
+    },
+    {
+      name: 'Snapback Trucker Cap', brand: 'Port Authority C112', price: 'Quote', tag: 'Headwear',
+      color: '#3A3F47', surface: 'warm', shot: 'PORT AUTH · C112',
+      mockup: '/mockups/portauthority-c112-grey-black.jpg',
+      showPrint: false, // hat front-panel print isn't in the same place as a shirt chest
+    },
   ]
   return (
     <section
