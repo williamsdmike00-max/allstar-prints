@@ -1073,17 +1073,20 @@ function Customizer({
 
   const apply = () => setTweaks({ shirtColor: color, inkColor: ink, design: text })
 
-  // Gildan Softstyle 64000 — popular core palette
+  // Gildan Softstyle 64000 — popular core palette + real model photo per color
   const shirtColors = [
-    { name: 'Black',         hex: '#1A1A1A' },
-    { name: 'White',         hex: '#F5F5F0' },
-    { name: 'Natural',       hex: '#E8DDC4' },
-    { name: 'Sport Grey',    hex: '#B8BCC0' },
-    { name: 'Charcoal',      hex: '#4A4D52' },
-    { name: 'Navy',          hex: '#1F2A44' },
-    { name: 'Maroon',        hex: '#5C1F2A' },
-    { name: 'Forest Green',  hex: '#2A4A3C' },
+    { name: 'Black',         hex: '#1A1A1A', photo: '/mockups/customizer/64000-black.jpg' },
+    { name: 'White',         hex: '#F5F5F0', photo: '/mockups/customizer/64000-white.jpg' },
+    { name: 'Natural',       hex: '#E8DDC4', photo: '/mockups/customizer/64000-natural.jpg' },
+    { name: 'Sport Grey',    hex: '#B8BCC0', photo: '/mockups/customizer/64000-sportgrey.jpg' },
+    { name: 'Charcoal',      hex: '#4A4D52', photo: '/mockups/customizer/64000-charcoal.jpg' },
+    { name: 'Navy',          hex: '#1F2A44', photo: '/mockups/customizer/64000-navy.jpg' },
+    { name: 'Maroon',        hex: '#5C1F2A', photo: '/mockups/customizer/64000-maroon.jpg' },
+    { name: 'Forest Green',  hex: '#2A4A3C', photo: '/mockups/customizer/64000-forest.jpg' },
   ]
+  const currentPhoto = shirtColors.find(c => c.hex === color)?.photo || shirtColors[0].photo
+  // Light shirts need design at full opacity; dark shirts get a slight boost via screen blend
+  const isLightShirt = ['#F5F5F0', '#E8DDC4', '#B8BCC0'].includes(color)
   const inkColors = [
     { name: 'Red', hex: '#FF3B2F' },
     { name: 'Blue', hex: '#1E40FF' },
@@ -1215,14 +1218,54 @@ function Customizer({
                 {color.toUpperCase()} · {ink.toUpperCase()}
               </div>
             </div>
-            <div style={{ height: 'min(56vh, 520px)', position: 'relative', zIndex: 2, marginTop: 8 }}>
-              <RotatingShirt
-                color={color}
-                inkColor={ink}
-                model={tweaks.shirtModel}
-                design={text}
-                motionLevel={Math.max(20, tweaks.motion * 0.5)}
-              />
+            <div
+              style={{
+                height: 'min(56vh, 520px)',
+                position: 'relative',
+                zIndex: 2,
+                marginTop: 8,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {/* Real Gildan Softstyle 64000 model photo (color-aware) */}
+              <div
+                style={{
+                  position: 'relative',
+                  height: '100%',
+                  aspectRatio: '1200 / 1800',
+                  maxWidth: '100%',
+                }}
+              >
+                <img
+                  key={currentPhoto}
+                  src={currentPhoto}
+                  alt={`Gildan Softstyle 64000 in ${shirtColors.find(c => c.hex === color)?.name || 'selected color'}`}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    display: 'block',
+                    filter: 'drop-shadow(0 30px 40px rgba(0,0,0,.45))',
+                  }}
+                />
+                {/* Live design overlaid on the chest, blended for printed look */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '30%',
+                    left: '38%',
+                    width: '24%',
+                    height: '22%',
+                    pointerEvents: 'none',
+                    mixBlendMode: isLightShirt ? 'multiply' : 'screen',
+                    opacity: isLightShirt ? 0.92 : 0.95,
+                  }}
+                >
+                  <DesignOverlay text={text} inkColor={ink} />
+                </div>
+              </div>
             </div>
             <div
               style={{
