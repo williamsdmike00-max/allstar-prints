@@ -4,3 +4,6 @@ dist
 .env.local
 .vercel
 .env*.local
+
+# Design bundle scratch directory (handoff exports from claude.ai/design)
+_design_extract/
