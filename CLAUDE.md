@@ -135,3 +135,53 @@ A task is complete when:
 - No secrets are exposed
 - The user can test it easily
 - The next step is clear
+
+## Brand & Business Context (Allstar Prints LLC)
+The site is for a real custom-apparel print shop. Use these facts as the ground truth for any homepage copy, customizer logic, marketing pages, or schema markup. Do not invent alternates.
+
+- **Location / service area:** Dallas–Fort Worth, TX (the design prototype originally said "Glenn Heights" — that is wrong; do not reintroduce it).
+- **Phone:** (817) 507-4553
+- **Status:** Veteran owned.
+- **Services they actually offer (price-sheet aligned):** custom t-shirts, hoodies, hats, DTF transfers. Do **not** surface "Screen / DTG / Embroidery" as customer-facing print-method choices — those are internal production methods, not menu items.
+- **T-shirt pricing tiers (front print included, premium ringspun):**
+  | Qty | Price each |
+  | --- | --- |
+  | 1 | $25 |
+  | 2–5 | $22 |
+  | 6–11 | $18 |
+  | 12–24 | $16 |
+  | 25–50 | $14 |
+  | 51–100 | $12 |
+  | 101+ | Custom Quote |
+- **Garment upgrades (per shirt):** Tri-Blend +$3, Heavy Cotton +$5.
+- **Add-on prints (per shirt):** Back +$5, Sleeve +$3, Name/Number +$4, Full-front oversize >12" +$4.
+- **Rush fees:** 48-hr +20%, Same-week (3–5 day) +10%, Same-day = call.
+- **Misc:** $25 artwork setup fee if needed; 50% deposit on 12+ shirt orders; bulk pricing applies to identical designs.
+
+## Asset Conventions
+- **Mockups for the blanks gallery:** `public/mockups/<style>-<color>.jpg` (one product photo per card).
+- **Mockups for the customizer color preview:** `public/mockups/customizer/64000-<color>.jpg` (one Gildan Softstyle 64000 model-front shot per swatch hex). The active color photo is keyed off the customizer's `shirtColors` array — keep the `photo` field in sync if you add/remove colors.
+- **Hero shirt:** `public/allstar-hero-shirt.png` (transparent background, ~1024×1024). If you replace it, regenerate transparency by flood-filling solid backgrounds from the image edges so dark logo elements aren't lost.
+- Do **not** check in `_design_extract/`, `*.pdf`, or large source images dropped at the repo root — they are excluded by `.gitignore` or untracked on purpose.
+
+## Vendor Reference: SanMar
+The shop sources blanks from SanMar; product photos are licensed to authorized account holders. When a blank needs to be added or a color swatch updated:
+
+- Product page URL: `https://www.sanmar.com/p/{PID}_{ColorSlug}` (color slugs are case-sensitive — e.g. `Black`, `White`, `Natural`, `SportsGrey`, `Charcoal`, `Navy`, `Maroon`, `ForestGrn`).
+- Highest-res photo URL is the `1200W_..._ModelFront*.jpg` variant on `cdnp.sanmar.com`. Once you have the URL, the CDN is publicly hotlinkable, but always **download to `public/mockups/`** rather than hotlink — SanMar can change paths.
+- SanMar PIDs already used in this site:
+  - `3480` → Gildan Softstyle 64000 (Premium Ringspun Tee)
+  - `152` → Gildan Ultra Cotton 2000 (Heavy Cotton Tee)
+  - `9267` → BELLA+CANVAS 3413 (Tri-Blend Tee)
+  - `819` → Gildan G2400 (Long Sleeve)
+  - `115` → Gildan 18500 (Pullover Hoodie)
+  - `73184` → Port Authority C112 (Snapback Trucker Cap)
+- The product page is JS-rendered — server HTML does not contain CDN URLs. To scrape new ones, use Chrome MCP (the user is logged in) and read `<img>` `src` from the live DOM after a 2–3 second settle.
+
+## Homepage Notes
+The homepage at `src/pages/Home.tsx` was redesigned from a Claude Design handoff. A few things to know before editing it:
+
+- It uses **inline styles** rather than Tailwind for layout/visuals — that's intentional, ported from the design prototype for fidelity. Adding a Tailwind class is fine, but don't mass-convert without a reason.
+- It sits inside the existing `Layout` (Navbar + Footer + FloatingQuoteButton). Don't add a second Nav or Footer here.
+- It loads four extra Google Fonts via `index.html`: Archivo, Archivo Black, Bricolage Grotesque, JetBrains Mono. Keep them in the `<link>` if you keep the design language.
+- The customizer's `tierPrice()` function is the canonical pricing logic for the homepage and must match the price sheet exactly. If pricing on the price sheet ever changes, update both the function and any copy that hard-codes the same numbers (hero stats, marquees, floating chips).
