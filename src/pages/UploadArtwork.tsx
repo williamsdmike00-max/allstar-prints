@@ -1,10 +1,11 @@
-import { useState, useRef, DragEvent, ChangeEvent } from 'react'
-import { Upload, FileCheck, AlertCircle, ArrowRight, X } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useState, useRef, useEffect, DragEvent, ChangeEvent } from 'react'
+import { Upload, FileCheck, AlertCircle, ArrowRight, X, Sparkles } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
 import SectionHeader from '../components/ui/SectionHeader'
 import { submitForm, splitName } from '../lib/web3forms'
 import { uploadFilesToStorage } from '../lib/storage'
 import SEO from '../components/ui/SEO'
+import { readHandoff, clearHandoff, dataURLToFile, type CustomizerHandoff } from '../components/customizer'
 
 const acceptedTypes = [
   { ext: 'AI', desc: 'Adobe Illustrator', preferred: true },
@@ -34,7 +35,37 @@ export default function UploadArtwork() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [handoff, setHandoff] = useState<CustomizerHandoff | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const formRef = useRef<HTMLDivElement>(null)
+  const location = useLocation()
+
+  // Pre-fill from the homepage customizer handoff. Triggered either by
+  // location.state.fromCustomizer (immediate navigate) or sessionStorage on
+  // direct refresh of /upload-artwork.
+  useEffect(() => {
+    const fromState = (location.state as { fromCustomizer?: boolean } | null)?.fromCustomizer
+    const stored = readHandoff()
+    if (!stored && !fromState) return
+    if (!stored) return
+
+    let cancelled = false
+    ;(async () => {
+      const file = await dataURLToFile(stored.pngDataURL)
+      if (cancelled) return
+      setHandoff(stored)
+      setNotes((prev) => (prev ? prev : stored.notes))
+      if (file) setFiles((prev) => (prev.length ? prev : [file]))
+      // Smooth-scroll to the form so the user can confirm and finish submitting.
+      requestAnimationFrame(() => {
+        formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+      // Consume the handoff so a stale copy doesn't leak into a fresh visit.
+      clearHandoff()
+    })()
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const addFiles = (fileList: FileList) => {
     setFiles((prev) => [...prev, ...Array.from(fileList)])
@@ -160,7 +191,28 @@ export default function UploadArtwork() {
           </div>
 
           {/* Upload form */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2" ref={formRef}>
+            {handoff && !submitted && (
+              <div className="mb-6 p-5 rounded-xl bg-gradient-to-br from-brand-red/12 to-brand-red/4 border border-brand-red/30 flex items-start gap-3">
+                <Sparkles size={18} className="text-brand-red flex-shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-2 min-w-0">
+                  <p className="text-sm font-bold text-white">
+                    Loaded from your homepage design
+                  </p>
+                  <p className="text-xs text-brand-silver leading-relaxed">
+                    A preview of your <span className="font-semibold text-white">{handoff.shirtColorName}</span> shirt design has been attached and your project notes are pre-filled below. Upload your final art (vector preferred) or submit as-is and we'll redraw it for you.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setHandoff(null); setFiles([]); setNotes('') }}
+                  className="text-brand-silver hover:text-brand-red transition-colors flex-shrink-0"
+                  aria-label="Dismiss customizer pre-fill"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            )}
             {submitted ? (
               <div className="h-full min-h-[500px] flex flex-col items-center justify-center text-center p-10 rounded-xl bg-brand-dark3 border border-brand-red/25">
                 <FileCheck size={48} className="text-brand-red mb-5" />
@@ -169,7 +221,7 @@ export default function UploadArtwork() {
                   We've received your files and details. Our team will review your artwork and follow up shortly with a quote and any questions.
                 </p>
                 <button
-                  onClick={() => { setSubmitted(false); setFiles([]); setName(''); setEmail(''); setPhone(''); setNotes('') }}
+                  onClick={() => { setSubmitted(false); setFiles([]); setName(''); setEmail(''); setPhone(''); setNotes(''); setHandoff(null) }}
                   className="text-sm font-bold text-brand-red hover:text-white transition-colors uppercase tracking-wide"
                 >
                   Submit More Files
