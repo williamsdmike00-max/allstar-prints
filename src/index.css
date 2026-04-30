@@ -37,3 +37,38 @@
 
 /* Focus outline */
 :focus-visible { outline: 2px solid #EE2A24; outline-offset: 2px; }
+
+/* ──────────────────────────────────────────────────────────
+   Footer social-icon motion — themed to the print-press feel.
+   Defined here directly (not via Tailwind config) so the CSS
+   is in the bundle on first load with no JIT race conditions.
+   ────────────────────────────────────────────────────────── */
+@keyframes press-pulse {
+  0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 0 rgba(238,42,36,0)); }
+  45%      { transform: translateY(-2px) scale(1.05); filter: drop-shadow(0 6px 14px rgba(238,42,36,.55)); }
+  55%      { transform: translateY(1px) scale(0.97); filter: drop-shadow(0 2px 6px rgba(238,42,36,.35)); }
+}
+@keyframes ring-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-press-pulse {
+  animation: press-pulse 3.6s ease-in-out infinite;
+  will-change: transform, filter;
+}
+.animate-ring-spin {
+  animation: ring-spin 14s linear infinite;
+  will-change: transform;
+}
+.animate-ring-spin-fast {
+  animation: ring-spin 4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-press-pulse,
+  .animate-ring-spin,
+  .animate-ring-spin-fast {
+    animation: none !important;
+  }
+}

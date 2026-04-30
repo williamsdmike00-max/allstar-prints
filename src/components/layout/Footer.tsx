@@ -1,5 +1,46 @@
+import { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Mail, Phone, MapPin, Clock, Star } from 'lucide-react'
+
+// Themed social link: a dashed ring slowly rotates behind the icon (echoes
+// the print-zone dashed boundary in the customizer); idle "press pulse"
+// scoops the icon down and back up like a screen-print press; hover bumps
+// the ring spin, intensifies the red glow, and lifts the icon.
+function SocialLink({
+  href,
+  label,
+  delay,
+  children,
+}: {
+  href: string
+  label: string
+  delay: string
+  children: ReactNode
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className="group relative inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-dark3 border border-white/10 text-brand-silver hover:text-white hover:border-brand-red hover:bg-brand-red/15 hover:shadow-glow-red transition-all duration-300 hover:-translate-y-0.5"
+    >
+      {/* Dashed ring — gently rotates idle, speeds up on hover. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-[-3px] rounded-full border border-dashed border-brand-red/35 group-hover:border-brand-red/70 animate-ring-spin group-hover:animate-ring-spin-fast"
+      />
+      {/* Inner icon — staggered press pulse on idle, stamp-press on hover. */}
+      <span
+        aria-hidden
+        className="relative inline-flex items-center justify-center animate-press-pulse group-hover:animate-none transition-transform duration-150 group-hover:scale-110 group-active:scale-95"
+        style={{ animationDelay: delay }}
+      >
+        {children}
+      </span>
+    </a>
+  )
+}
 
 function InstagramIcon({ size = 18 }: { size?: number }) {
   return (
@@ -81,34 +122,31 @@ export default function Footer() {
             {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
             <span className="text-brand-silver text-xs ml-1">Trusted locally</span>
           </div>
-          <div className="flex items-center gap-3 mt-5">
-            <a
+          {/* Social icons — bigger, glowing, with a "press" pulse on idle and
+              a stamp-style press effect on hover. The dashed ring nods to the
+              print-zone aesthetic in the customizer. */}
+          <div className="flex items-center gap-4 mt-6">
+            <SocialLink
               href="https://instagram.com/allstarprintsllc"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Allstar Prints on Instagram"
-              className="text-brand-silver/50 hover:text-brand-red transition-colors"
+              label="Allstar Prints on Instagram"
+              delay="0s"
             >
-              <InstagramIcon size={18} />
-            </a>
-            <a
+              <InstagramIcon size={22} />
+            </SocialLink>
+            <SocialLink
               href="https://www.facebook.com/profile.php?id=61554364972208"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Allstar Prints on Facebook"
-              className="text-brand-silver/50 hover:text-brand-red transition-colors"
+              label="Allstar Prints on Facebook"
+              delay=".4s"
             >
-              <FacebookIcon size={18} />
-            </a>
-            <a
+              <FacebookIcon size={22} />
+            </SocialLink>
+            <SocialLink
               href="https://tiktok.com/@allstarprintsllc"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Allstar Prints on TikTok"
-              className="text-brand-silver/50 hover:text-brand-red transition-colors"
+              label="Allstar Prints on TikTok"
+              delay=".8s"
             >
-              <TikTokIcon size={18} />
-            </a>
+              <TikTokIcon size={22} />
+            </SocialLink>
           </div>
         </div>
 
