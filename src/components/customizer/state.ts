@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { DesignElement, Side, Material, Size, TextElement, ImageElement } from './types'
-import { PERSIST_KEY } from './constants'
+import { PERSIST_KEY, products, type ProductKey } from './constants'
 
 export type PrintLocation = 'front' | 'back' | 'sleeve'
 
@@ -30,6 +30,7 @@ export const seedTextElement = (text: string, color: string): TextElement => ({
 })
 
 export interface CustomizerState {
+  productKey: ProductKey
   side: Side
   printLocations: PrintLocation[]   // always contains 'front'; 'back' / 'sleeve' optional
   shirtColor: string
@@ -40,6 +41,7 @@ export interface CustomizerState {
   elements: DesignElement[]
   selectedId: string | null
 
+  setProduct: (key: ProductKey) => void
   setSide: (side: Side) => void
   togglePrintLocation: (loc: PrintLocation) => void
   setShirtColor: (hex: string) => void
@@ -65,6 +67,7 @@ const DEFAULT_INK = '#FF3B2F'
 export const useCustomizer = create<CustomizerState>()(
   persist(
     (set, get) => ({
+      productKey: 'tshirt-gildan-64000',
       side: 'front',
       printLocations: ['front'],
       shirtColor: DEFAULT_SHIRT,
@@ -75,6 +78,16 @@ export const useCustomizer = create<CustomizerState>()(
       elements: [seedTextElement(DEFAULT_TEXT, DEFAULT_INK)],
       selectedId: null,
 
+      setProduct: (key) => {
+        // Switching products forces the shirt color to a valid swatch for the
+        // new product (each product has its own color list).
+        const product = products[key]
+        const currentColor = get().shirtColor
+        const validColor = product.colors.some((c) => c.hex === currentColor)
+          ? currentColor
+          : product.defaultColorHex
+        set({ productKey: key, shirtColor: validColor })
+      },
       setSide: (side) => set({ side }),
       togglePrintLocation: (loc) => {
         // Front is always included — toggling it is a no-op.
@@ -163,6 +176,7 @@ export const useCustomizer = create<CustomizerState>()(
       name: PERSIST_KEY,
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
+        productKey: s.productKey,
         printLocations: s.printLocations,
         shirtColor: s.shirtColor,
         inkColor: s.inkColor,

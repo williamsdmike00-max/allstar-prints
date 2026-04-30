@@ -17,6 +17,7 @@ export default function DesignOnline() {
   const [pngDataURL, setPngDataURL] = useState('')
   const stageRef = useRef<Konva.Stage>(null)
   const selectElement = useCustomizer((s) => s.selectElement)
+  const setProduct = useCustomizer((s) => s.setProduct)
 
   // Keep ?step=… in the URL so back/forward + share-links work.
   useEffect(() => {
@@ -34,9 +35,11 @@ export default function DesignOnline() {
 
   const goTo = (next: StepKey) => setStep(next)
 
-  const handleSelectProduct = (_key: DesignableProductKey) => {
-    // Today only the t-shirt (Gildan 64000) is canvas-designable; the picker
-    // disables Continue for the others. So if we got here, it's the t-shirt.
+  const handleSelectProduct = (key: DesignableProductKey) => {
+    // Switch the canvas to render this product's mockup + print zone, then
+    // advance. setProduct also re-clamps shirtColor to a valid swatch for the
+    // new product's palette.
+    setProduct(key)
     setStep('design')
   }
 

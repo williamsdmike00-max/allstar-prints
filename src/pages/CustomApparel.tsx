@@ -9,20 +9,14 @@ const categories = [
   {
     icon: '🧥',
     title: 'Hoodies & Sweatshirts',
-    desc: 'Pullover and zip-up hoodies, crewneck sweatshirts — all available with your custom print or embroidery.',
-    tags: ['Screen Print', 'Embroidery', 'DTF'],
+    desc: 'Pullover and zip-up hoodies, crewneck sweatshirts — printed with screen print or DTF for a long-lasting finish.',
+    tags: ['Screen Print', 'DTF', 'Heavy Cotton'],
   },
   {
     icon: '⚽',
     title: 'Team & Sports Apparel',
     desc: 'Jerseys, practice shirts, warm-ups, and athletic gear. Built for performance and team identity.',
     tags: ['Jerseys', 'Heat Transfer', 'Numbers & Names'],
-  },
-  {
-    icon: '🏢',
-    title: 'Business Uniforms',
-    desc: 'Polos, button-downs, work shirts, and staff apparel. Make every customer interaction look professional.',
-    tags: ['Embroidery', 'Screen Print', 'Polos'],
   },
   {
     icon: '🎉',
@@ -41,12 +35,6 @@ const categories = [
     title: 'Church & Group Shirts',
     desc: 'Custom apparel for ministries, youth groups, clubs, and organizations of every size.',
     tags: ['Low Minimums', 'Custom Design', 'Group Rates'],
-  },
-  {
-    icon: '🧢',
-    title: 'Hats & Headwear',
-    desc: 'Structured caps, beanies, and trucker hats with embroidered or printed logos that complete any look.',
-    tags: ['Embroidery', 'Snapback', 'Beanies'],
   },
   {
     icon: '🎒',
@@ -68,7 +56,7 @@ export default function CustomApparel() {
     <>
       <SEO
         title="Custom Apparel — Hoodies, Jerseys, Hats & More"
-        description="Custom hoodies, sweatshirts, sports jerseys, business uniforms, hats, and event apparel. Allstar Prints LLC outfits teams, schools, churches, and businesses of every size."
+        description="Custom hoodies, sweatshirts, sports jerseys, event tees, and group apparel. Allstar Prints LLC outfits teams, schools, churches, and organizations across Dallas–Fort Worth."
         path="/custom-apparel"
       />
       {/* Hero */}
@@ -83,7 +71,7 @@ export default function CustomApparel() {
             <span className="text-gradient-red">Look the Part</span>
           </h1>
           <p className="text-brand-silver text-lg leading-relaxed mb-10 max-w-2xl mx-auto">
-            From hoodies to hats, jerseys to business uniforms — we outfit teams, organizations, businesses, and families with premium custom apparel. One order, one shop.
+            From hoodies to jerseys to event tees — we outfit teams, organizations, businesses, and families with premium custom apparel. One order, one shop.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link

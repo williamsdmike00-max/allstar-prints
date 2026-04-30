@@ -2,7 +2,7 @@ import { forwardRef, useEffect, useMemo } from 'react'
 import { Stage, Layer, Image as KImage, Rect } from 'react-konva'
 import Konva from 'konva'
 import { useCustomizer } from '../state'
-import { LIGHT_SHIRT_HEX, PRINT_ZONE, shirtColors } from '../constants'
+import { LIGHT_SHIRT_HEX, products } from '../constants'
 import { useImage } from './useImage'
 import { useStageSize } from './useStageSize'
 import DesignLayer from './DesignLayer'
@@ -17,29 +17,32 @@ interface Props {
 }
 
 const StageCanvas = forwardRef<Konva.Stage, Props>(({ disabled }, ref) => {
+  const productKey = useCustomizer((s) => s.productKey)
   const shirtColor = useCustomizer((s) => s.shirtColor)
   const selectedId = useCustomizer((s) => s.selectedId)
   const selectElement = useCustomizer((s) => s.selectElement)
   const removeElement = useCustomizer((s) => s.removeElement)
 
+  const product = products[productKey]
   const photo = useMemo(
-    () => shirtColors.find((c) => c.hex === shirtColor)?.photo || shirtColors[0].photo,
-    [shirtColor],
+    () => product.colors.find((c) => c.hex === shirtColor)?.photo || product.colors[0].photo,
+    [product, shirtColor],
   )
   const isLight = LIGHT_SHIRT_HEX.includes(shirtColor)
 
   const { ref: wrapperRef, size } = useStageSize<HTMLDivElement>()
   const img = useImage(photo)
 
-  // Print zone in stage-pixel coordinates.
+  // Print zone in stage-pixel coordinates — driven by per-product calibration.
   const pz = useMemo(() => {
+    const z = product.printZone
     return {
-      x: (PRINT_ZONE.leftPct / 100) * size.width,
-      y: (PRINT_ZONE.topPct / 100) * size.height,
-      width: (PRINT_ZONE.widthPct / 100) * size.width,
-      height: (PRINT_ZONE.heightPct / 100) * size.height,
+      x: (z.leftPct / 100) * size.width,
+      y: (z.topPct / 100) * size.height,
+      width: (z.widthPct / 100) * size.width,
+      height: (z.heightPct / 100) * size.height,
     }
-  }, [size])
+  }, [size, product])
 
   // Delete/Backspace removes the selected element. Only when canvas is focused.
   useEffect(() => {
@@ -69,7 +72,7 @@ const StageCanvas = forwardRef<Konva.Stage, Props>(({ disabled }, ref) => {
         height: '100%',
       }}
       role="img"
-      aria-label="Customizable Allstar Prints t-shirt design preview"
+      aria-label={`Customizable ${product.name} design preview`}
     >
       {size.width > 0 && size.height > 0 && (
         <Stage

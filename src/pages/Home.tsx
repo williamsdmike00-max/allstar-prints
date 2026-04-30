@@ -1016,7 +1016,7 @@ function Process({ accent }: { accent: string }) {
   const steps = [
     { n: '01', t: 'Upload or describe', d: 'Drop artwork, send a sketch, or just tell us the vibe. We’ll mock it up.' },
     { n: '02', t: 'Approve the proof', d: 'Same-day digital proof. Tweak colors, placement, garment until it’s perfect.' },
-    { n: '03', t: 'We print it', d: 'Screen print, DTF transfer, or embroidery — pressed by hand in Dallas–Fort Worth.' },
+    { n: '03', t: 'We print it', d: 'Screen print, DTF transfer, or heat transfer vinyl — pressed by hand in Dallas–Fort Worth.' },
     { n: '04', t: 'You wear it', d: 'Local pickup or shipped anywhere. Most orders out the door in 48 hours.' },
   ]
   return (
@@ -1130,7 +1130,7 @@ function Blanks({
       printArea: { top: '32%', left: '38%', width: '24%', height: '22%' },
     },
     {
-      name: 'Pullover Hoodie', brand: 'Gildan Heavy Blend 18500', price: 'Quote', tag: 'Embroidery ★',
+      name: 'Pullover Hoodie', brand: 'Gildan Heavy Blend 18500', price: 'Quote', tag: 'Screen print',
       color: '#0E1B3D', surface: 'walnut', shot: 'GILDAN · 18500',
       mockup: '/mockups/gildan-18500-navy.jpg',
       printArea: { top: '36%', left: '38%', width: '24%', height: '22%' },
@@ -1264,7 +1264,7 @@ export default function Home() {
     <>
       <SEO
         title="Fast, Custom Apparel. Done Right."
-        description="Allstar Prints LLC — Screen-printed, embroidered, and DTG apparel for teams, brands, events, and one-off ideas. Quote in minutes. Proofs same day. Veteran-owned in Glenn Heights, TX."
+        description="Allstar Prints LLC — Screen printing, DTF, and HTV apparel for teams, brands, events, and one-off ideas. Quote in minutes. Proofs same day. Veteran-owned in Glenn Heights, TX."
         path="/"
       />
       <style>{PAGE_CSS}</style>

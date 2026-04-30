@@ -142,7 +142,7 @@ The site is for a real custom-apparel print shop. Use these facts as the ground 
 - **Location / service area:** Dallas–Fort Worth, TX (the design prototype originally said "Glenn Heights" — that is wrong; do not reintroduce it).
 - **Phone:** (817) 507-4553
 - **Status:** Veteran owned.
-- **Services they actually offer (price-sheet aligned):** custom t-shirts, hoodies, hats, DTF transfers. Do **not** surface "Screen / DTG / Embroidery" as customer-facing print-method choices — those are internal production methods, not menu items.
+- **Services they actually offer (price-sheet aligned):** custom t-shirts (Gildan 64000), long-sleeve tees (G2400), pullover hoodies (18500), heavyweight tees (Gildan 2000), DTF transfers, screen printing, and heat transfer vinyl. **Embroidery is NOT offered** — never surface it on customer pages or service dropdowns. Polos and hats can still be requested via the quote form but are not in the canvas designer.
 - **T-shirt pricing tiers (front print included, premium ringspun):**
   | Qty | Price each |
   | --- | --- |

@@ -11,7 +11,7 @@ const categories = [
     items: [
       {
         question: "What is your minimum order quantity?",
-        answer: "It depends on the printing method. For DTF printing, there's no minimum — you can order a single piece. For screen printing, we typically start at 12 pieces to keep pricing reasonable. For embroidery, minimums vary by garment. Contact us and we'll match you to the right method for your quantity.",
+        answer: "It depends on the printing method. For DTF printing, there's no minimum — you can order a single piece. For screen printing, we typically start at 12 pieces to keep pricing reasonable. Contact us and we'll match you to the right method for your quantity.",
       },
       {
         question: "Can I mix sizes and colors in one order?",
@@ -85,7 +85,7 @@ const categories = [
       },
       {
         question: "What printing methods do you offer?",
-        answer: "We offer screen printing, DTF (Direct-to-Film) printing, heat transfer vinyl (HTV), and embroidery. The best method depends on your design, quantity, and budget. We'll recommend the right option when you request a quote.",
+        answer: "We offer screen printing, DTF (Direct-to-Film) printing, and heat transfer vinyl (HTV). The best method depends on your design, quantity, and budget. We'll recommend the right option when you request a quote.",
       },
     ],
   },

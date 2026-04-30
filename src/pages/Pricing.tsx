@@ -362,7 +362,6 @@ export default function Pricing() {
                         options={[
                           { value: 'Screen Printing', label: 'Screen Printing' },
                           { value: 'DTF Printing', label: 'DTF / Direct-to-Film Printing' },
-                          { value: 'Embroidery', label: 'Embroidery' },
                           { value: 'Heat Transfer Vinyl', label: 'Heat Transfer Vinyl (Names & Numbers)' },
                           { value: 'Not Sure', label: "Not Sure — Help Me Choose" },
                         ]}

@@ -1,5 +1,7 @@
 export { default } from './Customizer'
 export { useCustomizer, firstTextElement } from './state'
 export type { PrintLocation } from './state'
+export { products, productList } from './constants'
+export type { ProductKey, ProductDefinition } from './constants'
 export { readHandoff, clearHandoff, dataURLToFile } from './handoff'
 export type { CustomizerHandoff } from './types'

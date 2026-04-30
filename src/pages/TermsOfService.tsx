@@ -37,7 +37,7 @@ export default function TermsOfService() {
 
             <div>
               <h2 className="text-white text-xl font-bold mb-3">3. Services</h2>
-              <p>Allstar Prints LLC provides custom apparel printing services including custom t-shirts, DTF printing, embroidery, and related products. All orders are subject to availability and our approval of submitted artwork.</p>
+              <p>Allstar Prints LLC provides custom apparel printing services including custom t-shirts, screen printing, DTF printing, heat transfer vinyl, and related products. All orders are subject to availability and our approval of submitted artwork.</p>
             </div>
 
             <div>

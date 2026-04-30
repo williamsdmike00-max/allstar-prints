@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, FileCheck, AlertCircle } from 'lucide-react'
 import { useCustomizer, type PrintLocation } from '../customizer'
 import { totals } from '../customizer/pricing'
-import { shirtColors } from '../customizer/constants'
+import { products } from '../customizer/constants'
 import { firstTextElement } from '../customizer/state'
 import { submitForm, splitName } from '../../lib/web3forms'
 import { uploadFilesToStorage } from '../../lib/storage'
@@ -15,6 +15,7 @@ export default function CheckoutStep({
   pngDataURL: string
   onBack: () => void
 }) {
+  const productKey = useCustomizer((s) => s.productKey)
   const shirtColor = useCustomizer((s) => s.shirtColor)
   const inkColor = useCustomizer((s) => s.inkColor)
   const material = useCustomizer((s) => s.material)
@@ -22,14 +23,15 @@ export default function CheckoutStep({
   const qty = useCustomizer((s) => s.qty)
   const printLocations = useCustomizer((s) => s.printLocations)
   const elements = useCustomizer((s) => s.elements)
+  const product = products[productKey]
   const locationsLabel = useMemo(
     () => printLocations.join(' + ') || 'front',
     [printLocations],
   )
 
   const shirtName = useMemo(
-    () => shirtColors.find((c) => c.hex === shirtColor)?.name || 'Custom',
-    [shirtColor],
+    () => product.colors.find((c) => c.hex === shirtColor)?.name || 'Custom',
+    [product, shirtColor],
   )
   const designText = useMemo(() => firstTextElement(elements)?.text || '', [elements])
   const imgCount = useMemo(() => elements.filter((e) => e.type === 'image').length, [elements])
@@ -37,7 +39,8 @@ export default function CheckoutStep({
   const defaultNotes = useMemo(() => {
     const lines = [
       'Designed in the online builder:',
-      `• Shirt: ${shirtName} (${shirtColor.toUpperCase()})`,
+      `• Product: ${product.name} (${product.sku})`,
+      `• Blank color: ${shirtName} (${shirtColor.toUpperCase()})`,
       `• Ink: ${inkColor.toUpperCase()}`,
       `• Material: ${material}`,
       `• Size: ${size}, Qty: ${qty}`,
@@ -48,7 +51,7 @@ export default function CheckoutStep({
       'See attached preview. We\'ll redraw final art if needed and send a proof for approval.',
     ].filter(Boolean) as string[]
     return lines.join('\n')
-  }, [shirtName, shirtColor, inkColor, material, size, qty, locationsLabel, designText, imgCount])
+  }, [product, shirtName, shirtColor, inkColor, material, size, qty, locationsLabel, designText, imgCount])
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -82,6 +85,8 @@ export default function CheckoutStep({
         first_name: firstName,
         last_name: lastName,
         notes: notes || defaultNotes,
+        product_name: product.name,
+        product_sku: product.sku,
         shirt_color: shirtName,
         shirt_hex: shirtColor,
         ink_hex: inkColor,
@@ -135,7 +140,8 @@ export default function CheckoutStep({
               No preview captured
             </div>
           )}
-          <SpecRow label="Shirt" value={`${shirtName} (${shirtColor.toUpperCase()})`} />
+          <SpecRow label="Product" value={product.name} />
+          <SpecRow label="Blank color" value={`${shirtName} (${shirtColor.toUpperCase()})`} />
           <SpecRow label="Ink" value={inkColor.toUpperCase()} />
           <SpecRow label="Material" value={material} />
           <SpecRow label="Size / Qty" value={`${size} · ${qty}`} />
