@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import SEO from '../components/ui/SEO'
 import Customizer from '../components/customizer'
+import { SocialLink, SOCIAL_LINKS } from '../components/social/SocialIcons'
 
 // ─────────────────────────────────────────────
 // Design tokens
@@ -949,6 +950,46 @@ function Hero({ tweaks }: { tweaks: Tweaks }) {
             <Stat n="48hr" l="Rush available" />
             <Stat n="$12/ea" l="At 51+ shirts" />
             <Stat n="4.9★" l="From 380+ orders" />
+          </div>
+
+          {/* Hero social strip — light-theme variant of the same animated
+              tile used in the footer (press-pulse + dashed-ring spin). */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+              marginTop: 36,
+              flexWrap: 'wrap',
+            }}
+          >
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: '.2em',
+                textTransform: 'uppercase',
+                color: C.inkSoft,
+              }}
+            >
+              Follow the shop
+            </span>
+            <span
+              aria-hidden
+              style={{
+                width: 28,
+                height: 1,
+                background: C.inkBlack,
+                opacity: 0.5,
+              }}
+            />
+            <div className="flex items-center gap-3">
+              {SOCIAL_LINKS.map(({ href, label, Icon, delay }) => (
+                <SocialLink key={href} href={href} label={label} delay={delay} theme="light">
+                  <Icon size={22} />
+                </SocialLink>
+              ))}
+            </div>
           </div>
         </div>
 

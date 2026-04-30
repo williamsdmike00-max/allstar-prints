@@ -1,70 +1,6 @@
-import { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Mail, Phone, MapPin, Clock, Star } from 'lucide-react'
-
-// Themed social link: a dashed ring slowly rotates behind the icon (echoes
-// the print-zone dashed boundary in the customizer); idle "press pulse"
-// scoops the icon down and back up like a screen-print press; hover bumps
-// the ring spin, intensifies the red glow, and lifts the icon.
-function SocialLink({
-  href,
-  label,
-  delay,
-  children,
-}: {
-  href: string
-  label: string
-  delay: string
-  children: ReactNode
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={label}
-      className="group relative inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-dark3 border border-white/10 text-brand-silver hover:text-white hover:border-brand-red hover:bg-brand-red/15 hover:shadow-glow-red transition-all duration-300 hover:-translate-y-0.5"
-    >
-      {/* Dashed ring — gently rotates idle, speeds up on hover. */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-[-3px] rounded-full border border-dashed border-brand-red/35 group-hover:border-brand-red/70 animate-ring-spin group-hover:animate-ring-spin-fast"
-      />
-      {/* Inner icon — staggered press pulse on idle, stamp-press on hover. */}
-      <span
-        aria-hidden
-        className="relative inline-flex items-center justify-center animate-press-pulse group-hover:animate-none transition-transform duration-150 group-hover:scale-110 group-active:scale-95"
-        style={{ animationDelay: delay }}
-      >
-        {children}
-      </span>
-    </a>
-  )
-}
-
-function InstagramIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
-    </svg>
-  )
-}
-
-function FacebookIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.268h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
-    </svg>
-  )
-}
-
-function TikTokIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.25 8.25 0 0 0 4.83 1.55V6.79a4.85 4.85 0 0 1-1.06-.1z" />
-    </svg>
-  )
-}
+import { SocialLink, SOCIAL_LINKS } from '../social/SocialIcons'
 
 const services = [
   { label: 'Custom T-Shirts', href: '/custom-tshirts' },
@@ -122,31 +58,15 @@ export default function Footer() {
             {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
             <span className="text-brand-silver text-xs ml-1">Trusted locally</span>
           </div>
-          {/* Social icons — bigger, glowing, with a "press" pulse on idle and
-              a stamp-style press effect on hover. The dashed ring nods to the
-              print-zone aesthetic in the customizer. */}
+          {/* Social icons — shared with the hero strip. Footer uses the
+              dark-theme variant; idle press-pulse + dashed-ring spin echo
+              the print-press feel. */}
           <div className="flex items-center gap-4 mt-6">
-            <SocialLink
-              href="https://instagram.com/allstarprintsllc"
-              label="Allstar Prints on Instagram"
-              delay="0s"
-            >
-              <InstagramIcon size={22} />
-            </SocialLink>
-            <SocialLink
-              href="https://www.facebook.com/profile.php?id=61554364972208"
-              label="Allstar Prints on Facebook"
-              delay=".4s"
-            >
-              <FacebookIcon size={22} />
-            </SocialLink>
-            <SocialLink
-              href="https://tiktok.com/@allstarprintsllc"
-              label="Allstar Prints on TikTok"
-              delay=".8s"
-            >
-              <TikTokIcon size={22} />
-            </SocialLink>
+            {SOCIAL_LINKS.map(({ href, label, Icon, delay }) => (
+              <SocialLink key={href} href={href} label={label} delay={delay} theme="dark">
+                <Icon size={22} />
+              </SocialLink>
+            ))}
           </div>
         </div>
 
