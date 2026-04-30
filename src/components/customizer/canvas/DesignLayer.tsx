@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react'
-import { Group, Text, Transformer } from 'react-konva'
+import { Group, Text, Image as KImage, Transformer } from 'react-konva'
 import Konva from 'konva'
 import { useCustomizer } from '../state'
-import { TextElement } from '../types'
+import { TextElement, ImageElement } from '../types'
+import { useImage } from './useImage'
 
 interface PrintZonePx {
   x: number
@@ -28,7 +29,7 @@ export default function DesignLayer({
   const updateElement = useCustomizer((s) => s.updateElement)
 
   const trRef = useRef<Konva.Transformer>(null)
-  const nodeMap = useRef(new Map<string, Konva.Text>())
+  const nodeMap = useRef(new Map<string, Konva.Node>())
 
   useEffect(() => {
     const tr = trRef.current
@@ -61,26 +62,47 @@ export default function DesignLayer({
         globalCompositeOperation={blend}
       >
         {pz.width > 0 && pz.height > 0 && elements.map((el) => {
-          if (el.type !== 'text') return null
-          const fontSize = Math.max(8, (el.fontSizePct / 100) * pz.height)
           const cx = (el.x / 100) * pz.width
           const cy = (el.y / 100) * pz.height
-          return (
-            <TextNode
-              key={el.id}
-              el={el}
-              cx={cx}
-              cy={cy}
-              fontSize={fontSize}
-              registerRef={(node) => {
-                if (node) nodeMap.current.set(el.id, node)
-                else nodeMap.current.delete(el.id)
-              }}
-              onSelect={() => selectElement(el.id)}
-              onChange={(patch) => updateElement(el.id, patch)}
-              pz={pz}
-            />
-          )
+          const registerRef = (node: Konva.Node | null) => {
+            if (node) nodeMap.current.set(el.id, node)
+            else nodeMap.current.delete(el.id)
+          }
+          if (el.type === 'text') {
+            const fontSize = Math.max(8, (el.fontSizePct / 100) * pz.height)
+            return (
+              <TextNode
+                key={el.id}
+                el={el}
+                cx={cx}
+                cy={cy}
+                fontSize={fontSize}
+                registerRef={registerRef}
+                onSelect={() => selectElement(el.id)}
+                onChange={(patch) => updateElement(el.id, patch)}
+                pz={pz}
+              />
+            )
+          }
+          if (el.type === 'image') {
+            const widthPx = Math.max(8, (el.width / 100) * pz.width)
+            const heightPx = Math.max(8, (el.height / 100) * pz.height)
+            return (
+              <ImageNode
+                key={el.id}
+                el={el}
+                cx={cx}
+                cy={cy}
+                widthPx={widthPx}
+                heightPx={heightPx}
+                registerRef={registerRef}
+                onSelect={() => selectElement(el.id)}
+                onChange={(patch) => updateElement(el.id, patch)}
+                pz={pz}
+              />
+            )
+          }
+          return null
         })}
       </Group>
       {/* Transformer lives OUTSIDE the clipped group so its handles never get
@@ -127,7 +149,7 @@ function TextNode({
   cx: number
   cy: number
   fontSize: number
-  registerRef: (node: Konva.Text | null) => void
+  registerRef: (node: Konva.Node | null) => void
   onSelect: () => void
   onChange: (patch: Partial<TextElement>) => void
   pz: PrintZonePx
@@ -196,6 +218,80 @@ function TextNode({
           x: xPct,
           y: yPct,
           fontSizePct: newFontSizePct,
+          rotation: node.rotation(),
+        })
+      }}
+    />
+  )
+}
+
+// Image element — uses an HTMLImageElement loaded via useImage. Position +
+// rotation are stored as % of print zone; width/height too. On transform we
+// bake the scale back into element.width/height and reset node scale.
+function ImageNode({
+  el,
+  cx,
+  cy,
+  widthPx,
+  heightPx,
+  registerRef,
+  onSelect,
+  onChange,
+  pz,
+}: {
+  el: ImageElement
+  cx: number
+  cy: number
+  widthPx: number
+  heightPx: number
+  registerRef: (node: Konva.Node | null) => void
+  onSelect: () => void
+  onChange: (patch: Partial<ImageElement>) => void
+  pz: PrintZonePx
+}) {
+  const ref = useRef<Konva.Image | null>(null)
+  const img = useImage(el.src)
+
+  if (!img) return null
+
+  return (
+    <KImage
+      ref={(node) => {
+        ref.current = node
+        registerRef(node)
+      }}
+      image={img}
+      x={cx}
+      y={cy}
+      width={widthPx}
+      height={heightPx}
+      offsetX={widthPx / 2}
+      offsetY={heightPx / 2}
+      rotation={el.rotation}
+      draggable
+      onMouseDown={(e) => { e.cancelBubble = true; onSelect() }}
+      onTouchStart={(e) => { e.cancelBubble = true; onSelect() }}
+      onDragEnd={(e) => {
+        const node = e.target
+        const xPct = Math.max(0, Math.min(100, (node.x() / pz.width) * 100))
+        const yPct = Math.max(0, Math.min(100, (node.y() / pz.height) * 100))
+        onChange({ x: xPct, y: yPct })
+      }}
+      onTransformEnd={(e) => {
+        const node = e.target as Konva.Image
+        const scaleX = node.scaleX()
+        const scaleY = node.scaleY()
+        const newWidthPx = Math.max(12, widthPx * scaleX)
+        const newHeightPx = Math.max(12, heightPx * scaleY)
+        node.scaleX(1)
+        node.scaleY(1)
+        const xPct = Math.max(0, Math.min(100, (node.x() / pz.width) * 100))
+        const yPct = Math.max(0, Math.min(100, (node.y() / pz.height) * 100))
+        onChange({
+          x: xPct,
+          y: yPct,
+          width: Math.max(4, Math.min(180, (newWidthPx / pz.width) * 100)),
+          height: Math.max(4, Math.min(180, (newHeightPx / pz.height) * 100)),
           rotation: node.rotation(),
         })
       }}

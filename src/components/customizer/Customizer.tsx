@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Konva from 'konva'
 import { useCustomizer } from './state'
 import { PHOTO_ASPECT_RATIO, shirtColors } from './constants'
@@ -157,6 +157,28 @@ export default function Customizer({
         >
           Pick a blank, drop in art or type, drag it into place, and set your quantity. Every change re-renders on the shirt in real time.
         </p>
+        <div style={{ marginTop: 18 }}>
+          <Link
+            to="/design-online"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 18px',
+              borderRadius: 99,
+              fontSize: 12,
+              fontWeight: 800,
+              letterSpacing: '.08em',
+              textTransform: 'uppercase',
+              color: 'white',
+              background: 'rgba(255,255,255,.08)',
+              border: `1px solid ${tweaks.accent}55`,
+              textDecoration: 'none',
+            }}
+          >
+            Open the full Design Online tool →
+          </Link>
+        </div>
 
         <div
           className="ap-cust-grid"

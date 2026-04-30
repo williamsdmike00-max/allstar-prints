@@ -14,6 +14,7 @@ import GangSheetBuilder from './pages/GangSheetBuilder'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import DesignGenerator from './pages/DesignGenerator'
+import DesignOnline from './pages/DesignOnline'
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
           <Route path="terms-of-service" element={<TermsOfService />} />
           <Route path="design-generator" element={<DesignGenerator />} />
+          <Route path="design-online" element={<DesignOnline />} />
         </Route>
       </Routes>
     </BrowserRouter>

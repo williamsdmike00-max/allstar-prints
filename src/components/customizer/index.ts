@@ -1,4 +1,5 @@
 export { default } from './Customizer'
-export { useCustomizer } from './state'
+export { useCustomizer, firstTextElement } from './state'
+export type { PrintLocation } from './state'
 export { readHandoff, clearHandoff, dataURLToFile } from './handoff'
 export type { CustomizerHandoff } from './types'

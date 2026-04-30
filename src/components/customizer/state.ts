@@ -1,7 +1,9 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { DesignElement, Side, Material, Size, TextElement } from './types'
+import { DesignElement, Side, Material, Size, TextElement, ImageElement } from './types'
 import { PERSIST_KEY } from './constants'
+
+export type PrintLocation = 'front' | 'back' | 'sleeve'
 
 let counter = 0
 const nextId = () => `el_${Date.now().toString(36)}_${(counter++).toString(36)}`
@@ -23,6 +25,7 @@ export const seedTextElement = (text: string, color: string): TextElement => ({
 
 export interface CustomizerState {
   side: Side
+  printLocation: PrintLocation
   shirtColor: string
   inkColor: string
   material: Material
@@ -32,6 +35,7 @@ export interface CustomizerState {
   selectedId: string | null
 
   setSide: (side: Side) => void
+  setPrintLocation: (loc: PrintLocation) => void
   setShirtColor: (hex: string) => void
   setInkColor: (hex: string) => void
   setMaterial: (m: Material) => void
@@ -39,9 +43,11 @@ export interface CustomizerState {
   setQty: (n: number) => void
 
   addText: (text: string) => void
+  addImage: (src: string, naturalWidth?: number, naturalHeight?: number) => void
   updateElement: (id: string, patch: Partial<DesignElement>) => void
   removeElement: (id: string) => void
   selectElement: (id: string | null) => void
+  clearElements: () => void
 
   hydrate: (init: { shirtColor: string; inkColor: string; design: string }) => void
 }
@@ -54,6 +60,7 @@ export const useCustomizer = create<CustomizerState>()(
   persist(
     (set, get) => ({
       side: 'front',
+      printLocation: 'front',
       shirtColor: DEFAULT_SHIRT,
       inkColor: DEFAULT_INK,
       material: 'Standard',
@@ -62,7 +69,8 @@ export const useCustomizer = create<CustomizerState>()(
       elements: [seedTextElement(DEFAULT_TEXT, DEFAULT_INK)],
       selectedId: null,
 
-      setSide: (side) => set({ side }),
+      setSide: (side) => set({ side, printLocation: side === 'back' ? 'back' : get().printLocation === 'back' ? 'front' : get().printLocation }),
+      setPrintLocation: (loc) => set({ printLocation: loc, side: loc === 'back' ? 'back' : 'front' }),
       setShirtColor: (hex) => set({ shirtColor: hex }),
       setInkColor: (hex) => {
         // Recolor every text element when ink changes — matches old single-text behavior.
@@ -81,6 +89,27 @@ export const useCustomizer = create<CustomizerState>()(
         const el = seedTextElement(text || 'ALLSTAR', get().inkColor)
         set((s) => ({ elements: [...s.elements, el], selectedId: el.id }))
       },
+      addImage: (src, naturalWidth, naturalHeight) => {
+        // Default to 70% width centered; preserve aspect from natural dims if provided.
+        const widthPct = 70
+        const aspectRatio =
+          naturalWidth && naturalHeight && naturalWidth > 0
+            ? naturalHeight / naturalWidth
+            : 1
+        const heightPct = Math.max(10, Math.min(100, widthPct * aspectRatio))
+        const el: ImageElement = {
+          id: `el_${Date.now().toString(36)}_${(counter++).toString(36)}`,
+          type: 'image',
+          x: 50,
+          y: 50,
+          width: widthPct,
+          height: heightPct,
+          rotation: 0,
+          anchor: 'center',
+          src,
+        }
+        set((s) => ({ elements: [...s.elements, el], selectedId: el.id }))
+      },
       updateElement: (id, patch) => {
         set((s) => ({
           elements: s.elements.map((el) =>
@@ -95,6 +124,7 @@ export const useCustomizer = create<CustomizerState>()(
         }))
       },
       selectElement: (id) => set({ selectedId: id }),
+      clearElements: () => set({ elements: [], selectedId: null }),
 
       hydrate: (init) => {
         // Called from Home.tsx so the parent's `tweaks` defaults seed the store
@@ -115,6 +145,7 @@ export const useCustomizer = create<CustomizerState>()(
       name: PERSIST_KEY,
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
+        printLocation: s.printLocation,
         shirtColor: s.shirtColor,
         inkColor: s.inkColor,
         material: s.material,
