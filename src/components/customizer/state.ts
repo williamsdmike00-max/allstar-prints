@@ -5,6 +5,12 @@ import { PERSIST_KEY } from './constants'
 
 export type PrintLocation = 'front' | 'back' | 'sleeve'
 
+export const PRINT_LOCATION_UPCHARGE: Record<PrintLocation, number> = {
+  front: 0,   // included in base price
+  back: 5,    // +$5/shirt
+  sleeve: 3,  // +$3/shirt
+}
+
 let counter = 0
 const nextId = () => `el_${Date.now().toString(36)}_${(counter++).toString(36)}`
 
@@ -25,7 +31,7 @@ export const seedTextElement = (text: string, color: string): TextElement => ({
 
 export interface CustomizerState {
   side: Side
-  printLocation: PrintLocation
+  printLocations: PrintLocation[]   // always contains 'front'; 'back' / 'sleeve' optional
   shirtColor: string
   inkColor: string
   material: Material
@@ -35,7 +41,7 @@ export interface CustomizerState {
   selectedId: string | null
 
   setSide: (side: Side) => void
-  setPrintLocation: (loc: PrintLocation) => void
+  togglePrintLocation: (loc: PrintLocation) => void
   setShirtColor: (hex: string) => void
   setInkColor: (hex: string) => void
   setMaterial: (m: Material) => void
@@ -60,7 +66,7 @@ export const useCustomizer = create<CustomizerState>()(
   persist(
     (set, get) => ({
       side: 'front',
-      printLocation: 'front',
+      printLocations: ['front'],
       shirtColor: DEFAULT_SHIRT,
       inkColor: DEFAULT_INK,
       material: 'Standard',
@@ -69,8 +75,20 @@ export const useCustomizer = create<CustomizerState>()(
       elements: [seedTextElement(DEFAULT_TEXT, DEFAULT_INK)],
       selectedId: null,
 
-      setSide: (side) => set({ side, printLocation: side === 'back' ? 'back' : get().printLocation === 'back' ? 'front' : get().printLocation }),
-      setPrintLocation: (loc) => set({ printLocation: loc, side: loc === 'back' ? 'back' : 'front' }),
+      setSide: (side) => set({ side }),
+      togglePrintLocation: (loc) => {
+        // Front is always included — toggling it is a no-op.
+        if (loc === 'front') return
+        set((s) => {
+          const has = s.printLocations.includes(loc)
+          const next = has
+            ? s.printLocations.filter((x) => x !== loc)
+            : [...s.printLocations, loc]
+          // Always keep 'front' in the list.
+          if (!next.includes('front')) next.unshift('front')
+          return { printLocations: next }
+        })
+      },
       setShirtColor: (hex) => set({ shirtColor: hex }),
       setInkColor: (hex) => {
         // Recolor every text element when ink changes — matches old single-text behavior.
@@ -145,7 +163,7 @@ export const useCustomizer = create<CustomizerState>()(
       name: PERSIST_KEY,
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
-        printLocation: s.printLocation,
+        printLocations: s.printLocations,
         shirtColor: s.shirtColor,
         inkColor: s.inkColor,
         material: s.material,

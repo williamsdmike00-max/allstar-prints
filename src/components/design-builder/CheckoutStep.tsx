@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, FileCheck, AlertCircle } from 'lucide-react'
-import { useCustomizer } from '../customizer'
+import { useCustomizer, type PrintLocation } from '../customizer'
 import { totals } from '../customizer/pricing'
 import { shirtColors } from '../customizer/constants'
 import { firstTextElement } from '../customizer/state'
@@ -20,8 +20,12 @@ export default function CheckoutStep({
   const material = useCustomizer((s) => s.material)
   const size = useCustomizer((s) => s.size)
   const qty = useCustomizer((s) => s.qty)
-  const printLocation = useCustomizer((s) => s.printLocation)
+  const printLocations = useCustomizer((s) => s.printLocations)
   const elements = useCustomizer((s) => s.elements)
+  const locationsLabel = useMemo(
+    () => printLocations.join(' + ') || 'front',
+    [printLocations],
+  )
 
   const shirtName = useMemo(
     () => shirtColors.find((c) => c.hex === shirtColor)?.name || 'Custom',
@@ -37,14 +41,14 @@ export default function CheckoutStep({
       `• Ink: ${inkColor.toUpperCase()}`,
       `• Material: ${material}`,
       `• Size: ${size}, Qty: ${qty}`,
-      `• Print location: ${printLocation}`,
+      `• Print locations: ${locationsLabel}`,
       designText ? `• Text: "${designText}"` : null,
       imgCount > 0 ? `• Images on canvas: ${imgCount}` : null,
       '',
       'See attached preview. We\'ll redraw final art if needed and send a proof for approval.',
     ].filter(Boolean) as string[]
     return lines.join('\n')
-  }, [shirtName, shirtColor, inkColor, material, size, qty, printLocation, designText, imgCount])
+  }, [shirtName, shirtColor, inkColor, material, size, qty, locationsLabel, designText, imgCount])
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -84,7 +88,7 @@ export default function CheckoutStep({
         material,
         size,
         quantity: qty,
-        print_location: printLocation,
+        print_locations: printLocations.join(', '),
         design_text: designText,
         files_uploaded: file ? file.name : 'No files — see attached preview',
         download_links: fileUrls.length ? fileUrls.join('\n') : 'No file URLs',
@@ -135,8 +139,8 @@ export default function CheckoutStep({
           <SpecRow label="Ink" value={inkColor.toUpperCase()} />
           <SpecRow label="Material" value={material} />
           <SpecRow label="Size / Qty" value={`${size} · ${qty}`} />
-          <SpecRow label="Location" value={printLocation} />
-          <PriceRow qty={qty} material={material} />
+          <SpecRow label="Locations" value={locationsLabel} />
+          <PriceRow qty={qty} material={material} printLocations={printLocations} />
         </div>
       </div>
 
@@ -227,8 +231,16 @@ function SpecRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-function PriceRow({ qty, material }: { qty: number; material: 'Standard' | 'Tri-Blend' | 'Heavy Cotton' }) {
-  const { each, total } = totals(qty, material)
+function PriceRow({
+  qty,
+  material,
+  printLocations,
+}: {
+  qty: number
+  material: 'Standard' | 'Tri-Blend' | 'Heavy Cotton'
+  printLocations: PrintLocation[]
+}) {
+  const { each, total } = totals(qty, material, printLocations)
   return (
     <div className="pt-3 mt-1 border-t border-white/10">
       <div className="flex items-baseline justify-between">

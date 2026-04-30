@@ -33,7 +33,9 @@ export default function ActionPanel({
   const size = useCustomizer((s) => s.size)
   const setSize = useCustomizer((s) => s.setSize)
   const setQty = useCustomizer((s) => s.setQty)
-  const { each, total } = totals(qty, material)
+  const printLocations = useCustomizer((s) => s.printLocations)
+  const { each, total, locUp } = totals(qty, material, printLocations)
+  const extraLocations = printLocations.filter((l) => l !== 'front')
 
   return (
     <div className="flex flex-col gap-3">
@@ -161,7 +163,13 @@ export default function ActionPanel({
           </div>
         </div>
         <p className="text-[10px] text-brand-silver/70 mt-3 leading-relaxed">
-          Front print included · 1 color, 1 location. 50% deposit on 12+ shirts.
+          Front print included · 1 color per location.
+          {extraLocations.length > 0 && (
+            <>
+              {' '}Add-ons: {extraLocations.map((l) => l).join(' + ')} (+${locUp.toFixed(2)}/shirt).
+            </>
+          )}
+          {' '}50% deposit on 12+ shirts.
         </p>
       </div>
 

@@ -13,7 +13,8 @@ export default function PriceCard({
 }) {
   const qty = useCustomizer((s) => s.qty)
   const material = useCustomizer((s) => s.material)
-  const { each, total } = totals(qty, material)
+  const printLocations = useCustomizer((s) => s.printLocations)
+  const { each, total } = totals(qty, material, printLocations)
 
   return (
     <div

@@ -1,4 +1,5 @@
 import { Material } from './types'
+import { PRINT_LOCATION_UPCHARGE, type PrintLocation } from './state'
 
 // Per Allstar Prints LLC price sheet — t-shirts, front print included.
 // Returns null for 101+ shirts (custom quote).
@@ -18,11 +19,18 @@ export function upgradeFor(material: Material): number {
   return 0
 }
 
-export function totals(qty: number, material: Material) {
+// Total per-shirt upcharge from selected print locations.
+// 'front' is always included so contributes $0; 'back' = +$5, 'sleeve' = +$3.
+export function locationUpcharge(printLocations: PrintLocation[]): number {
+  return printLocations.reduce((sum, loc) => sum + (PRINT_LOCATION_UPCHARGE[loc] ?? 0), 0)
+}
+
+export function totals(qty: number, material: Material, printLocations: PrintLocation[] = ['front']) {
   const base = tierPrice(qty)
   const upgrade = upgradeFor(material)
-  if (base == null) return { each: null as string | null, total: null as string | null, base: null }
-  const each = (base + upgrade).toFixed(2)
+  const locUp = locationUpcharge(printLocations)
+  if (base == null) return { each: null as string | null, total: null as string | null, base: null, locUp }
+  const each = (base + upgrade + locUp).toFixed(2)
   const total = (parseFloat(each) * qty).toFixed(0)
-  return { each, total, base }
+  return { each, total, base, locUp }
 }
