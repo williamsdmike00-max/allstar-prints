@@ -92,7 +92,7 @@ export default function Footer() {
               <InstagramIcon size={18} />
             </a>
             <a
-              href="https://facebook.com/allstarprintsllc"
+              href="https://www.facebook.com/profile.php?id=61554364972208"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Allstar Prints on Facebook"
