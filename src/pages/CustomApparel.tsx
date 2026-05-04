@@ -51,6 +51,36 @@ const audience = [
   { label: 'Events & Organizations', desc: 'Volunteer shirts, race day tees, fundraiser apparel, and more.' },
 ]
 
+// Image-led audience tiles — each one is a full-bleed marketing graphic
+// (already has its own headline + brand styling baked in) that links to
+// the most relevant next step.
+const audienceCards = [
+  {
+    image: '/marketing/marketing-teams.jpg',
+    alt: 'Allstar Prints for teams, schools, and leagues — custom apparel for every team, every season',
+    href: '/design-online',
+    cta: 'Get team pricing',
+  },
+  {
+    image: '/marketing/marketing-family.jpg',
+    alt: 'Allstar Prints for family reunions and group trips — matching shirts, made memorable',
+    href: '/upload-artwork',
+    cta: 'Get family quote',
+  },
+  {
+    image: '/marketing/marketing-bulk.jpg',
+    alt: 'Allstar Prints for bulk orders — volume discounts, on-time delivery, consistent quality',
+    href: '/pricing',
+    cta: 'Get volume quote',
+  },
+  {
+    image: '/marketing/marketing-business.jpg',
+    alt: 'Allstar Prints for businesses — custom uniforms, branded apparel, and promo items',
+    href: '/pricing',
+    cta: 'Get business quote',
+  },
+]
+
 export default function CustomApparel() {
   return (
     <>
@@ -59,38 +89,80 @@ export default function CustomApparel() {
         description="Custom hoodies, sweatshirts, sports jerseys, event tees, and group apparel. Allstar Prints LLC outfits teams, schools, churches, and organizations across Dallas–Fort Worth."
         path="/custom-apparel"
       />
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-dark via-brand-dark2 to-brand-dark py-24 md:py-32">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/2 w-[600px] h-[600px] rounded-full bg-brand-navy/20 blur-3xl -translate-x-1/2 -translate-y-1/2" />
-        </div>
-        <div className="relative container-xl section-padding text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-brand-red mb-4">Custom Apparel</p>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6 max-w-4xl mx-auto">
-            Everything Your Group Needs to<br />
-            <span className="text-gradient-red">Look the Part</span>
-          </h1>
-          <p className="text-brand-silver text-lg leading-relaxed mb-10 max-w-2xl mx-auto">
-            From hoodies to jerseys to event tees — we outfit teams, organizations, businesses, and families with premium custom apparel. One order, one shop.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              to="/pricing"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white font-bold uppercase tracking-wider text-sm px-8 py-4 rounded-md shadow-glow-red transition-all hover:-translate-y-0.5"
-            >
-              Get a Free Quote <ArrowRight size={16} />
-            </Link>
-            <Link
-              to="/how-it-works"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-transparent border border-white/20 hover:border-white/40 text-white font-bold uppercase tracking-wider text-sm px-8 py-4 rounded-md transition-all hover:bg-white/5"
-            >
-              How It Works
-            </Link>
+      {/* Hero — image-led poster + bottom CTA strip. The overview image
+          already contains headline + features + brand voice, so we let it
+          carry visual weight and overlay only an elevated CTA row. */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-brand-dark via-brand-dark2 to-brand-dark py-12 md:py-16">
+        <div className="container-xl section-padding">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-8 items-center">
+            <div className="rounded-2xl overflow-hidden border border-white/10 shadow-glow-red bg-brand-dark2">
+              <img
+                src="/marketing/marketing-overview.jpg"
+                alt="Allstar Prints — Custom Apparel Done Right. Premium quality, fast turnaround, made just for you."
+                className="w-full h-auto block"
+                loading="eager"
+              />
+            </div>
+            <div className="text-center lg:text-left">
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-brand-red mb-4">Custom Apparel</p>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight mb-5">
+                Everything your group needs to{' '}
+                <span className="text-gradient-red">look the part.</span>
+              </h1>
+              <p className="text-brand-silver text-base md:text-lg leading-relaxed mb-7 max-w-xl mx-auto lg:mx-0">
+                From hoodies to jerseys to event tees — we outfit teams, organizations, businesses, and families with premium custom apparel. One order, one shop.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3">
+                <Link
+                  to="/pricing"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-brand-red hover:bg-brand-red-dark text-white font-bold uppercase tracking-wider text-sm px-7 py-3.5 rounded-md shadow-glow-red transition-all hover:-translate-y-0.5"
+                >
+                  Get a Free Quote <ArrowRight size={16} />
+                </Link>
+                <Link
+                  to="/design-online"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-transparent border border-white/20 hover:border-white/40 text-white font-bold uppercase tracking-wider text-sm px-7 py-3.5 rounded-md transition-all hover:bg-white/5"
+                >
+                  Design Online
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       <TrustBar />
+
+      {/* Built for every kind of group — image-led audience cards. Each
+          tile clicks through to the most relevant next step. */}
+      <section className="section-padding py-20 container-xl mx-auto">
+        <SectionHeader
+          label="Who We Make Apparel For"
+          title="Built for every"
+          titleHighlight="kind of group"
+          subtitle="Teams, families, businesses, bulk runs — same shop, same quality. Click any tile to start your quote."
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+          {audienceCards.map((card) => (
+            <Link
+              key={card.image}
+              to={card.href}
+              className="group relative block rounded-2xl overflow-hidden border border-white/10 bg-brand-dark3 hover:border-brand-red transition-all hover:shadow-glow-red hover:-translate-y-0.5"
+              aria-label={card.alt}
+            >
+              <img
+                src={card.image}
+                alt={card.alt}
+                className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.02]"
+                loading="lazy"
+              />
+              <span className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-red text-white text-[11px] font-black uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
+                {card.cta} <ArrowRight size={12} />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* Apparel Categories */}
       <section className="section-padding py-20 container-xl mx-auto">
