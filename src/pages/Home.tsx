@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import SEO from '../components/ui/SEO'
 import Customizer from '../components/customizer'
 import { SocialLink, SOCIAL_LINKS } from '../components/social/SocialIcons'
+import AudienceGrid from '../components/marketing/AudienceGrid'
 
 // ─────────────────────────────────────────────
 // Design tokens
@@ -1051,6 +1052,66 @@ function Hero({ tweaks }: { tweaks: Tweaks }) {
 
 
 // ─────────────────────────────────────────────
+// Audience showcase — image-led tiles between the customizer and Process.
+// Same component as on /custom-apparel; the wrapper here matches the
+// homepage's dark-section visual language.
+// ─────────────────────────────────────────────
+function AudienceSection({ accent }: { accent: string }) {
+  return (
+    <section
+      style={{
+        position: 'relative',
+        background: C.inkBlack,
+        color: C.paper,
+        padding: '100px 28px',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          background: `radial-gradient(700px 380px at 70% 30%, ${accent}1c, transparent 70%)`,
+        }}
+      />
+      <div style={{ maxWidth: 1300, margin: '0 auto', position: 'relative' }}>
+        <SectionLabel n="02" l="Who we print for" accent={accent} />
+        <h2
+          style={{
+            fontFamily: 'Archivo Black, sans-serif',
+            fontSize: 'clamp(40px, 5.5vw, 80px)',
+            lineHeight: 0.95,
+            letterSpacing: '-.03em',
+            marginTop: 16,
+            maxWidth: 900,
+          }}
+        >
+          Built for{' '}
+          <span style={{ color: accent }}>every kind</span>
+          {' '}of group.
+        </h2>
+        <p
+          style={{
+            maxWidth: 560,
+            marginTop: 16,
+            color: 'rgba(255,255,255,.7)',
+            fontSize: 16,
+            lineHeight: 1.5,
+          }}
+        >
+          Teams, families, businesses, bulk runs — same shop, same quality. Pick the closest match and we'll get you a quote.
+        </p>
+        <div style={{ marginTop: 48 }}>
+          <AudienceGrid />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─────────────────────────────────────────────
 // Process
 // ─────────────────────────────────────────────
 function Process({ accent }: { accent: string }) {
@@ -1319,6 +1380,8 @@ export default function Home() {
       />
 
       <Customizer tweaks={tweaks} setTweaks={setTweaks} />
+
+      <AudienceSection accent={tweaks.accent} />
 
       <Process accent={tweaks.accent} />
 

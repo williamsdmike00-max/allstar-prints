@@ -4,6 +4,7 @@ import SEO from '../components/ui/SEO'
 import CTABanner from '../components/ui/CTABanner'
 import SectionHeader from '../components/ui/SectionHeader'
 import TrustBar from '../components/ui/TrustBar'
+import AudienceGrid from '../components/marketing/AudienceGrid'
 
 const categories = [
   {
@@ -51,35 +52,6 @@ const audience = [
   { label: 'Events & Organizations', desc: 'Volunteer shirts, race day tees, fundraiser apparel, and more.' },
 ]
 
-// Image-led audience tiles — each one is a full-bleed marketing graphic
-// (already has its own headline + brand styling baked in) that links to
-// the most relevant next step.
-const audienceCards = [
-  {
-    image: '/marketing/marketing-teams.jpg',
-    alt: 'Allstar Prints for teams, schools, and leagues — custom apparel for every team, every season',
-    href: '/design-online',
-    cta: 'Get team pricing',
-  },
-  {
-    image: '/marketing/marketing-family.jpg',
-    alt: 'Allstar Prints for family reunions and group trips — matching shirts, made memorable',
-    href: '/upload-artwork',
-    cta: 'Get family quote',
-  },
-  {
-    image: '/marketing/marketing-bulk.jpg',
-    alt: 'Allstar Prints for bulk orders — volume discounts, on-time delivery, consistent quality',
-    href: '/pricing',
-    cta: 'Get volume quote',
-  },
-  {
-    image: '/marketing/marketing-business.jpg',
-    alt: 'Allstar Prints for businesses — custom uniforms, branded apparel, and promo items',
-    href: '/pricing',
-    cta: 'Get business quote',
-  },
-]
 
 export default function CustomApparel() {
   return (
@@ -133,8 +105,8 @@ export default function CustomApparel() {
 
       <TrustBar />
 
-      {/* Built for every kind of group — image-led audience cards. Each
-          tile clicks through to the most relevant next step. */}
+      {/* Built for every kind of group — image-led audience cards. The
+          grid component is shared with the homepage. */}
       <section className="section-padding py-20 container-xl mx-auto">
         <SectionHeader
           label="Who We Make Apparel For"
@@ -142,26 +114,7 @@ export default function CustomApparel() {
           titleHighlight="kind of group"
           subtitle="Teams, families, businesses, bulk runs — same shop, same quality. Click any tile to start your quote."
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-          {audienceCards.map((card) => (
-            <Link
-              key={card.image}
-              to={card.href}
-              className="group relative block rounded-2xl overflow-hidden border border-white/10 bg-brand-dark3 hover:border-brand-red transition-all hover:shadow-glow-red hover:-translate-y-0.5"
-              aria-label={card.alt}
-            >
-              <img
-                src={card.image}
-                alt={card.alt}
-                className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.02]"
-                loading="lazy"
-              />
-              <span className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-red text-white text-[11px] font-black uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
-                {card.cta} <ArrowRight size={12} />
-              </span>
-            </Link>
-          ))}
-        </div>
+        <AudienceGrid />
       </section>
 
       {/* Apparel Categories */}
