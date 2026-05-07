@@ -269,7 +269,7 @@ function UploadZone({ selectedSheet }: { selectedSheet: SheetSize }) {
       setSubmitted(true)
     } catch (err) {
       console.error('Gang sheet submission error:', err)
-      setSubmitError('Something went wrong submitting your order. Please try again or email us directly at contact@allstarprintsllc.com')
+      setSubmitError('Something went wrong submitting your order. Please try again or email us directly at allstarprints2019@gmail.com')
     } finally {
       setSubmitting(false)
     }

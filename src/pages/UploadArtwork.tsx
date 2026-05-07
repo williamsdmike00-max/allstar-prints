@@ -115,7 +115,7 @@ export default function UploadArtwork() {
       setSubmitted(true)
     } catch (err) {
       console.error('Upload error:', err)
-      setSubmitError('Something went wrong submitting your files. Please try again or email us directly at contact@allstarprintsllc.com')
+      setSubmitError('Something went wrong submitting your files. Please try again or email us directly at allstarprints2019@gmail.com')
     } finally {
       setSubmitting(false)
     }
