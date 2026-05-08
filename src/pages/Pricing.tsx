@@ -339,7 +339,6 @@ export default function Pricing() {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Field label="Email Address" name="email" type="email" value={form.email} onChange={handleChange} placeholder="you@example.com" required />
-                      <Field label="Phone (optional)" name="phone" type="tel" value={form.phone} onChange={handleChange} placeholder="(555) 000-0000" />
                     </div>
                   </fieldset>
 
