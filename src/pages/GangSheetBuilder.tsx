@@ -356,8 +356,7 @@ function UploadZone({ selectedSheet }: { selectedSheet: SheetSize }) {
         <UField label="Your Name" value={form.name} onChange={(v) => setForm((p) => ({ ...p, name: v }))} placeholder="Full name" required />
         <UField label="Email" type="email" value={form.email} onChange={(v) => setForm((p) => ({ ...p, email: v }))} placeholder="you@example.com" required />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <UField label="Phone (optional)" type="tel" value={form.phone} onChange={(v) => setForm((p) => ({ ...p, phone: v }))} placeholder="(555) 000-0000" />
+      <div>
         <div className="flex flex-col gap-1.5">
           <label className="text-[10px] font-bold uppercase tracking-widest text-brand-silver/65">
             Number of Sheets <span className="text-brand-red">*</span>
