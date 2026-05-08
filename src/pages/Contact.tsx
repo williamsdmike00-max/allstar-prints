@@ -152,6 +152,7 @@ export default function Contact() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-brand-silver/65">Phone (optional)</label>
                     <input name="phone" type="tel" value={form.phone} onChange={handleChange} placeholder="(817) 507-4553" className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-brand-silver/35 outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/12 transition-colors" />
+                    <p className="text-[10px] text-brand-silver/40 leading-relaxed">By providing your phone number, you agree to receive SMS messages from Allstar Prints LLC about your inquiry. Reply STOP to unsubscribe. Msg & data rates may apply.</p>
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-brand-silver/65">Message <span className="text-brand-red">*</span></label>
