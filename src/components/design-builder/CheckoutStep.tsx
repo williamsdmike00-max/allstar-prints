@@ -192,6 +192,7 @@ export default function CheckoutStep({
             placeholder="(555) 000-0000"
             className="sm:col-span-2"
           />
+          <p className="text-[10px] text-brand-silver/40 leading-relaxed sm:col-span-2 -mt-2">By providing your phone number, you agree to receive SMS messages from Allstar Prints LLC about your order. Reply STOP to unsubscribe. Msg & data rates may apply.</p>
         </fieldset>
 
         <div className="flex flex-col gap-1.5">

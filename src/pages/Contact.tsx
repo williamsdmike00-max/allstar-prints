@@ -7,7 +7,7 @@ import { submitForm } from '../lib/web3forms'
 const contactInfo = [
   { icon: <Phone size={18} />, label: 'Phone / Text', value: '(817) 507-4553', sub: 'Fastest way to reach us' },
   { icon: <Mail size={18} />, label: 'Email', value: 'allstarprints2019@gmail.com', sub: 'We reply within a few hours' },
-  { icon: <MapPin size={18} />, label: 'Service Area', value: 'Dallas–Fort Worth, TX', sub: 'By Appointment Only' },
+  { icon: <MapPin size={18} />, label: 'Location', value: '400 Las Colinas Blvd East, Suite 300', sub: 'Irving, TX 75039' },
   { icon: <Clock size={18} />, label: 'Hours', value: 'Mon–Fri 9am–6pm', sub: 'Sat 10am–3pm | Closed Sun' },
 ]
 
@@ -152,6 +152,7 @@ export default function Contact() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-brand-silver/65">Phone (optional)</label>
                     <input name="phone" type="tel" value={form.phone} onChange={handleChange} placeholder="(817) 507-4553" className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-brand-silver/35 outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/12 transition-colors" />
+                    <p className="text-[10px] text-brand-silver/40 leading-relaxed">By providing your phone number, you agree to receive SMS messages from Allstar Prints LLC about your inquiry. Reply STOP to unsubscribe. Msg & data rates may apply.</p>
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-brand-silver/65">Message <span className="text-brand-red">*</span></label>

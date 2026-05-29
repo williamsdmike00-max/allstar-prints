@@ -91,7 +91,7 @@ export default function PrivacyPolicy() {
               <h2 className="text-white text-xl font-bold mb-3">10. Contact Us</h2>
               <p>If you have questions about this Privacy Policy, contact us at:<br />
               Allstar Prints LLC<br />
-              Dallas–Fort Worth, TX · By Appointment Only<br />
+              400 Las Colinas Blvd East, Suite 300, Irving, TX 75039<br />
               (817) 507-4553 | allstarprints2019@gmail.com</p>
             </div>
 

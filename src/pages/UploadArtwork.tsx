@@ -286,7 +286,6 @@ export default function UploadArtwork() {
                     <ArtField label="Your Name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" required />
                     <ArtField label="Email Address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
                   </div>
-                  <ArtField label="Phone (optional)" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 000-0000" />
                 </fieldset>
 
                 {/* Notes */}

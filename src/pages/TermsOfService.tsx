@@ -88,7 +88,7 @@ export default function TermsOfService() {
               <h2 className="text-white text-xl font-bold mb-3">11. Contact</h2>
               <p>Questions about these Terms? Contact us:<br />
               Allstar Prints LLC<br />
-              Dallas–Fort Worth, TX · By Appointment Only<br />
+              400 Las Colinas Blvd East, Suite 300, Irving, TX 75039<br />
               (817) 507-4553 | allstarprints2019@gmail.com</p>
             </div>
 
