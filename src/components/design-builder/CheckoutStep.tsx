@@ -102,7 +102,7 @@ export default function CheckoutStep({
       setSubmitted(true)
     } catch (err) {
       console.error('Design Online submit failed', err)
-      setError('Could not submit. Try again or email contact@allstarprintsllc.com directly.')
+      setError('Could not submit. Try again or email allstarprints2019@gmail.com directly.')
     } finally {
       setSubmitting(false)
     }

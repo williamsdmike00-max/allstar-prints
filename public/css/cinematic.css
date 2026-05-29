@@ -1,0 +1,4 @@
+/* Cinematic effects — minimal stub for the LMM gang sheet builder.
+ * The full cinematic stylesheet (cursor glow, hover blooms, etc.) lives
+ * on canonical LMM sites. This stub avoids 404s; expand later if needed. */
+.cursor-glow { pointer-events: none; }

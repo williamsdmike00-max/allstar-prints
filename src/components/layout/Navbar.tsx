@@ -7,7 +7,6 @@ const services = [
   { label: 'DTF Printing', href: '/dtf-printing' },
   { label: 'Gang Sheet Builder', href: '/gang-sheet-builder' },
   { label: 'Custom Apparel', href: '/custom-apparel' },
-  { label: '✨ AI Design Generator', href: '/design-generator' },
 ]
 
 export default function Navbar() {
@@ -76,6 +75,7 @@ export default function Navbar() {
               </div>
             )}
           </li>
+          <li><NavLink to="/design-generator" className={linkClass}>✨ AI Designer</NavLink></li>
           <li><NavLink to="/how-it-works" className={linkClass}>How It Works</NavLink></li>
           <li><NavLink to="/pricing" className={linkClass}>Pricing</NavLink></li>
           <li><NavLink to="/about" className={linkClass}>About</NavLink></li>
@@ -127,6 +127,7 @@ export default function Navbar() {
           ))}
           <div className="h-px bg-white/8 my-2" />
           {[
+            { label: '✨ AI Designer', href: '/design-generator' },
             { label: 'How It Works', href: '/how-it-works' },
             { label: 'Pricing', href: '/pricing' },
             { label: 'Upload Artwork', href: '/upload-artwork' },

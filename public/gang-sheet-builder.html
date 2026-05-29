@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gang Sheet Builder | AllStar Prints</title>
+  <meta name="description" content="Upload your designs, arrange them on a 22-inch DTF gang sheet, and order in minutes. Drag, resize, rotate — exactly the way you want." />
+  <link rel="icon" type="image/png" href="/brand_assets/openart-image_1775569332019_55a69ae4_1775569332054_46e7f565.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/cinematic.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@uppy/core@4.2.3/dist/style.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@uppy/dashboard@4.1.2/dist/style.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@uppy/webcam@4.1.0/dist/style.min.css" />
+  <style>
+    /* ---- Builder page hero ---- */
+    .builder-page-hero {
+      background: var(--gradient);
+      padding: 2rem 0;
+      text-align: center;
+    }
+    .builder-page-hero h1 { color: #fff; font-size: clamp(1.6rem, 3vw, 2.4rem); margin-bottom: 0.4rem; }
+    .builder-page-hero p  { color: rgba(255,255,255,0.88); font-size: 0.95rem; margin: 0; }
+
+    .builder-section { padding: 2.5rem 0 4rem; background: #f6f8fb; }
+
+    /* ---- Gangify-style 3-column layout ---- */
+    .gs-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+    @media (min-width: 1100px) {
+      .gs-layout { grid-template-columns: 250px minmax(0, 1fr) 280px; }
+    }
+
+    .gs-panel {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 1.25rem 1rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+    .gs-panel h3, .gs-panel h4 {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      color: var(--secondary);
+      letter-spacing: 0.3px;
+    }
+    .gs-panel h3 {
+      font-size: 0.92rem;
+      text-transform: uppercase;
+      margin-bottom: 0.85rem;
+    }
+    .gs-panel h4 { font-size: 0.85rem; margin-bottom: 0.6rem; }
+    .gs-panel hr {
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin: 1.15rem 0;
+    }
+
+    /* Left panel — primary buttons */
+    .gs-btn {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .gs-btn + .gs-btn { margin-top: 0.5rem; }
+    .gs-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(0,123,255,0.04); }
+    .gs-btn.gs-primary { background: var(--gradient); color: #fff; border-color: transparent; }
+    .gs-btn.gs-primary:hover { background: var(--accent); color: #fff; }
+    .gs-btn.gs-danger { color: #b51d2a; border-color: rgba(220,53,69,0.30); }
+    .gs-btn.gs-danger:hover { background: rgba(220,53,69,0.08); border-color: #dc3545; }
+    .gs-btn.gs-icon-only { width: auto; padding: 0.55rem 0.85rem; }
+    .gs-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+    /* Upload widget styled as a button-like card */
+    .gs-upload-button {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .gs-upload-button:hover,
+    .gs-upload-button.drag-over {
+      border-color: var(--primary);
+      background: rgba(0,123,255,0.07);
+      color: var(--primary);
+    }
+    .gs-upload-button input[type="file"] {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      opacity: 0; cursor: pointer;
+    }
+
+    /* Sheet size grid (right panel) */
+    .gs-sheet-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+    }
+    .gs-sheet-btn {
+      padding: 0.5rem 0.4rem;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 0.78rem;
+      color: var(--text);
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+    }
+    .gs-sheet-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .gs-sheet-btn.active {
+      background: var(--secondary);
+      color: #fff;
+      border-color: var(--secondary);
+    }
+
+    /* Custom size + rotate row */
+    .gs-dim-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0.4rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .gs-dim-row input {
+      width: 100%;
+      padding: 0.45rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      text-align: center;
+      font-family: var(--font-heading);
+    }
+    .gs-dim-row .gs-x { color: var(--gray); font-weight: 700; }
+
+    /* Selection state messaging */
+    .gs-no-selection {
+      text-align: center;
+      padding: 1.5rem 0.5rem;
+      color: var(--gray);
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+    .gs-no-selection .gs-no-sel-ico {
+      display: inline-block;
+      width: 42px; height: 42px;
+      background: var(--gray-light);
+      border-radius: 10px;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 0.6rem;
+      font-size: 1.3rem;
+    }
+
+    /* Toggle row */
+    .gs-toggle-row {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--text);
+      cursor: pointer;
+      padding: 0.4rem 0;
+    }
+    .gs-toggle-row input[type=checkbox] { width: 16px; height: 16px; }
+
+    /* Canvas wrap (center column) */
+    .gs-canvas-pane {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    }
+    .canvas-scroll-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      justify-content: center;
+    }
+    .canvas-meta {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--gray);
+      margin-top: 0.4rem;
+      font-family: var(--font-heading);
+    }
+    /* Show a friendly drop hint when canvas is empty */
+    .canvas-wrap { position: relative; }
+
+    /* Summary mini-card */
+    .gs-mini-summary {
+      background: var(--gray-light);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+    }
+    .gs-mini-summary .bs-row {
+      display: flex; justify-content: space-between;
+      font-size: 0.82rem;
+      padding: 0.18rem 0;
+    }
+    .gs-mini-summary .bs-row strong { font-family: var(--font-heading); }
+    .gs-mini-summary .bs-total {
+      color: var(--primary);
+      font-size: 0.95rem;
+      border-top: 2px solid var(--border);
+      padding-top: 0.5rem;
+      margin-top: 0.3rem;
+    }
+
+    /* Quote section below */
+    .quote-section { background: #fff; padding: 4rem 0; }
+
+    /* Hide the legacy thumbnail tray (we auto-place now) but keep an empty
+       node so the JS that targets #designThumbGrid doesn't break. */
+    #designThumbGrid, #designThumbEmpty { display: none !important; }
+
+    /* ---- Selection overlay (Drag to move pill + trash icon) ---- */
+    .canvas-wrap { position: relative; }
+    #gsSelOverlay {
+      position: absolute;
+      display: flex; align-items: center; gap: 4px;
+      background: #fff;
+      border: 1.5px solid #1e90ff;
+      border-radius: 999px;
+      padding: 3px 4px;
+      font-family: var(--font-heading);
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: #1e90ff;
+      box-shadow: 0 2px 8px rgba(30,144,255,0.25);
+      z-index: 5;
+      pointer-events: auto;
+      user-select: none;
+      white-space: nowrap;
+    }
+    #gsSelOverlayTrash {
+      background: #dc3545;
+      color: #fff;
+      border: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 0;
+    }
+    #gsSelOverlayTrash:hover { background: #b51d2a; }
+    .gsSelOverlayDrag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 0 8px 0 4px;
+      cursor: move;
+    }
+
+    /* ---- "Editing selected" panel header ---- */
+    .gs-edit-header {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.85rem;
+    }
+    .gs-edit-thumb {
+      width: 34px; height: 34px;
+      background: var(--gray-light);
+      border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .gs-edit-title {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text);
+      flex: 1;
+    }
+    .gs-edit-close {
+      background: none; border: none;
+      font-size: 1.2rem; line-height: 1;
+      color: var(--gray);
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 6px;
+    }
+    .gs-edit-close:hover { background: var(--gray-light); color: var(--text); }
+
+    /* Section / accordion */
+    .gs-section { border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 0.5rem; }
+    .gs-section > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 0.6rem 0.85rem;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: var(--secondary);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .gs-section > summary::-webkit-details-marker { display: none; }
+    .gs-section > summary::after {
+      content: '▾';
+      font-size: 0.75rem;
+      color: var(--gray);
+      transition: transform 0.2s ease;
+    }
+    .gs-section[open] > summary::after { transform: rotate(180deg); }
+    .gs-section-body {
+      padding: 0.5rem 0.85rem 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .gs-sub-label {
+      display: block;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: var(--secondary);
+      margin: 0.5rem 0 0.35rem;
+    }
+    .gs-mini-label {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--gray);
+      margin-bottom: 2px;
+      font-family: var(--font-heading);
+      font-weight: 600;
+    }
+    .gs-hint {
+      font-size: 0.72rem;
+      color: var(--gray);
+      margin: 0.25rem 0 0.5rem;
+      font-style: italic;
+    }
+
+    /* Rotation slider */
+    .gs-slider-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .gs-slider-row input[type=range] {
+      width: 100%;
+      accent-color: var(--primary);
+    }
+    .gs-slider-ico { color: var(--gray); font-size: 0.95rem; }
+    .gs-slider-val {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: var(--secondary);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    /* Duplicate row */
+    .gs-dup-row { display: flex; gap: 0.4rem; align-items: stretch; }
+    .gs-dup-row input {
+      width: 60px;
+      padding: 0.45rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      text-align: center;
+      font-family: var(--font-heading);
+    }
+
+    /* ---- Add/Edit Text Modal ---- */
+    .gs-modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center; justify-content: center;
+      z-index: 9999;
+      padding: 1rem;
+    }
+    .gs-modal-backdrop.open { display: flex; }
+    .gs-modal {
+      background: #fff;
+      border-radius: var(--radius);
+      width: 100%; max-width: 460px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .gs-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .gs-modal-header h3 {
+      margin: 0;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text);
+    }
+    .gs-modal-close {
+      background: none; border: none;
+      font-size: 1.4rem; line-height: 1;
+      cursor: pointer; color: var(--gray);
+      padding: 0;
+    }
+    .gs-modal-body { padding: 1.25rem; }
+    .gs-modal-footer {
+      display: flex; gap: 0.6rem; justify-content: flex-end;
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+      background: #fafbfc;
+      border-radius: 0 0 var(--radius) var(--radius);
+    }
+    .gs-modal label { display: block; font-family: var(--font-heading); font-weight: 600; font-size: 0.78rem; color: var(--secondary); margin: 0.85rem 0 0.4rem; }
+    .gs-modal input[type=text], .gs-modal textarea, .gs-modal input[type=number] {
+      width: 100%;
+      padding: 0.55rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.92rem;
+      font-family: var(--font-body);
+    }
+    .gs-modal textarea { min-height: 60px; resize: vertical; }
+    .gs-font-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 2px;
+    }
+    .gs-font-tile {
+      padding: 0.7rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--text);
+      text-align: left;
+      transition: var(--transition);
+    }
+    .gs-font-tile:hover { border-color: var(--primary); }
+    .gs-font-tile.active {
+      border-color: var(--primary);
+      background: rgba(0,123,255,0.08);
+      color: var(--primary);
+    }
+    .gs-modal-row {
+      display: grid; grid-template-columns: 1fr auto auto;
+      gap: 0.5rem; align-items: end;
+    }
+    .gs-bi-btn {
+      padding: 0.55rem 0.85rem;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      min-width: 38px;
+      font-family: var(--font-heading);
+    }
+    .gs-bi-btn.active { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+    .gs-modal .gs-preview {
+      padding: 1rem;
+      background: var(--gray-light);
+      border-radius: var(--radius-sm);
+      margin-top: 0.75rem;
+      min-height: 60px;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      word-break: break-word;
+      overflow: hidden;
+    }
+    .gs-modal-footer .gs-btn { width: auto; }
+    .gs-modal-footer .gs-btn.gs-primary { background: var(--primary); }
+  </style>
+</head>
+<body>
+
+  <div class="grain"></div>
+
+  <!-- ====== NAVIGATION ====== -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo" aria-label="AllStar Prints Home">
+        <img src="/brand_assets/openart-image_1775569332019_55a69ae4_1775569332054_46e7f565.png" alt="AllStar Prints Logo" />
+      </a>
+      <ul class="nav-links" role="list">
+                <li><a href="/">Home</a></li>
+        <li><a href="/custom-tshirts">T-Shirts</a></li>
+        <li><a href="/dtf-printing">DTF Printing</a></li>
+        <li><a href="/gang-sheet-builder.html" class="active">Gang Sheet Builder</a></li>
+        <li><a href="/pricing">Pricing</a></li>
+        <li><a href="/how-it-works">How It Works</a></li>
+        <li><a href="/contact" class="nav-cta">Get a Quote</a></li>
+      </ul>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navMobile">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+  <div class="nav-mobile" id="navMobile">
+    <ul>
+              <li><a href="/">Home</a></li>
+        <li><a href="/custom-tshirts">T-Shirts</a></li>
+        <li><a href="/dtf-printing">DTF Printing</a></li>
+        <li><a href="/gang-sheet-builder.html" class="active">Gang Sheet Builder</a></li>
+        <li><a href="/pricing">Pricing</a></li>
+        <li><a href="/how-it-works">How It Works</a></li>
+        <li><a href="/upload-artwork">Upload Artwork</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/contact" class="mob-cta">Get a Free Quote</a></li>
+    </ul>
+  </div>
+
+  <main>
+
+    <!-- ====== PAGE HERO ====== -->
+    <div class="builder-page-hero">
+      <div class="container">
+        <h1>🗂️ Gang Sheet Builder</h1>
+        <p>Upload your designs, drag-arrange them on the sheet, then click "Add to Quote."</p>
+      </div>
+    </div>
+
+    <!-- ====== BUILDER ====== -->
+    <section class="builder-section">
+      <div class="container">
+
+        <div class="gs-layout">
+
+          <!-- ===== LEFT: Tools + Selection editor ===== -->
+          <aside class="gs-panel" aria-label="Tools and selection editor">
+            <h3>Canvas Designer</h3>
+
+            <!-- Upload image (also accepts drop) -->
+            <label class="gs-upload-button" id="designUploadZone" tabindex="0" role="button" aria-label="Upload image">
+              <span aria-hidden="true">⬆</span>
+              <span>Upload Image</span>
+              <input type="file" id="designFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" multiple />
+            </label>
+
+            <button type="button" class="gs-btn" id="gsAddTextBtn">
+              <span aria-hidden="true">T</span>
+              <span>Add Text</span>
+            </button>
+
+            <hr>
+
+            <!-- Selection editor (shown only when a design is selected) -->
+            <div id="gsSelectionEditor" hidden>
+              <div class="gs-edit-header">
+                <span class="gs-edit-thumb" id="gsEditThumb" aria-hidden="true">🖼</span>
+                <span class="gs-edit-title" id="gsEditTitle">Editing selected image</span>
+                <button type="button" class="gs-edit-close" id="gsDeselectBtn" aria-label="Deselect">×</button>
+              </div>
+
+              <!-- ===== SHARED CONTROLS (always shown when something is selected) ===== -->
+              <div class="gs-section" style="padding:0.5rem 0.85rem 0.85rem;margin-bottom:0.5rem;">
+                <label class="gs-sub-label">Rotation</label>
+                <div class="gs-slider-row">
+                  <span class="gs-slider-ico" aria-hidden="true">↻</span>
+                  <input type="range" id="gsRotationSlider" min="0" max="360" step="1" value="0" />
+                  <span class="gs-slider-val" id="gsRotationVal">0°</span>
+                </div>
+                <button type="button" class="gs-btn" id="gsRotateBtn" style="margin-top:0.5rem;">↻ Rotate 90°</button>
+                <div class="gs-dup-row" style="margin-top:0.5rem;">
+                  <button type="button" class="gs-btn" id="gsDuplicateBtn" style="flex:1;">⎘ Duplicate ×</button>
+                  <input type="number" id="gsDupCount" min="1" max="20" value="1" />
+                </div>
+              </div>
+
+              <!-- ===== IMAGE CONTROLS ===== -->
+              <details id="gsImageControls" class="gs-section" open>
+                <summary>Image Controls</summary>
+                <div class="gs-section-body">
+                  <label class="gs-sub-label">Size (inches)</label>
+                  <div class="gs-dim-row" style="grid-template-columns:1fr 1fr;gap:0.4rem;">
+                    <div>
+                      <label class="gs-mini-label">Width</label>
+                      <input type="number" id="gsSelWidth"  step="0.1" min="0.5" aria-label="Width (inches)" />
+                    </div>
+                    <div>
+                      <label class="gs-mini-label">Height</label>
+                      <input type="number" id="gsSelHeight" step="0.1" min="0.5" aria-label="Height (inches)" />
+                    </div>
+                  </div>
+                  <p class="gs-hint">Aspect ratio is preserved</p>
+                  <button type="button" class="gs-btn" id="gsApplyCustomBtn" style="margin-bottom:0.75rem;">Apply Size</button>
+
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;">
+                    <button type="button" class="gs-btn" id="gsTrimBtn" title="Coming soon">⌗ Trim</button>
+                    <button type="button" class="gs-btn" id="gsRemoveBgBtn" title="Coming soon">✕ Remove Bg</button>
+                  </div>
+                </div>
+              </details>
+
+              <!-- ===== TEXT CONTROLS (only for text designs) ===== -->
+              <details id="gsTextControls" class="gs-section" hidden>
+                <summary>Text Controls</summary>
+                <div class="gs-section-body">
+                  <!-- Live dimensions readout — what the text will print at -->
+                  <div id="gsTextDims" style="background:var(--gray-light);border-radius:6px;padding:0.5rem 0.65rem;margin-bottom:0.6rem;font-family:var(--font-heading);font-size:0.8rem;color:var(--secondary);display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.4px;color:var(--gray);font-weight:600;">Print Size</span>
+                    <strong id="gsTextDimsVal" style="font-weight:800;">0.0" × 0.0"</strong>
+                  </div>
+
+                  <label class="gs-mini-label">Text</label>
+                  <input type="text" id="gsTextInput" class="form-control" maxlength="200" style="padding:0.45rem 0.6rem;margin-bottom:0.5rem;" />
+
+                  <label class="gs-mini-label">Font</label>
+                  <select id="gsTextFontSelect" class="form-control" style="padding:0.45rem;margin-bottom:0.5rem;"></select>
+
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;margin-bottom:0.5rem;">
+                    <div>
+                      <label class="gs-mini-label">Size (px)</label>
+                      <input type="number" id="gsTextSize" step="2" min="8" max="600" value="72" class="form-control" style="padding:0.4rem;" />
+                    </div>
+                    <div>
+                      <label class="gs-mini-label">Color</label>
+                      <input type="color" id="gsTextColor" value="#000000" style="width:100%;height:36px;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px;" />
+                    </div>
+                  </div>
+
+                  <div style="display:flex;gap:0.4rem;margin-bottom:0.5rem;">
+                    <button type="button" class="gs-btn gs-icon-only" id="gsTextBoldBtn" style="font-weight:800;flex:1;">B</button>
+                    <button type="button" class="gs-btn gs-icon-only" id="gsTextItalicBtn" style="font-style:italic;flex:1;">I</button>
+                  </div>
+
+                  <button type="button" class="gs-btn" id="gsApplyTextBtn">Apply Text</button>
+                </div>
+              </details>
+
+              <!-- ===== EFFECTS (stub) ===== -->
+              <details class="gs-section">
+                <summary>Effects</summary>
+                <div class="gs-section-body">
+                  <p class="gs-hint" style="margin-top:0;">
+                    Color filters, glow, drop shadow &amp; more — coming soon.
+                  </p>
+                </div>
+              </details>
+
+              <hr style="margin: 1rem 0;">
+              <button type="button" class="gs-btn" id="gsDownloadSelBtn">⬇ Download Selected</button>
+              <button type="button" class="gs-btn gs-danger" id="gsDeleteBtn" style="margin-top:0.5rem;">🗑 Delete Selected</button>
+            </div>
+            <div id="gsNoSelection" class="gs-no-selection">
+              <span class="gs-no-sel-ico" aria-hidden="true">✎</span><br>
+              Click an image on the canvas to edit its size or rotation.
+            </div>
+
+            <!-- Hidden, kept for JS compatibility (renderUploadTray is a no-op when hidden) -->
+            <div class="design-thumb-grid" id="designThumbGrid" aria-hidden="true"></div>
+            <p class="dut-empty-msg" id="designThumbEmpty" aria-hidden="true"></p>
+          </aside>
+
+          <!-- ===== CENTER: Canvas ===== -->
+          <div class="gs-canvas-pane">
+            <div class="canvas-scroll-wrap">
+              <div style="position:relative;">
+                <div class="canvas-wrap" id="canvasWrap">
+                  <canvas id="gangSheetCanvas" aria-label="Gang sheet design canvas"></canvas>
+                  <div class="canvas-hint" id="canvasHint" aria-hidden="true">
+                    <span class="ch-big">⬆</span>
+                    <span class="ch-small">Upload an image — it'll drop onto the sheet automatically</span>
+                  </div>
+                  <!-- Selection overlay (Drag-to-move pill + trash icon) -->
+                  <div id="gsSelOverlay" hidden>
+                    <button type="button" id="gsSelOverlayTrash" title="Delete" aria-label="Delete selected">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                    <span class="gsSelOverlayDrag" aria-hidden="true">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+                      Drag to move
+                    </span>
+                  </div>
+                </div>
+                <div class="canvas-meta" id="canvasMeta">22" × 24" sheet</div>
+              </div>
+            </div>
+
+            <!-- Fill meter -->
+            <div style="margin-top:1.25rem;">
+              <div class="fill-label">
+                <span style="font-family:var(--font-heading);font-weight:700;font-size:0.82rem;">Sheet Fill</span>
+                <span id="builderFillPct" style="color:var(--primary);font-family:var(--font-heading);font-weight:700;">0%</span>
+              </div>
+              <div class="fill-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Sheet fill percentage">
+                <div class="fill-bar" id="builderFillBar" style="width:0%"></div>
+              </div>
+              <p style="font-size:0.78rem;color:var(--gray);margin:0;">Pack designs to maximize sheet value. Over 80% fill is ideal.</p>
+            </div>
+          </div>
+
+          <!-- ===== RIGHT: Sheet Settings ===== -->
+          <aside class="gs-panel" aria-label="Sheet settings">
+            <h3>📐 Sheet Size</h3>
+            <div class="gs-sheet-grid" id="gsSheetGrid" role="group" aria-label="Select sheet size">
+                            <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="22x12">22" × 12"</button>
+              <button type="button" class="gs-sheet-btn sheet-btn active" data-sheet="22x24">22" × 24"</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="22x36">22" × 36"</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="22x48">22" × 48"</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="22x60">22" × 60"</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="22x96">22" × 96"</button>
+              <button type="button" class="gs-sheet-btn sheet-btn" data-sheet="22x120" style="grid-column:span 2;">22" × 120"</button>
+            </div>
+
+            <hr>
+
+            <!-- Layout actions -->
+            <button type="button" class="gs-btn" id="gsAutoArrangeBtn">⊞ Auto-arrange</button>
+            <button type="button" class="gs-btn" id="builderClear" style="margin-top:0.5rem;">🧹 Clear All</button>
+
+            <label class="gs-toggle-row">
+              <input type="checkbox" id="gsShowMargins" />
+              Show margins (0.25")
+            </label>
+
+            <hr>
+
+            <!-- Background -->
+            <h4 style="font-family:var(--font-heading);font-size:0.78rem;text-transform:uppercase;color:var(--secondary);letter-spacing:0.4px;margin-bottom:0.5rem;">Background</h4>
+            <div class="gs-bg-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.3rem;margin-bottom:0.75rem;">
+              <button type="button" class="gs-bg-swatch active" data-bg="transparent" title="Transparent" style="aspect-ratio:1;border:2px solid var(--secondary);border-radius:6px;background-image:linear-gradient(45deg,#ddd 25%,transparent 25%),linear-gradient(-45deg,#ddd 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ddd 75%),linear-gradient(-45deg,transparent 75%,#ddd 75%);background-size:8px 8px;background-position:0 0,0 4px,4px -4px,-4px 0px;background-color:#fff;cursor:pointer;"></button>
+              <button type="button" class="gs-bg-swatch" data-bg="#ffffff" title="White" style="aspect-ratio:1;border:2px solid var(--border);border-radius:6px;background:#ffffff;cursor:pointer;"></button>
+              <button type="button" class="gs-bg-swatch" data-bg="#000000" title="Black" style="aspect-ratio:1;border:2px solid var(--border);border-radius:6px;background:#000000;cursor:pointer;"></button>
+              <button type="button" class="gs-bg-swatch" data-bg="#ff69b4" title="Pink" style="aspect-ratio:1;border:2px solid var(--border);border-radius:6px;background:#ff69b4;cursor:pointer;"></button>
+            </div>
+
+            <!-- Export -->
+            <button type="button" class="gs-btn" id="gsExport300Btn">⬇ Export 300 DPI</button>
+
+            <hr>
+
+            <!-- Summary -->
+            <div class="gs-mini-summary">
+              <div class="bs-row">
+                <span>Sheet price</span>
+                <strong id="bsSummarySheetPrice">$20.00/sheet</strong>
+              </div>
+              <div class="bs-row">
+                <span>Designs placed</span>
+                <strong id="bsSummaryCount">0 design(s)</strong>
+              </div>
+              <div class="bs-row">
+                <span>Fill</span>
+                <strong id="bsSummaryFill">0%</strong>
+              </div>
+              <div class="bs-row bs-total">
+                <span>Total</span>
+                <strong id="bsSummaryTotal">$20.00</strong>
+              </div>
+            </div>
+
+            <!-- Sheet quantity -->
+            <div style="margin-top:1rem;">
+              <label for="gangSheetQtyInput" style="font-family:var(--font-heading);font-weight:700;font-size:0.82rem;display:block;margin-bottom:0.4rem;">
+                Number of Sheets
+              </label>
+              <div class="qty-wrap">
+                <button class="qty-btn" type="button" onclick="adjustGSQty(-1)" aria-label="Fewer sheets">−</button>
+                <input class="qty-input" type="number" id="gangSheetQtyInput" value="1" min="1" max="999" aria-label="Number of sheets" />
+                <button class="qty-btn" type="button" onclick="adjustGSQty(1)"  aria-label="More sheets">+</button>
+              </div>
+            </div>
+
+            <button type="button" class="gs-btn gs-primary" id="builderAddToQuote" style="margin-top:1rem;">
+              ✅ Add to Quote →
+            </button>
+
+            <button type="button" class="gs-btn" id="builderRemoveSelected" style="margin-top:0.5rem;" hidden>
+              🗑 Remove Selected
+            </button>
+
+            <!-- Placed list, hidden by default — exists so the JS doesn't 404 -->
+            <div id="placedItemsList" style="display:none;" aria-hidden="true"></div>
+          </aside>
+
+        </div><!-- end gs-layout -->
+      </div>
+    </section>
+
+    <!-- ====== QUOTE FORM ====== -->
+    <section class="quote-section" id="gangSheetQuote" aria-labelledby="gsQuoteHeading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Order Now</span>
+          <h2 id="gsQuoteHeading">Submit Your <span class="text-accent">Gang Sheet Order</span></h2>
+          <p>Fill in your contact details and we'll confirm with a layout proof within a few hours.</p>
+        </div>
+
+        <div style="max-width:720px;margin:0 auto;">
+
+          <div class="alert alert-info" id="layoutReadyAlert" style="display:none;margin-bottom:1.5rem;">
+            <span class="alert-icon" aria-hidden="true">✅</span>
+            <span>Your gang sheet layout has been added to this form. Fill in your details below and submit.</span>
+          </div>
+
+          <form
+            id="gangSheetQuoteForm"
+            action="/api/send-inquiry"
+            method="POST"
+            novalidate
+          >
+            <input type="hidden" name="Product Type" value="Gang Sheet Order" />
+            <input type="hidden" name="_subject" value="New Gang Sheet Quote — AllStar Prints" />
+            <input type="hidden" name="Sheet Size" id="formGangSheetSize" value="" />
+            <input type="hidden" name="Design Count" id="formDesignCount" value="" />
+            <input type="hidden" name="_gotcha" tabindex="-1" autocomplete="off" style="display:none;" aria-hidden="true" />
+
+            <div class="form-group">
+              <label for="gsLayoutSummary">Layout Summary (auto-filled by builder)</label>
+              <textarea id="gangSheetSummaryText" name="Layout Summary" class="form-control" rows="5" readonly placeholder="Use the Gang Sheet Builder above to generate your layout summary…" style="background:var(--gray-light);font-family:monospace;font-size:0.82rem;"></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gsFirstName">First Name <span class="req" aria-hidden="true">*</span></label>
+                <input type="text" id="gsFirstName" name="First Name" class="form-control" placeholder="Jane" required autocomplete="given-name" />
+                <span class="form-error">Required.</span>
+              </div>
+              <div class="form-group">
+                <label for="gsLastName">Last Name <span class="req" aria-hidden="true">*</span></label>
+                <input type="text" id="gsLastName" name="Last Name" class="form-control" placeholder="Smith" required autocomplete="family-name" />
+                <span class="form-error">Required.</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gsEmail">Email Address <span class="req" aria-hidden="true">*</span></label>
+                <input type="email" id="gsEmail" name="Email" class="form-control" placeholder="jane@example.com" required autocomplete="email" />
+                <span class="form-error">Valid email required.</span>
+              </div>
+              <div class="form-group">
+                <label for="gsPhone">Phone Number</label>
+                <input type="tel" id="gsPhone" name="Phone" class="form-control" placeholder="(817) 507-4553" autocomplete="tel" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gsSheetSizeForm">Sheet Size <span class="req" aria-hidden="true">*</span></label>
+                <select id="gsSheetSizeForm" name="Sheet Size (Confirmed)" class="form-control" required>
+                  <option value="">Select…</option>
+                                    <option value='22" × 12" — $14.00/sheet'>22" × 12" — $14.00/sheet</option>
+                  <option value='22" × 24" — $20.00/sheet' selected>22" × 24" — $20.00/sheet</option>
+                  <option value='22" × 36" — $28.00/sheet'>22" × 36" — $28.00/sheet</option>
+                  <option value='22" × 48" — $36.00/sheet'>22" × 48" — $36.00/sheet</option>
+                  <option value='22" × 60" — $44.00/sheet'>22" × 60" — $44.00/sheet</option>
+                  <option value='22" × 96" — $64.00/sheet'>22" × 96" — $64.00/sheet</option>
+                  <option value='22" × 120" — $78.00/sheet'>22" × 120" — $78.00/sheet</option>
+                </select>
+                <span class="form-error">Required.</span>
+              </div>
+              <div class="form-group">
+                <label for="gsNumSheets">Number of Sheets <span class="req" aria-hidden="true">*</span></label>
+                <input type="number" id="gsNumSheets" name="Number of Sheets" class="form-control" value="1" min="1" required />
+                <span class="form-error">Required.</span>
+              </div>
+            </div>
+
+            <!-- Extra Files (optional — builder uploads are the primary source) -->
+            <div class="form-group">
+              <label>Extra Files <small style="font-weight:400;color:var(--gray);">(optional — only if you didn't already use the builder above)</small></label>
+              <div class="ymp-upload" id="gsUppy" data-max-files="20" data-required="false" data-note="PNG, JPG, SVG, PDF, or ZIP — 300 DPI · Transparent Background · Max 50MB per file."></div>
+              <p class="form-hint">Designs you placed on the sheet above are already attached. Use this box only for extras (font files, color references, or a ZIP of high-res originals).</p>
+            </div>
+
+            <div class="form-group">
+              <label for="gsNotes">Additional Notes &amp; Instructions</label>
+              <textarea id="gsNotes" name="Notes" class="form-control" placeholder="Describe your designs, intended placement, colors, any deadlines, or special instructions…"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-full" id="gsSubmitBtn">
+              Submit Gang Sheet Order
+            </button>
+
+            <p style="text-align:center;color:var(--gray);font-size:0.82rem;margin-top:0.75rem;">
+              We'll send a layout proof for your approval before printing. No payment required to get a quote.
+            </p>
+
+            <div id="gsFormSuccess" class="alert alert-success hidden" role="alert" style="margin-top:1rem;">
+              ✅ <strong>Order submitted!</strong> We'll send you a layout proof within a few hours.
+            </div>
+            <div id="gsFormError" class="alert alert-warning hidden" role="alert" style="margin-top:1rem;">
+              ❌ Something went wrong. Email us at <a href="mailto:allstarprints2019@gmail.com">allstarprints2019@gmail.com</a>.
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="/brand_assets/openart-image_1775569332019_55a69ae4_1775569332054_46e7f565.png" alt="AllStar Prints" />
+          <p>"Custom apparel, printed right."</p>
+        </div>
+        <div class="footer-col">
+          <h4>Services</h4>
+          <ul>
+                        <li><a href="/custom-tshirts">Custom T-Shirts</a></li>
+            <li><a href="/dtf-printing">DTF Printing</a></li>
+            <li><a href="/gang-sheet-builder.html">Gang Sheet Builder</a></li>
+            <li><a href="/custom-apparel">Custom Apparel</a></li>
+            <li><a href="/design-generator">AI Design Generator</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="/about">About Us</a></li>
+            <li><a href="/faq">FAQ</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <div class="footer-contact-item"><span class="fci-icon">📧</span><a href="mailto:allstarprints2019@gmail.com">allstarprints2019@gmail.com</a></div>
+          <div class="footer-contact-item"><span class="fci-icon">📱</span><a href="tel:+18175074553">(817) 507-4553</a></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="footerYear"></span> AllStar Prints. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <!-- ====== ADD TEXT MODAL ====== -->
+  <div class="gs-modal-backdrop" id="gsTextModal" role="dialog" aria-modal="true" aria-labelledby="gsTextModalTitle">
+    <div class="gs-modal">
+      <div class="gs-modal-header">
+        <h3 id="gsTextModalTitle">Add Text</h3>
+        <button type="button" class="gs-modal-close" id="gsTextModalClose" aria-label="Close">×</button>
+      </div>
+      <div class="gs-modal-body">
+        <label for="gsModalText">Text</label>
+        <textarea id="gsModalText" rows="2" maxlength="200" placeholder="Your Text">Your Text</textarea>
+
+        <label>Font</label>
+        <div class="gs-font-grid" id="gsModalFontGrid"></div>
+
+        <div class="gs-modal-row" style="margin-top:0.85rem;">
+          <div>
+            <label style="margin:0 0 0.4rem;">Size (px)</label>
+            <input type="number" id="gsModalSize" min="8" max="600" step="2" value="72" />
+          </div>
+          <div>
+            <label style="margin:0 0 0.4rem;">Color</label>
+            <input type="color" id="gsModalColor" value="#000000" style="width:44px;height:44px;padding:2px;border:1px solid var(--border);border-radius:6px;cursor:pointer;" />
+          </div>
+          <div>
+            <label style="margin:0 0 0.4rem;">Style</label>
+            <div style="display:flex;gap:0.3rem;">
+              <button type="button" class="gs-bi-btn" id="gsModalBold" style="font-weight:800;">B</button>
+              <button type="button" class="gs-bi-btn" id="gsModalItalic" style="font-style:italic;">I</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="gs-preview" id="gsModalPreview">Your Text</div>
+      </div>
+      <div class="gs-modal-footer">
+        <button type="button" class="gs-btn" id="gsModalCancel">Cancel</button>
+        <button type="button" class="gs-btn gs-primary" id="gsModalAdd">Add to Canvas</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/gang-sheet-builder.js?v=13"></script>
+  <script type="module" src="js/inquiry-submit.js"></script>
+  <script>
+    document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+    /* ---- Initialize the builder ---- */
+    initGangSheetBuilder();
+
+    /* ---- Sheet quantity stepper ---- */
+    window.adjustGSQty = function (delta) {
+      const inp = document.getElementById('gangSheetQtyInput');
+      const val = Math.max(1, (parseInt(inp.value) || 1) + delta);
+      inp.value = val;
+      inp.dispatchEvent(new Event('input'));
+      document.getElementById('gsNumSheets').value = val;
+    };
+
+    /* ---- Sheet-form select syncs to the canvas sheet size ---- */
+    (function () {
+      const sheetButtons = document.querySelectorAll('.gs-sheet-btn');
+      const formSel = document.getElementById('gsSheetSizeForm');
+      sheetButtons.forEach(function (b) {
+        b.addEventListener('click', function () {
+          const sheet = b.dataset.sheet; // e.g. "22x24"
+          const [w, h] = sheet.split('x');
+          const label = w + '" × ' + h + '"';
+          if (formSel) {
+            for (let i = 0; i < formSel.options.length; i++) {
+              if (formSel.options[i].value === label) { formSel.selectedIndex = i; break; }
+            }
+          }
+        });
+      });
+    })();
+
+    /* ---- Selection editor: keep W/H inputs + text controls in sync with selection ---- */
+    (function () {
+      const editor      = document.getElementById('gsSelectionEditor');
+      const noSelection = document.getElementById('gsNoSelection');
+      const imgControls = document.getElementById('gsImageControls');
+      const txtControls = document.getElementById('gsTextControls');
+      const wInp        = document.getElementById('gsSelWidth');
+      const hInp        = document.getElementById('gsSelHeight');
+      const txtInput    = document.getElementById('gsTextInput');
+      const txtSize     = document.getElementById('gsTextSize');
+      const txtColor    = document.getElementById('gsTextColor');
+
+      // (NOTE: The selection-change handler is set up later in this IIFE,
+      //  with full support for the new selection panel. We deliberately do
+      //  NOT add a duplicate handler here.)
+
+      document.getElementById('gsApplyCustomBtn').addEventListener('click', function () {
+        if (typeof window.applyCustomSize === 'function') {
+          window.applyCustomSize(wInp.value, hInp.value);
+        }
+      });
+      document.getElementById('gsRotateBtn').addEventListener('click', function () {
+        if (typeof window.rotateSelected === 'function') window.rotateSelected();
+      });
+      document.getElementById('gsDownloadSelBtn').addEventListener('click', function () {
+        if (typeof window.downloadSelected === 'function') window.downloadSelected();
+      });
+      document.getElementById('gsDeleteBtn').addEventListener('click', function () {
+        const sel = (typeof window.getSelectedDesign === 'function') ? window.getSelectedDesign() : null;
+        if (sel && typeof window.removeDesign === 'function') window.removeDesign(sel.id);
+      });
+
+      /* Deselect button (X in editor header) */
+      document.getElementById('gsDeselectBtn').addEventListener('click', function () {
+        if (typeof window.deselectAll === 'function') {
+          window.deselectAll();
+        } else {
+          // Fallback: click an empty area
+          editor.hidden = true;
+          noSelection.style.display = 'block';
+        }
+      });
+
+      /* Update editor title + thumbnail based on selection type */
+      window.addEventListener('gsb-selection-changed', function (e) {
+        const sel = e.detail;
+        const title = document.getElementById('gsEditTitle');
+        const thumb = document.getElementById('gsEditThumb');
+        const imageControls = document.getElementById('gsImageControls');
+        const textControls  = document.getElementById('gsTextControls');
+        if (!sel) {
+          editor.hidden = true;
+          noSelection.style.display = 'block';
+          return;
+        }
+        editor.hidden = false;
+        noSelection.style.display = 'none';
+        if (sel.type === 'text') {
+          title.textContent = 'Editing selected text';
+          thumb.textContent = 'T';
+          imageControls.hidden = true;
+          textControls.hidden  = false;
+          textControls.open    = true;
+        } else {
+          title.textContent = 'Editing selected image';
+          thumb.textContent = '🖼';
+          imageControls.hidden = false;
+          textControls.hidden  = true;
+          imageControls.open   = true;
+        }
+        // Update rotation slider
+        const slider = document.getElementById('gsRotationSlider');
+        const val    = document.getElementById('gsRotationVal');
+        if (slider && document.activeElement !== slider) {
+          slider.value = Math.round(sel.rotation || 0);
+          val.textContent = Math.round(sel.rotation || 0) + '°';
+        }
+      });
+
+      /* Rotation slider */
+      const rotSlider = document.getElementById('gsRotationSlider');
+      const rotVal    = document.getElementById('gsRotationVal');
+      rotSlider.addEventListener('input', function () {
+        rotVal.textContent = rotSlider.value + '°';
+        if (typeof window.setRotation === 'function') window.setRotation(rotSlider.value);
+      });
+
+      /* ===== Selection overlay (Drag-to-move pill + trash) =====
+         Positioned absolutely over the canvas, just above the selected
+         design's AABB. Hides when nothing is selected. ===== */
+      const selOverlay = document.getElementById('gsSelOverlay');
+      const selOverlayTrash = document.getElementById('gsSelOverlayTrash');
+      function updateSelectionOverlay() {
+        const sel = (typeof window.getSelectedDesign === 'function') ? window.getSelectedDesign() : null;
+        if (!sel) { selOverlay.hidden = true; return; }
+        const canvas = document.getElementById('gangSheetCanvas');
+        const scale = parseFloat(canvas.dataset.scale) || 18;
+        selOverlay.hidden = false;
+        // Position centered horizontally above the design's top edge
+        const wrap = canvas.parentElement;
+        const overlayW = selOverlay.offsetWidth || 110;
+        const left = Math.max(0, Math.min(
+          (sel.x + sel.w / 2) * scale - overlayW / 2,
+          (wrap.clientWidth || canvas.width) - overlayW - 2
+        ));
+        const top = Math.max(2, sel.y * scale - 32);
+        selOverlay.style.left = left + 'px';
+        selOverlay.style.top  = top  + 'px';
+      }
+      window.addEventListener('gsb-selection-changed', updateSelectionOverlay);
+      // Also update on render — the design might have moved
+      const _origRequestAnim = window.requestAnimationFrame;
+      // Use a periodic poll as a fallback for drag updates (cheap, every 33ms)
+      setInterval(updateSelectionOverlay, 33);
+
+      selOverlayTrash.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const sel = (typeof window.getSelectedDesign === 'function') ? window.getSelectedDesign() : null;
+        if (sel && typeof window.removeDesign === 'function') window.removeDesign(sel.id);
+      });
+
+      /* Duplicate */
+      document.getElementById('gsDuplicateBtn').addEventListener('click', function () {
+        const n = parseInt(document.getElementById('gsDupCount').value, 10) || 1;
+        if (typeof window.duplicateSelected === 'function') window.duplicateSelected(n);
+      });
+
+      /* Trim — crops transparent/white edges off the selected image */
+      document.getElementById('gsTrimBtn').addEventListener('click', function () {
+        if (typeof window.trimSelected === 'function') window.trimSelected();
+      });
+      /* Remove Background — flood-fill bg color from corners → transparent */
+      document.getElementById('gsRemoveBgBtn').addEventListener('click', function () {
+        if (typeof window.removeBgSelected === 'function') window.removeBgSelected();
+      });
+
+      /* ===== Add Text Modal ===== */
+      const textModal     = document.getElementById('gsTextModal');
+      const fontGrid      = document.getElementById('gsModalFontGrid');
+      const modalText     = document.getElementById('gsModalText');
+      const modalSize     = document.getElementById('gsModalSize');
+      const modalColor    = document.getElementById('gsModalColor');
+      const modalBold     = document.getElementById('gsModalBold');
+      const modalItalic   = document.getElementById('gsModalItalic');
+      const modalPreview  = document.getElementById('gsModalPreview');
+      const fonts = (window.GSB_TEXT_FONTS || []);
+      let modalState = { font: fonts[0] && fonts[0].id, bold: true, italic: false };
+
+      function buildFontGrid() {
+        fontGrid.innerHTML = '';
+        fonts.forEach(function (f) {
+          const tile = document.createElement('button');
+          tile.type = 'button';
+          tile.className = 'gs-font-tile' + (f.id === modalState.font ? ' active' : '');
+          tile.dataset.font = f.id;
+          tile.style.fontFamily = f.css;
+          tile.textContent = f.label;
+          tile.addEventListener('click', function () {
+            modalState.font = f.id;
+            fontGrid.querySelectorAll('.gs-font-tile').forEach(function (t) { t.classList.remove('active'); });
+            tile.classList.add('active');
+            updatePreview();
+          });
+          fontGrid.appendChild(tile);
+        });
+      }
+
+      function updatePreview() {
+        const f = fonts.find(function (x) { return x.id === modalState.font; }) || fonts[0];
+        const text = modalText.value || 'Your Text';
+        const sz = Math.min(72, parseInt(modalSize.value, 10) || 72); // cap preview size
+        modalPreview.style.fontFamily = f.css;
+        modalPreview.style.fontWeight = modalState.bold ? 800 : 400;
+        modalPreview.style.fontStyle  = modalState.italic ? 'italic' : 'normal';
+        modalPreview.style.color = modalColor.value;
+        modalPreview.style.fontSize = sz + 'px';
+        modalPreview.textContent = text;
+      }
+
+      function openTextModal() {
+        modalState.font   = fonts[0] && fonts[0].id;
+        modalState.bold   = true;
+        modalState.italic = false;
+        modalText.value  = 'Your Text';
+        modalSize.value  = 72;
+        modalColor.value = '#000000';
+        modalBold.classList.add('active');
+        modalItalic.classList.remove('active');
+        buildFontGrid();
+        updatePreview();
+        textModal.classList.add('open');
+        setTimeout(function () { modalText.focus(); modalText.select(); }, 50);
+      }
+      function closeTextModal() { textModal.classList.remove('open'); }
+
+      document.getElementById('gsAddTextBtn').addEventListener('click', openTextModal);
+      document.getElementById('gsTextModalClose').addEventListener('click', closeTextModal);
+      document.getElementById('gsModalCancel').addEventListener('click', closeTextModal);
+      textModal.addEventListener('click', function (e) {
+        if (e.target === textModal) closeTextModal();
+      });
+      modalText.addEventListener('input', updatePreview);
+      modalSize.addEventListener('input', updatePreview);
+      modalColor.addEventListener('input', updatePreview);
+      modalBold.addEventListener('click', function () {
+        modalState.bold = !modalState.bold;
+        modalBold.classList.toggle('active', modalState.bold);
+        updatePreview();
+      });
+      modalItalic.addEventListener('click', function () {
+        modalState.italic = !modalState.italic;
+        modalItalic.classList.toggle('active', modalState.italic);
+        updatePreview();
+      });
+      document.getElementById('gsModalAdd').addEventListener('click', function () {
+        if (typeof window.addText !== 'function') { closeTextModal(); return; }
+        window.addText({
+          text: modalText.value || 'Your Text',
+          font: modalState.font,
+          sizePx: parseInt(modalSize.value, 10) || 72,
+          color: modalColor.value,
+          bold: modalState.bold,
+          italic: modalState.italic,
+        });
+        closeTextModal();
+      });
+
+      /* ===== Text-controls panel (in selection editor) ===== */
+      // Populate font select
+      (function () {
+        const sel = document.getElementById('gsTextFontSelect');
+        fonts.forEach(function (f) {
+          const o = document.createElement('option');
+          o.value = f.id;
+          o.textContent = f.label;
+          o.style.fontFamily = f.css;
+          sel.appendChild(o);
+        });
+      })();
+      const textFontSel = document.getElementById('gsTextFontSelect');
+      const textBoldBtn  = document.getElementById('gsTextBoldBtn');
+      const textItalicBtn = document.getElementById('gsTextItalicBtn');
+
+      // Sync the in-panel text controls with selection
+      window.addEventListener('gsb-selection-changed', function (e) {
+        const sel = e.detail;
+        if (!sel || sel.type !== 'text') return;
+        if (document.activeElement !== txtInput) txtInput.value = sel.text || '';
+        if (document.activeElement !== txtSize)  txtSize.value  = sel.sizePx || 72;
+        if (document.activeElement !== txtColor) txtColor.value = sel.color || '#000000';
+        if (document.activeElement !== textFontSel) textFontSel.value = sel.font || 'arial';
+        textBoldBtn.classList.toggle('active', !!sel.bold);
+        textItalicBtn.classList.toggle('active', !!sel.italic);
+        // Live dimensions readout in inches
+        const dimsVal = document.getElementById('gsTextDimsVal');
+        if (dimsVal) dimsVal.textContent = sel.w.toFixed(1) + '" × ' + sel.h.toFixed(1) + '"';
+      });
+
+      let panelBold   = false;
+      let panelItalic = false;
+      textBoldBtn.addEventListener('click', function () {
+        panelBold = !panelBold;
+        textBoldBtn.classList.toggle('active', panelBold);
+      });
+      textItalicBtn.addEventListener('click', function () {
+        panelItalic = !panelItalic;
+        textItalicBtn.classList.toggle('active', panelItalic);
+      });
+
+      // Replace the legacy gsApplyTextBtn handler — already added above, but
+      // here we extend it to send all new fields.
+      document.getElementById('gsApplyTextBtn').addEventListener('click', function () {
+        if (typeof window.applyTextProps !== 'function') return;
+        window.applyTextProps({
+          text: txtInput.value,
+          sizePx: parseInt(txtSize.value, 10),
+          color: txtColor.value,
+          font: textFontSel.value,
+          bold: textBoldBtn.classList.contains('active'),
+          italic: textItalicBtn.classList.contains('active'),
+        });
+      });
+    })();
+
+    /* ---- Background swatches ---- */
+    (function () {
+      const swatches = document.querySelectorAll('.gs-bg-swatch');
+      swatches.forEach(function (s) {
+        s.addEventListener('click', function () {
+          swatches.forEach(function (b) {
+            b.classList.remove('active');
+            b.style.borderColor = 'var(--border)';
+          });
+          s.classList.add('active');
+          s.style.borderColor = 'var(--secondary)';
+          const v = s.dataset.bg;
+          if (typeof window.setSheetBackground === 'function') {
+            window.setSheetBackground(v === 'transparent' ? null : v);
+          }
+        });
+      });
+    })();
+
+    /* ---- Export 300 DPI ---- */
+    document.getElementById('gsExport300Btn').addEventListener('click', function () {
+      if (typeof window.exportSheet300DPI === 'function') window.exportSheet300DPI();
+    });
+
+    /* ---- Auto-arrange + margins toggle wiring ---- */
+    document.getElementById('gsAutoArrangeBtn').addEventListener('click', function () {
+      if (typeof window.autoArrangeDesigns === 'function') window.autoArrangeDesigns();
+    });
+    document.getElementById('gsShowMargins').addEventListener('change', function (e) {
+      if (typeof window.toggleSheetMargins === 'function') window.toggleSheetMargins(e.target.checked);
+    });
+
+    /* ---- Show layout-ready alert when quote is populated ---- */
+    document.getElementById('builderAddToQuote').addEventListener('click', function () {
+      document.getElementById('layoutReadyAlert').style.display = 'flex';
+    }, true);
+
+    /* ---- Form submit — merges builder uploads + any extras ---- */
+    document.getElementById('gangSheetQuoteForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      let valid = true;
+      this.querySelectorAll('[required]').forEach(function (f) {
+        if (!f.value.trim()) { f.classList.add('invalid'); valid = false; }
+        else f.classList.remove('invalid');
+      });
+      if (!valid) { showToast('Please fill in all required fields.', 'error'); return; }
+
+      if (!window.YMP || !window.YMP.submitInquiry) {
+        showToast('Form is still loading — give it a second and try again.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('gsSubmitBtn');
+      btn.textContent = 'Sending…'; btn.disabled = true;
+      try {
+        const fd = new FormData(this);
+        const fields = {};
+        for (const [k, v] of fd.entries()) {
+          if (k === '_subject' || k === '_gotcha') continue;
+          if (v) fields[k] = v;
+        }
+
+        const builderFiles = (typeof window.getBuilderUploads === 'function')
+          ? (window.getBuilderUploads() || [])
+          : [];
+        const pickedFiles  = window.YMP.getUppyFiles('gsUppy') || [];
+
+        if (builderFiles.length === 0 && pickedFiles.length === 0) {
+          showToast('Please upload at least one design — either in the builder above, or in the extras box below.', 'error');
+          throw new Error('No artwork');
+        }
+
+        const filesToUpload = [].concat(
+          builderFiles.map(function (file) {
+            return { file: file, label: 'Customer Design (from builder) — ' + file.name };
+          }),
+          pickedFiles.map(function (file) {
+            return { file: file, label: 'Customer Design — ' + file.name };
+          })
+        );
+
+        if (typeof window.exportSheetLayout === 'function') {
+          try {
+            const dataUrl = window.exportSheetLayout();
+            if (dataUrl) {
+              const blob = await fetch(dataUrl).then(function (r) { return r.blob(); });
+              const layoutFile = new File(
+                [blob],
+                'gang-sheet-layout-' + Date.now() + '.png',
+                { type: 'image/png' }
+              );
+              filesToUpload.push({ file: layoutFile, label: 'Layout Visual (auto-generated)' });
+            }
+          } catch (layoutErr) {
+            console.warn('Could not export layout PNG:', layoutErr);
+          }
+        }
+
+        await window.YMP.submitInquiry({
+          formType: 'Gang Sheet Order',
+          subject: fd.get('_subject') || 'New Gang Sheet Quote — AllStar Prints',
+          fields,
+          files: filesToUpload,
+          replyTo: fd.get('Email') || null,
+          honeypot: fd.get('_gotcha') || '',
+        });
+
+        document.getElementById('gsFormSuccess').classList.remove('hidden');
+        document.getElementById('gsFormError').classList.add('hidden');
+        this.reset();
+        window.YMP.clearUppyFiles('gsUppy');
+        if (typeof window.clearBuilderUploads === 'function') window.clearBuilderUploads();
+        document.getElementById('layoutReadyAlert').style.display = 'none';
+        showToast('Gang sheet order submitted! We\'ll send a proof soon.', 'success');
+      } catch (err) {
+        console.error(err);
+        document.getElementById('gsFormError').classList.remove('hidden');
+        showToast('Submission failed. Please try again.', 'error');
+      } finally {
+        btn.textContent = 'Submit Gang Sheet Order'; btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

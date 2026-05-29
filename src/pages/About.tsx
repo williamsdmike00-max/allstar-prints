@@ -2,31 +2,22 @@ import { ArrowRight, Star } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SEO from '../components/ui/SEO'
 import CTABanner from '../components/ui/CTABanner'
-import TestimonialCard from '../components/ui/TestimonialCard'
 import SectionHeader from '../components/ui/SectionHeader'
 
 const values = [
-  { icon: '🏆', title: 'Quality First, Always', desc: "We use premium blanks and professional-grade inks. Every piece that leaves our shop has been checked. We'd rather redo a job than send something we're not proud of." },
+  { icon: '🏆', title: 'Quality First, Always', desc: "We use premium blanks and professional-grade printing. Every order is quality-checked before it leaves our hands. We'd rather redo a job than send something we're not proud of." },
   { icon: '⚡', title: 'Fast Without Cutting Corners', desc: 'Speed matters when you have a deadline. We move fast on every order without sacrificing the quality of the final product.' },
   { icon: '🤝', title: 'Straightforward to Work With', desc: "No runaround, no confusion. You'll get clear answers, honest quotes, and a team that respects your time." },
   { icon: '❤️', title: 'Community Is Why We Do This', desc: "We're local. We print for the teams, churches, schools, and businesses in our own backyard. Supporting this community isn't just business — it's personal." },
 ]
 
-const testimonials = [
-  {
-    quote: "We've ordered from Allstar Prints three times now — for our company launch, our summer event, and team shirts. Every time they deliver exactly what we need.",
-    name: 'Tanya R.',
-    role: 'Small Business Owner',
-    initials: 'TR',
-    rating: 5,
-  },
-  {
-    quote: "Best experience I've had ordering custom shirts. They fixed my logo, gave me a mockup in two hours, and had everything ready in less than a week.",
-    name: 'Jordan M.',
-    role: 'Event Organizer',
-    initials: 'JM',
-    rating: 5,
-  },
+// Real customers we've printed for. Names only — third-party contact details
+// are intentionally not published here.
+const customers = [
+  { category: 'Public Safety',  name: 'DeSoto Police Patrol' },
+  { category: 'Youth Sports',   name: 'DJYA Football & Cheer' },
+  { category: 'Local Business', name: 'A&W A/C and Heating' },
+  { category: 'Streetwear',     name: 'Heartless Brand' },
 ]
 
 export default function About() {
@@ -72,9 +63,9 @@ export default function About() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <img src="/images/shop-front.jpg" alt="Allstar Prints shop front" className="aspect-[4/5] w-full rounded-xl object-cover" />
+            <img src="/images/tshirt-bulk.png" alt="Bulk custom shirts printed by Allstar Prints" className="aspect-[4/5] w-full rounded-xl object-cover" />
             <div className="flex flex-col gap-4 pt-6">
-              <img src="/images/team-photo.jpg" alt="The Allstar Prints team" className="aspect-square w-full rounded-xl object-cover" />
+              <img src="/images/tshirt-lifestyle.png" alt="Custom team shirts printed by Allstar Prints" className="aspect-square w-full rounded-xl object-cover" />
               <div className="p-4 rounded-xl bg-brand-dark3 border border-white/8 text-center flex flex-col items-center gap-1">
                 <div className="flex gap-0.5 mb-1">
                   {[...Array(5)].map((_, i) => <Star key={i} size={12} className="text-brand-red" fill="currentColor" />)}
@@ -135,19 +126,33 @@ export default function About() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Trusted By — real customers, no fabricated quotes */}
       <section className="section-padding py-20 container-xl mx-auto">
         <SectionHeader
-          label="What People Say"
-          title="Don't Take Our"
-          titleHighlight="Word for It"
-          subtitle="Real feedback from real customers who ordered with Allstar Prints."
+          label="Real Customers"
+          title="Trusted By Local"
+          titleHighlight="Teams & Brands"
+          subtitle="A selection of the people we've printed for across Dallas–Fort Worth."
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
-          {testimonials.map((t, i) => (
-            <TestimonialCard key={i} {...t} />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          {customers.map((c) => (
+            <div key={c.name} className="p-5 rounded-xl bg-brand-dark3 border border-white/8 hover:border-brand-red/25 transition-colors text-center flex flex-col gap-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-brand-red">{c.category}</p>
+              <p className="text-base font-bold text-white leading-snug">{c.name}</p>
+            </div>
           ))}
         </div>
+        <p className="text-center text-sm text-brand-silver mt-8">
+          See more work on Instagram{' '}
+          <a
+            href="https://www.instagram.com/allstarprintsllc/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-brand-red hover:text-white transition-colors font-bold"
+          >
+            @allstarprintsllc
+          </a>
+        </p>
       </section>
 
       <CTABanner

@@ -32,7 +32,7 @@ const steps = [
     icon: <Printer size={32} />,
     title: 'We Print Your Order',
     desc: "Once you approve the mockup, we get to work. Your order is printed using the right method for your design and quantity — screen printing, DTF, or HTV. We use top-quality materials every time.",
-    details: ['Production starts same day as approval', 'Premium garments and inks', 'Quality checked before packing', 'Standard: 5–7 business days', 'Rush: 48 hours available'],
+    details: ['Production starts same day as approval', 'Premium garments and materials', 'Quality checked before packing', 'Standard: 5–7 business days', 'Rush: 48 hours available'],
   },
   {
     num: '05',

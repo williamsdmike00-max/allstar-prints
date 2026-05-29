@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 
 const SITE_NAME = 'Allstar Prints LLC'
-const SITE_URL  = import.meta.env.VITE_SITE_URL || 'https://allstarprints.com'
+const SITE_URL  = import.meta.env.VITE_SITE_URL || 'https://www.allstarprintsllc.com'
 const OG_IMAGE  = `${SITE_URL}/brand_assets/openart-image_1775569332019_55a69ae4_1775569332054_46e7f565.png`
 
 interface SEOProps {

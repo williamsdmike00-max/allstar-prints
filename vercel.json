@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/gang-sheet-builder", "destination": "/gang-sheet-builder.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
