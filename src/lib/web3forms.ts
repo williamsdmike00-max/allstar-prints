@@ -15,7 +15,7 @@ export type FormPayload = {
 }
 
 const FALLBACK_WEBHOOK_URL =
-  'https://services.leadconnectorhq.com/hooks/9Q2FZWe88ng4QFaejG5G/webhook-trigger/9ef217d6-375e-429e-8d95-26557503f12a'
+  'https://services.leadconnectorhq.com/hooks/9Q2FZWe88ng4QFaejG5G/webhook-trigger/02d7efe2-3e34-4e64-8237-a8878dd4f28a'
 
 function getWebhookUrl(): string {
   return (import.meta.env.VITE_GHL_WEBHOOK_URL as string) || FALLBACK_WEBHOOK_URL
