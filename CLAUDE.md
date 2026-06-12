@@ -142,7 +142,7 @@ The site is for a real custom-apparel print shop. Use these facts as the ground 
 - **Location / service area:** Dallas–Fort Worth, TX (the design prototype originally said "Glenn Heights" — that is wrong; do not reintroduce it).
 - **Phone:** (817) 507-4553
 - **Status:** Veteran owned.
-- **Services they actually offer (price-sheet aligned):** custom t-shirts (Gildan 64000), long-sleeve tees (G2400), pullover hoodies (18500), heavyweight tees (Gildan 2000), DTF transfers, screen printing, and heat transfer vinyl. **Embroidery is NOT offered** — never surface it on customer pages or service dropdowns. Polos and hats can still be requested via the quote form but are not in the canvas designer.
+- **Services they actually offer (price-sheet aligned):** custom t-shirts (Gildan 64000), long-sleeve tees (G2400), pullover hoodies (18500), heavyweight tees (Comfort Colors 1717), DTF transfers, screen printing, and heat transfer vinyl. **Embroidery is NOT offered** — never surface it on customer pages or service dropdowns. Polos and hats can still be requested via the quote form but are not in the canvas designer.
 - **T-shirt pricing tiers (front print included, premium ringspun):**
   | Qty | Price each |
   | --- | --- |
@@ -171,7 +171,7 @@ The shop sources blanks from SanMar; product photos are licensed to authorized a
 - Highest-res photo URL is the `1200W_..._ModelFront*.jpg` variant on `cdnp.sanmar.com`. Once you have the URL, the CDN is publicly hotlinkable, but always **download to `public/mockups/`** rather than hotlink — SanMar can change paths.
 - SanMar PIDs already used in this site:
   - `3480` → Gildan Softstyle 64000 (Premium Ringspun Tee)
-  - `152` → Gildan Ultra Cotton 2000 (Heavy Cotton Tee)
+  - `9671` → Comfort Colors 1717 (Heavyweight Ring Spun Tee — replaced Gildan 2000 / PID 152, June 2026)
   - `9267` → BELLA+CANVAS 3413 (Tri-Blend Tee)
   - `819` → Gildan G2400 (Long Sleeve)
   - `115` → Gildan 18500 (Pullover Hoodie)

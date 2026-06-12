@@ -22,7 +22,7 @@ const COPY: Record<ProductKey, CardCopy> = {
     description: 'Heavy cotton pullover hoodie. Print sits between the V-neck and the front pouch.',
   },
   'heavytee-gildan-2000': {
-    description: 'Heavy 6 oz cotton tee. Built to last, easy to print.',
+    description: 'Garment-dyed 6.1 oz ring spun cotton — 67 colors to pick from. Vintage soft feel.',
   },
 }
 

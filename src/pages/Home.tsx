@@ -1220,9 +1220,9 @@ function Blanks({
       printArea: { top: '30%', left: '38%', width: '24%', height: '22%' },
     },
     {
-      name: 'Heavy Cotton Tee', brand: 'Gildan Ultra Cotton 2000', price: '+5 ea', tag: 'Heavyweight',
-      color: '#0F1115', surface: 'sand', shot: 'GILDAN · 2000',
-      mockup: '/mockups/gildan-2000-black.jpg',
+      name: 'Heavyweight Tee', brand: 'Comfort Colors 1717', price: '+5 ea', tag: 'Garment-dyed',
+      color: '#0F1115', surface: 'sand', shot: 'COMFORT · 1717',
+      mockup: '/mockups/comfort-colors-1717-black.jpg',
       printArea: { top: '30%', left: '38%', width: '24%', height: '22%' },
     },
     {

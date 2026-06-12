@@ -45,7 +45,7 @@ const HOODIE_COLORS: ShirtColor[] = [
 ]
 
 const HEAVYTEE_COLORS: ShirtColor[] = [
-  { name: 'Black', hex: '#1A1A1A', photo: '/mockups/gildan-2000-black.jpg' },
+  { name: 'Black', hex: '#1A1A1A', photo: '/mockups/comfort-colors-1717-black.jpg' },
 ]
 
 export const products: Record<ProductKey, ProductDefinition> = {
@@ -76,11 +76,13 @@ export const products: Record<ProductKey, ProductDefinition> = {
     colors: HOODIE_COLORS,
     defaultColorHex: HOODIE_COLORS[0].hex,
   },
+  // Key stays 'heavytee-gildan-2000' so saved customer designs keep loading;
+  // the garment itself is now the Comfort Colors 1717.
   'heavytee-gildan-2000': {
     key: 'heavytee-gildan-2000',
     name: 'Heavyweight Tee',
-    sku: 'Gildan Ultra Cotton 2000',
-    blurb: 'Heavy 6 oz cotton, long-lasting wear. Black mockup — request other colors in notes.',
+    sku: 'Comfort Colors 1717',
+    blurb: 'Garment-dyed 6.1 oz US ring spun cotton — 67 colors. Black mockup shown; request your color in notes.',
     printZone: { topPct: 30, leftPct: 38, widthPct: 24, heightPct: 22 },
     colors: HEAVYTEE_COLORS,
     defaultColorHex: HEAVYTEE_COLORS[0].hex,
