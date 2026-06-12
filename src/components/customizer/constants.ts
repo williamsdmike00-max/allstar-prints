@@ -57,8 +57,9 @@ export const products: Record<ProductKey, ProductDefinition> = {
     sku: 'Gildan Softstyle 64000',
     blurb: 'Ringspun cotton, 8 colors. Front + back print available.',
     // Calibrated against the 1200x1800 model photos: a ~12"-wide full-front
-    // print centered on the chest, starting ~2" below the collar.
-    printZone: { topPct: 35, leftPct: 34, widthPct: 34, heightPct: 30 },
+    // print centered on the chest, starting ~2" below the collar. The model
+    // stands slightly turned, so center is anchored to the torso, not the frame.
+    printZone: { topPct: 35, leftPct: 37, widthPct: 34, heightPct: 30 },
     printZoneBack: { topPct: 33, leftPct: 30.5, widthPct: 34, heightPct: 30 },
     colors: TSHIRT_COLORS,
     defaultColorHex: TSHIRT_COLORS[0].hex,
@@ -78,7 +79,7 @@ export const products: Record<ProductKey, ProductDefinition> = {
     name: 'Pullover Hoodie',
     sku: 'Gildan Heavy Blend 18500',
     blurb: 'Heavy cotton hoodie. Print sits between the V-neck and the front pouch.',
-    printZone: { topPct: 40, leftPct: 35.5, widthPct: 29, heightPct: 16 },
+    printZone: { topPct: 40, leftPct: 36.5, widthPct: 29, heightPct: 16 },
     printZoneBack: { topPct: 38, leftPct: 32, widthPct: 32, heightPct: 26 },
     colors: HOODIE_COLORS,
     defaultColorHex: HOODIE_COLORS[0].hex,
@@ -90,7 +91,7 @@ export const products: Record<ProductKey, ProductDefinition> = {
     name: 'Heavyweight Tee',
     sku: 'Comfort Colors 1717',
     blurb: 'Garment-dyed 6.1 oz US ring spun cotton — 67 colors. Black mockup shown; request your color in notes.',
-    printZone: { topPct: 35, leftPct: 34, widthPct: 34, heightPct: 30 },
+    printZone: { topPct: 35, leftPct: 36, widthPct: 34, heightPct: 30 },
     printZoneBack: { topPct: 33, leftPct: 30.5, widthPct: 34, heightPct: 30 },
     colors: HEAVYTEE_COLORS,
     defaultColorHex: HEAVYTEE_COLORS[0].hex,

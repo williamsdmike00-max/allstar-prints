@@ -1211,19 +1211,19 @@ function Blanks({
       name: 'Premium Ringspun Tee', brand: 'Gildan Softstyle 64000', price: '12–25', tag: 'Best seller',
       color: '#0F1115', surface: 'paper', shot: 'GILDAN · 64000',
       mockup: '/mockups/3480-black.jpg',
-      printArea: { top: '35%', left: '34%', width: '34%', height: '30%' },
+      printArea: { top: '35%', left: '37%', width: '34%', height: '30%' },
     },
     {
       name: 'Tri-Blend Tee', brand: 'BELLA+CANVAS 3413', price: '+3 ea', tag: 'Soft hand',
       color: '#3A3535', surface: 'cool', shot: 'BC · 3413',
       mockup: '/mockups/bc3413-charcoal.jpg',
-      printArea: { top: '35%', left: '34%', width: '34%', height: '30%' },
+      printArea: { top: '35%', left: '30%', width: '32%', height: '30%' },
     },
     {
       name: 'Heavyweight Tee', brand: 'Comfort Colors 1717', price: '+5 ea', tag: 'Garment-dyed',
       color: '#0F1115', surface: 'sand', shot: 'COMFORT · 1717',
       mockup: '/mockups/comfort-colors-1717-black.jpg',
-      printArea: { top: '35%', left: '34%', width: '34%', height: '30%' },
+      printArea: { top: '35%', left: '36%', width: '34%', height: '30%' },
     },
     {
       name: 'Long Sleeve Tee', brand: 'Gildan Ultra Cotton G2400', price: '12–25', tag: 'Year-round',
@@ -1235,7 +1235,7 @@ function Blanks({
       name: 'Pullover Hoodie', brand: 'Gildan Heavy Blend 18500', price: 'Quote', tag: 'Screen print',
       color: '#0E1B3D', surface: 'walnut', shot: 'GILDAN · 18500',
       mockup: '/mockups/gildan-18500-navy.jpg',
-      printArea: { top: '40%', left: '35.5%', width: '29%', height: '16%' },
+      printArea: { top: '40%', left: '36.5%', width: '29%', height: '16%' },
     },
     {
       name: 'Snapback Trucker Cap', brand: 'Port Authority C112', price: 'Quote', tag: 'Headwear',
