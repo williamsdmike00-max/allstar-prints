@@ -160,7 +160,7 @@ The site is for a real custom-apparel print shop. Use these facts as the ground 
 
 ## Asset Conventions
 - **Mockups for the blanks gallery:** `public/mockups/<style>-<color>.jpg` (one product photo per card).
-- **Mockups for the customizer color preview:** `public/mockups/customizer/64000-<color>.jpg` (one Gildan Softstyle 64000 model-front shot per swatch hex). The active color photo is keyed off the customizer's `shirtColors` array — keep the `photo` field in sync if you add/remove colors.
+- **Mockups for the customizer:** `public/mockups/customizer/<style>-<color>-flat.jpg` + `-flat-back.jpg` (SanMar FlatFront/FlatBack ghost-garment shots — per the owner, the design tool shows floating garments, never a model). The active color photo is keyed off the customizer's `shirtColors` array — keep `photo`/`photoBack` in sync if you add/remove colors. Older model-front shots (`64000-<color>.jpg` etc.) remain for marketing pages.
 - **Hero shirt:** `public/allstar-hero-shirt.png` (transparent background, ~1024×1024). If you replace it, regenerate transparency by flood-filling solid backgrounds from the image edges so dark logo elements aren't lost.
 - Do **not** check in `_design_extract/`, `*.pdf`, or large source images dropped at the repo root — they are excluded by `.gitignore` or untracked on purpose.
 
