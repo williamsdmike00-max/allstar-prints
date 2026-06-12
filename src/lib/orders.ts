@@ -61,7 +61,6 @@ export interface BlankStyleHandoff {
   styleNumber: string
   brand?: string
   title?: string
-  retailPrice?: number | null
 }
 
 export function readBlankStyle(): BlankStyleHandoff | null {

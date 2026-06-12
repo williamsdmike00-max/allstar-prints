@@ -1,10 +1,11 @@
 /**
  * BrowseBlanks.tsx — customer-facing SanMar blanks catalog at /blanks.
  *
- * Reads the `catalog_public` Supabase view (visible products, retail price
- * only — wholesale never reaches the browser). "Customize This Product"
- * stashes the style and sends the customer into the design flow; the style
- * number rides along on their quote so the shop knows exactly what to order.
+ * Reads the `catalog_public` Supabase view (visible products only — NO
+ * pricing of any kind reaches the browser; blanks are quoted by the shop,
+ * never sold directly). "Customize This Product" stashes the style and sends
+ * the customer into the design flow; the style number rides along on their
+ * quote so the shop knows exactly what to order.
  */
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -23,7 +24,6 @@ interface PublicProduct {
   colors: string[]
   sizes: string[]
   image_url: string | null
-  retail_price: number | null
 }
 
 export default function BrowseBlanks() {
@@ -34,7 +34,6 @@ export default function BrowseBlanks() {
   const [brand, setBrand] = useState('')
   const [color, setColor] = useState('')
   const [size, setSize] = useState('')
-  const [maxPrice, setMaxPrice] = useState('')
   const [youthOnly, setYouthOnly] = useState(false)
   const navigate = useNavigate()
 
@@ -53,24 +52,21 @@ export default function BrowseBlanks() {
 
   const shown = useMemo(() => {
     const needle = q.toLowerCase().trim()
-    const cap = Number(maxPrice) || Infinity
     return items.filter((i) =>
       (!needle || `${i.style_number} ${i.title} ${i.brand} ${i.description}`.toLowerCase().includes(needle)) &&
       (!category || i.category === category) &&
       (!brand || i.brand === brand) &&
       (!color || (i.colors ?? []).includes(color)) &&
       (!size || (i.sizes ?? []).includes(size)) &&
-      (i.retail_price == null || i.retail_price <= cap) &&
       (!youthOnly || /youth|toddler|infant/i.test(`${i.title} ${i.category} ${i.subcategory}`)),
     )
-  }, [items, q, category, brand, color, size, maxPrice, youthOnly])
+  }, [items, q, category, brand, color, size, youthOnly])
 
   const customize = (p: PublicProduct) => {
     storeBlankStyle({
       styleNumber: p.style_number,
       brand: p.brand ?? undefined,
       title: p.title ?? undefined,
-      retailPrice: p.retail_price,
     })
     navigate('/design-online')
   }
@@ -89,7 +85,7 @@ export default function BrowseBlanks() {
             Pick the Blank.<br /><span className="text-gradient-red">We Print the Rest.</span>
           </h1>
           <p className="text-brand-silver text-lg max-w-xl mx-auto">
-            Name-brand blanks at our shop pricing — choose a style, then customize it and submit for a quote. We handle sourcing, printing, and quality.
+            Name-brand blanks, sourced by us — choose a style, then customize it and submit for a quote. We handle sourcing, printing, and quality.
           </p>
         </div>
       </section>
@@ -116,15 +112,11 @@ export default function BrowseBlanks() {
               <FilterSelect label="Brand" value={brand} onChange={setBrand} options={brands} />
               <FilterSelect label="Color" value={color} onChange={setColor} options={colors} />
               <FilterSelect label="Size" value={size} onChange={setSize} options={sizes} />
-              <div>
-                <label className={labelCls}>Max price</label>
-                <input value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} type="number" placeholder="$" className={inputCls} />
-              </div>
               <label className="flex items-center gap-2 text-sm text-brand-silver">
                 <input type="checkbox" checked={youthOnly} onChange={(e) => setYouthOnly(e.target.checked)} /> Youth only
               </label>
               <button
-                onClick={() => { setQ(''); setCategory(''); setBrand(''); setColor(''); setSize(''); setMaxPrice(''); setYouthOnly(false) }}
+                onClick={() => { setQ(''); setCategory(''); setBrand(''); setColor(''); setSize(''); setYouthOnly(false) }}
                 className="text-xs font-bold uppercase tracking-wide text-brand-silver hover:text-white text-left"
               >
                 Reset filters
@@ -145,7 +137,6 @@ export default function BrowseBlanks() {
                     <div className="p-4 flex flex-col gap-1 flex-1">
                       <p className="text-[11px] font-bold uppercase tracking-wide text-brand-silver/60">{p.brand} · {p.style_number}</p>
                       <p className="text-sm font-bold text-white leading-snug">{p.title}</p>
-                      {p.retail_price != null && <p className="text-base font-black text-brand-red">From ${Number(p.retail_price).toFixed(2)}</p>}
                       <p className="text-[11px] text-brand-silver/60">{(p.colors ?? []).length} colors · {(p.sizes ?? []).join(', ')}</p>
                       <button
                         onClick={() => customize(p)}
@@ -167,7 +158,7 @@ export default function BrowseBlanks() {
         <SectionHeader label="How It Works" title="Blanks Sourced," titleHighlight="Printed In-House" />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
           {[
-            { icon: '🛍️', t: 'Pick your blank', d: 'Browse name-brand styles at our pricing — no wholesale accounts needed.' },
+            { icon: '🛍️', t: 'Pick your blank', d: 'Browse name-brand styles — no wholesale accounts or supplier hassle needed.' },
             { icon: '🎨', t: 'Customize it', d: 'Add your design in the customizer or upload artwork with your quote.' },
             { icon: '🚚', t: 'We source & print', d: 'We order the blanks, print in-house in DFW, and you pick up or ship.' },
           ].map((s) => (
