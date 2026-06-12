@@ -137,6 +137,40 @@ async function uploadToSupabase(file) {
 }
 
 /* ----------------------------------------------------------
+ * Supabase order record — gives the /admin panel a reviewable
+ * order with file links. Best-effort: failures never block the
+ * customer's submission (the GHL webhook is the source lead).
+ * ---------------------------------------------------------- */
+async function saveOrderRecord(opts, uploadedUrls) {
+  try {
+    const fields = opts.fields || {};
+    const res = await fetch(SITE_CONFIG.supabaseUrl + '/rest/v1/orders', {
+      method: 'POST',
+      headers: {
+        apikey: SITE_CONFIG.supabaseAnonKey,
+        Authorization: 'Bearer ' + SITE_CONFIG.supabaseAnonKey,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify({
+        source: (opts.formType || 'inquiry').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        customer_name: fields.Name || fields.name || '',
+        email: fields.Email || fields.email || '',
+        phone: fields.Phone || fields.phone || null,
+        deadline: fields.Deadline || fields.deadline || null,
+        notes: fields.Notes || fields.notes || null,
+        details: fields,
+        files: uploadedUrls.map(function (f) { return { name: f.name, url: f.url, label: f.label }; }),
+        status_history: [{ at: new Date().toISOString(), event: 'submitted' }],
+      }),
+    });
+    if (!res.ok) console.warn('Order record save failed:', res.status);
+  } catch (err) {
+    console.warn('Order record save failed:', err);
+  }
+}
+
+/* ----------------------------------------------------------
  * GoHighLevel webhook submit — same backend as the React app
  * ---------------------------------------------------------- */
 async function postToWebhook(payload) {
@@ -202,8 +236,10 @@ window.YMP = {
         : uploadedUrls.map(function (f) { return f.label + ': ' + f.url; }).join('\n'),
     });
 
-    // 3. Send to GoHighLevel
-    return await postToWebhook(payload);
+    // 3. Send to GoHighLevel, then record the order for the admin panel
+    const result = await postToWebhook(payload);
+    await saveOrderRecord(opts, uploadedUrls);
+    return result;
   },
 };
 

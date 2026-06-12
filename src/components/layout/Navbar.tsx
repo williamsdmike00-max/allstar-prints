@@ -6,6 +6,7 @@ const services = [
   { label: 'Custom T-Shirts', href: '/custom-tshirts' },
   { label: 'DTF Printing', href: '/dtf-printing' },
   { label: 'Gang Sheet Builder', href: '/gang-sheet-builder' },
+  { label: 'Browse Blanks', href: '/blanks' },
   { label: 'Custom Apparel', href: '/custom-apparel' },
 ]
 

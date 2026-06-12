@@ -23,10 +23,14 @@ export default function DesignLayer({
   pz: PrintZonePx
   blend?: 'multiply' | 'screen'
 }) {
-  const elements = useCustomizer((s) => s.elements)
+  const allElements = useCustomizer((s) => s.elements)
+  const side = useCustomizer((s) => s.side)
   const selectedId = useCustomizer((s) => s.selectedId)
   const selectElement = useCustomizer((s) => s.selectElement)
   const updateElement = useCustomizer((s) => s.updateElement)
+
+  // Only render the elements that live on the side currently shown.
+  const elements = allElements.filter((el) => (el.side ?? 'front') === side)
 
   const trRef = useRef<Konva.Transformer>(null)
   const nodeMap = useRef(new Map<string, Konva.Node>())

@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 import SectionHeader from '../components/ui/SectionHeader'
 import { submitForm, splitName } from '../lib/web3forms'
 import { uploadFilesToStorage } from '../lib/storage'
+import { createOrderRecord, readBlankStyle, clearBlankStyle } from '../lib/orders'
 import SEO from '../components/ui/SEO'
 import { readHandoff, clearHandoff, dataURLToFile, type CustomizerHandoff } from '../components/customizer'
 
@@ -112,6 +113,26 @@ export default function UploadArtwork() {
         download_links: fileUrls.length > 0 ? fileUrls.join('\n') : 'No files uploaded',
         source: window.location.href,
       })
+
+      // Save an order record for the /admin panel (best-effort)
+      const blankStyle = readBlankStyle()
+      await createOrderRecord({
+        source: 'upload-artwork',
+        customerName: name,
+        email,
+        phone,
+        notes: notes || undefined,
+        details: {
+          blankStyle: blankStyle?.styleNumber ?? null,
+          blankBrand: blankStyle?.brand ?? null,
+          fromCustomizer: !!handoff,
+          customizer: handoff
+            ? { shirtColor: handoff.shirtColorName, material: handoff.material, size: handoff.size, qty: handoff.qty }
+            : null,
+        },
+        files: fileUrls.map((url, i) => ({ name: files[i]?.name ?? 'file', url })),
+      })
+      clearBlankStyle()
       setSubmitted(true)
     } catch (err) {
       console.error('Upload error:', err)

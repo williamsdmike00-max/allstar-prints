@@ -142,7 +142,7 @@ The site is for a real custom-apparel print shop. Use these facts as the ground 
 - **Location / service area:** Dallas–Fort Worth, TX (the design prototype originally said "Glenn Heights" — that is wrong; do not reintroduce it).
 - **Phone:** (817) 507-4553
 - **Status:** Veteran owned.
-- **Services they actually offer (price-sheet aligned):** custom t-shirts (Gildan 64000), long-sleeve tees (G2400), pullover hoodies (18500), heavyweight tees (Gildan 2000), DTF transfers, screen printing, and heat transfer vinyl. **Embroidery is NOT offered** — never surface it on customer pages or service dropdowns. Polos and hats can still be requested via the quote form but are not in the canvas designer.
+- **Services they actually offer (price-sheet aligned):** custom t-shirts (Gildan 64000), long-sleeve tees (G2400), pullover hoodies (18500), heavyweight tees (Comfort Colors 1717), DTF transfers, screen printing, and heat transfer vinyl. **Embroidery is NOT offered** — never surface it on customer pages or service dropdowns. Polos and hats can still be requested via the quote form but are not in the canvas designer.
 - **T-shirt pricing tiers (front print included, premium ringspun):**
   | Qty | Price each |
   | --- | --- |
@@ -160,7 +160,7 @@ The site is for a real custom-apparel print shop. Use these facts as the ground 
 
 ## Asset Conventions
 - **Mockups for the blanks gallery:** `public/mockups/<style>-<color>.jpg` (one product photo per card).
-- **Mockups for the customizer color preview:** `public/mockups/customizer/64000-<color>.jpg` (one Gildan Softstyle 64000 model-front shot per swatch hex). The active color photo is keyed off the customizer's `shirtColors` array — keep the `photo` field in sync if you add/remove colors.
+- **Mockups for the customizer:** `public/mockups/customizer/<style>-<color>-flat.jpg` + `-flat-back.jpg` (SanMar FlatFront/FlatBack ghost-garment shots — per the owner, the design tool shows floating garments, never a model). The active color photo is keyed off the customizer's `shirtColors` array — keep `photo`/`photoBack` in sync if you add/remove colors. Older model-front shots (`64000-<color>.jpg` etc.) remain for marketing pages.
 - **Hero shirt:** `public/allstar-hero-shirt.png` (transparent background, ~1024×1024). If you replace it, regenerate transparency by flood-filling solid backgrounds from the image edges so dark logo elements aren't lost.
 - Do **not** check in `_design_extract/`, `*.pdf`, or large source images dropped at the repo root — they are excluded by `.gitignore` or untracked on purpose.
 
@@ -171,7 +171,7 @@ The shop sources blanks from SanMar; product photos are licensed to authorized a
 - Highest-res photo URL is the `1200W_..._ModelFront*.jpg` variant on `cdnp.sanmar.com`. Once you have the URL, the CDN is publicly hotlinkable, but always **download to `public/mockups/`** rather than hotlink — SanMar can change paths.
 - SanMar PIDs already used in this site:
   - `3480` → Gildan Softstyle 64000 (Premium Ringspun Tee)
-  - `152` → Gildan Ultra Cotton 2000 (Heavy Cotton Tee)
+  - `9671` → Comfort Colors 1717 (Heavyweight Ring Spun Tee — replaced Gildan 2000 / PID 152, June 2026)
   - `9267` → BELLA+CANVAS 3413 (Tri-Blend Tee)
   - `819` → Gildan G2400 (Long Sleeve)
   - `115` → Gildan 18500 (Pullover Hoodie)

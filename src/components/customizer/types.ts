@@ -25,6 +25,7 @@ export type TextElement = {
   text: string
   font: DesignFont
   color: string
+  side?: Side           // which garment side this element lives on (default 'front')
 }
 
 export type ImageElement = {
@@ -37,6 +38,15 @@ export type ImageElement = {
   rotation: number
   anchor: 'center'
   src: string
+  side?: Side
+}
+
+/** One personalized garment in a team/group order (priced per entry). */
+export type RosterEntry = {
+  id: string
+  name: string
+  number: string
+  size: Size
 }
 
 export type DesignElement = TextElement | ImageElement
@@ -45,6 +55,8 @@ export type ShirtColor = {
   name: string
   hex: string
   photo: string
+  /** Back-of-garment model photo (same aspect as `photo`). */
+  photoBack?: string
 }
 
 export type InkColor = {

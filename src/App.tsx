@@ -15,6 +15,8 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import DesignGenerator from './pages/DesignGenerator'
 import DesignOnline from './pages/DesignOnline'
+import BrowseBlanks from './pages/BrowseBlanks'
+import Admin from './pages/Admin'
 
 export default function App() {
   return (
@@ -36,6 +38,8 @@ export default function App() {
           <Route path="terms-of-service" element={<TermsOfService />} />
           <Route path="design-generator" element={<DesignGenerator />} />
           <Route path="design-online" element={<DesignOnline />} />
+          <Route path="blanks" element={<BrowseBlanks />} />
+          <Route path="admin" element={<Admin />} />
         </Route>
       </Routes>
     </BrowserRouter>

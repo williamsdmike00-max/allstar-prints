@@ -14,6 +14,8 @@ export interface ProductDefinition {
   /** Print-zone bbox as % of the 1200x1800 model-front photo. Calibrated per
    *  product so the dashed box sits over the chest, not on the hood or pocket. */
   printZone: { topPct: number; leftPct: number; widthPct: number; heightPct: number }
+  /** Print zone for the back view (defaults to `printZone` when omitted). */
+  printZoneBack?: { topPct: number; leftPct: number; widthPct: number; heightPct: number }
   /** Available shirt colors for this product. Photos must already exist in /public. */
   colors: ShirtColor[]
   /** Default color hex (matches one of `colors`). */
@@ -22,30 +24,31 @@ export interface ProductDefinition {
 
 export const PHOTO_ASPECT_RATIO = '1200 / 1800'
 
-// Gildan Softstyle 64000 — full 8-color photoset, fully designable.
+// Gildan Softstyle 64000 — full 8-color FLAT (ghost garment) photoset,
+// front + back. Flat product shots, no model — SanMar "FlatFront/FlatBack".
 const TSHIRT_COLORS: ShirtColor[] = [
-  { name: 'Black',        hex: '#1A1A1A', photo: '/mockups/customizer/64000-black.jpg' },
-  { name: 'White',        hex: '#F5F5F0', photo: '/mockups/customizer/64000-white.jpg' },
-  { name: 'Natural',      hex: '#E8DDC4', photo: '/mockups/customizer/64000-natural.jpg' },
-  { name: 'Sport Grey',   hex: '#B8BCC0', photo: '/mockups/customizer/64000-sportgrey.jpg' },
-  { name: 'Charcoal',     hex: '#4A4D52', photo: '/mockups/customizer/64000-charcoal.jpg' },
-  { name: 'Navy',         hex: '#1F2A44', photo: '/mockups/customizer/64000-navy.jpg' },
-  { name: 'Maroon',       hex: '#5C1F2A', photo: '/mockups/customizer/64000-maroon.jpg' },
-  { name: 'Forest Green', hex: '#2A4A3C', photo: '/mockups/customizer/64000-forest.jpg' },
+  { name: 'Black',        hex: '#1A1A1A', photo: '/mockups/customizer/64000-black-flat.jpg',     photoBack: '/mockups/customizer/64000-black-flat-back.jpg' },
+  { name: 'White',        hex: '#F5F5F0', photo: '/mockups/customizer/64000-white-flat.jpg',     photoBack: '/mockups/customizer/64000-white-flat-back.jpg' },
+  { name: 'Natural',      hex: '#E8DDC4', photo: '/mockups/customizer/64000-natural-flat.jpg',   photoBack: '/mockups/customizer/64000-natural-flat-back.jpg' },
+  { name: 'Sport Grey',   hex: '#B8BCC0', photo: '/mockups/customizer/64000-sportgrey-flat.jpg', photoBack: '/mockups/customizer/64000-sportgrey-flat-back.jpg' },
+  { name: 'Charcoal',     hex: '#4A4D52', photo: '/mockups/customizer/64000-charcoal-flat.jpg',  photoBack: '/mockups/customizer/64000-charcoal-flat-back.jpg' },
+  { name: 'Navy',         hex: '#1F2A44', photo: '/mockups/customizer/64000-navy-flat.jpg',      photoBack: '/mockups/customizer/64000-navy-flat-back.jpg' },
+  { name: 'Maroon',       hex: '#5C1F2A', photo: '/mockups/customizer/64000-maroon-flat.jpg',    photoBack: '/mockups/customizer/64000-maroon-flat-back.jpg' },
+  { name: 'Forest Green', hex: '#2A4A3C', photo: '/mockups/customizer/64000-forest-flat.jpg',    photoBack: '/mockups/customizer/64000-forest-flat-back.jpg' },
 ]
 
 // Single-color photosets for the secondary products. These mockups only exist
 // in one color; the user can request other colors via project notes.
 const LONGSLEEVE_COLORS: ShirtColor[] = [
-  { name: 'Black', hex: '#1A1A1A', photo: '/mockups/gildan-g2400-black.jpg' },
+  { name: 'Black', hex: '#1A1A1A', photo: '/mockups/customizer/g2400-black-flat.jpg', photoBack: '/mockups/customizer/g2400-black-flat-back.jpg' },
 ]
 
 const HOODIE_COLORS: ShirtColor[] = [
-  { name: 'Navy', hex: '#1F2A44', photo: '/mockups/gildan-18500-navy.jpg' },
+  { name: 'Navy', hex: '#1F2A44', photo: '/mockups/customizer/18500-navy-flat.jpg', photoBack: '/mockups/customizer/18500-navy-flat-back.jpg' },
 ]
 
 const HEAVYTEE_COLORS: ShirtColor[] = [
-  { name: 'Black', hex: '#1A1A1A', photo: '/mockups/gildan-2000-black.jpg' },
+  { name: 'Black', hex: '#1A1A1A', photo: '/mockups/customizer/1717-black-flat.jpg', photoBack: '/mockups/customizer/1717-black-flat-back.jpg' },
 ]
 
 export const products: Record<ProductKey, ProductDefinition> = {
@@ -54,7 +57,10 @@ export const products: Record<ProductKey, ProductDefinition> = {
     name: 'Classic Crew T-Shirt',
     sku: 'Gildan Softstyle 64000',
     blurb: 'Ringspun cotton, 8 colors. Front + back print available.',
-    printZone: { topPct: 30, leftPct: 38, widthPct: 24, heightPct: 22 },
+    // Calibrated against the flat (ghost) garment photos: a ~12"x16" full-front
+    // print centered on the shirt, starting ~3" below the collar.
+    printZone: { topPct: 26, leftPct: 31, widthPct: 38, heightPct: 38 },
+    printZoneBack: { topPct: 24, leftPct: 31, widthPct: 38, heightPct: 38 },
     colors: TSHIRT_COLORS,
     defaultColorHex: TSHIRT_COLORS[0].hex,
   },
@@ -63,7 +69,8 @@ export const products: Record<ProductKey, ProductDefinition> = {
     name: 'Long Sleeve Tee',
     sku: 'Gildan G2400',
     blurb: 'Heavyweight long-sleeve. Black mockup — request other colors in notes.',
-    printZone: { topPct: 32, leftPct: 38, widthPct: 24, heightPct: 18 },
+    printZone: { topPct: 26, leftPct: 31, widthPct: 38, heightPct: 38 },
+    printZoneBack: { topPct: 24, leftPct: 31, widthPct: 38, heightPct: 38 },
     colors: LONGSLEEVE_COLORS,
     defaultColorHex: LONGSLEEVE_COLORS[0].hex,
   },
@@ -71,17 +78,21 @@ export const products: Record<ProductKey, ProductDefinition> = {
     key: 'hoodie-gildan-18500',
     name: 'Pullover Hoodie',
     sku: 'Gildan Heavy Blend 18500',
-    blurb: 'Heavy cotton hoodie. Print sits between the V-neck and the front pouch.',
-    printZone: { topPct: 38, leftPct: 39, widthPct: 22, heightPct: 13 },
+    blurb: 'Heavy cotton hoodie. Print sits between the drawstrings and the front pouch.',
+    printZone: { topPct: 38, leftPct: 33, widthPct: 34, heightPct: 22 },
+    printZoneBack: { topPct: 42, leftPct: 33, widthPct: 34, heightPct: 24 },
     colors: HOODIE_COLORS,
     defaultColorHex: HOODIE_COLORS[0].hex,
   },
+  // Key stays 'heavytee-gildan-2000' so saved customer designs keep loading;
+  // the garment itself is now the Comfort Colors 1717.
   'heavytee-gildan-2000': {
     key: 'heavytee-gildan-2000',
     name: 'Heavyweight Tee',
-    sku: 'Gildan Ultra Cotton 2000',
-    blurb: 'Heavy 6 oz cotton, long-lasting wear. Black mockup — request other colors in notes.',
-    printZone: { topPct: 30, leftPct: 38, widthPct: 24, heightPct: 22 },
+    sku: 'Comfort Colors 1717',
+    blurb: 'Garment-dyed 6.1 oz US ring spun cotton — 67 colors. Black mockup shown; request your color in notes.',
+    printZone: { topPct: 26, leftPct: 31, widthPct: 38, heightPct: 38 },
+    printZoneBack: { topPct: 24, leftPct: 31, widthPct: 38, heightPct: 38 },
     colors: HEAVYTEE_COLORS,
     defaultColorHex: HEAVYTEE_COLORS[0].hex,
   },
