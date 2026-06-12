@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { DesignElement, Side, Material, Size, TextElement, ImageElement } from './types'
+import { DesignElement, Side, Material, Size, TextElement, ImageElement, RosterEntry } from './types'
 import { PERSIST_KEY, products, type ProductKey } from './constants'
 
 export type PrintLocation = 'front' | 'back' | 'sleeve'
@@ -40,6 +40,7 @@ export interface CustomizerState {
   qty: number
   elements: DesignElement[]
   selectedId: string | null
+  roster: RosterEntry[]             // names & numbers for team/group orders
 
   setProduct: (key: ProductKey) => void
   setSide: (side: Side) => void
@@ -56,6 +57,10 @@ export interface CustomizerState {
   removeElement: (id: string) => void
   selectElement: (id: string | null) => void
   clearElements: () => void
+
+  addRosterEntry: () => void
+  updateRosterEntry: (id: string, patch: Partial<RosterEntry>) => void
+  removeRosterEntry: (id: string) => void
 
   hydrate: (init: { shirtColor: string; inkColor: string; design: string }) => void
 }
@@ -77,6 +82,7 @@ export const useCustomizer = create<CustomizerState>()(
       qty: 24,
       elements: [seedTextElement(DEFAULT_TEXT, DEFAULT_INK)],
       selectedId: null,
+      roster: [],
 
       setProduct: (key) => {
         // Switching products forces the shirt color to a valid swatch for the
@@ -88,7 +94,7 @@ export const useCustomizer = create<CustomizerState>()(
           : product.defaultColorHex
         set({ productKey: key, shirtColor: validColor })
       },
-      setSide: (side) => set({ side }),
+      setSide: (side) => set({ side, selectedId: null }),
       togglePrintLocation: (loc) => {
         // Front is always included — toggling it is a no-op.
         if (loc === 'front') return
@@ -117,8 +123,15 @@ export const useCustomizer = create<CustomizerState>()(
       setQty: (qty) => set({ qty: Math.max(1, Math.min(288, Math.round(qty))) }),
 
       addText: (text) => {
-        const el = seedTextElement(text || 'ALLSTAR', get().inkColor)
-        set((s) => ({ elements: [...s.elements, el], selectedId: el.id }))
+        const side = get().side
+        const el = { ...seedTextElement(text || 'ALLSTAR', get().inkColor), side }
+        set((s) => ({
+          elements: [...s.elements, el],
+          selectedId: el.id,
+          // Designing the back automatically adds the back-print location.
+          printLocations: side === 'back' && !s.printLocations.includes('back')
+            ? [...s.printLocations, 'back'] : s.printLocations,
+        }))
       },
       addImage: (src, naturalWidth, naturalHeight) => {
         // Default to 70% width centered; preserve aspect from natural dims if provided.
@@ -128,6 +141,7 @@ export const useCustomizer = create<CustomizerState>()(
             ? naturalHeight / naturalWidth
             : 1
         const heightPct = Math.max(10, Math.min(100, widthPct * aspectRatio))
+        const side = get().side
         const el: ImageElement = {
           id: `el_${Date.now().toString(36)}_${(counter++).toString(36)}`,
           type: 'image',
@@ -138,8 +152,14 @@ export const useCustomizer = create<CustomizerState>()(
           rotation: 0,
           anchor: 'center',
           src,
+          side,
         }
-        set((s) => ({ elements: [...s.elements, el], selectedId: el.id }))
+        set((s) => ({
+          elements: [...s.elements, el],
+          selectedId: el.id,
+          printLocations: side === 'back' && !s.printLocations.includes('back')
+            ? [...s.printLocations, 'back'] : s.printLocations,
+        }))
       },
       updateElement: (id, patch) => {
         set((s) => ({
@@ -156,6 +176,19 @@ export const useCustomizer = create<CustomizerState>()(
       },
       selectElement: (id) => set({ selectedId: id }),
       clearElements: () => set({ elements: [], selectedId: null }),
+
+      addRosterEntry: () => {
+        const entry: RosterEntry = { id: nextId(), name: '', number: '', size: get().size }
+        set((s) => ({ roster: [...s.roster, entry] }))
+      },
+      updateRosterEntry: (id, patch) => {
+        set((s) => ({
+          roster: s.roster.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+        }))
+      },
+      removeRosterEntry: (id) => {
+        set((s) => ({ roster: s.roster.filter((r) => r.id !== id) }))
+      },
 
       hydrate: (init) => {
         // Called from Home.tsx so the parent's `tweaks` defaults seed the store
@@ -184,8 +217,18 @@ export const useCustomizer = create<CustomizerState>()(
         size: s.size,
         qty: s.qty,
         elements: s.elements,
+        roster: s.roster,
       }),
-      version: 1,
+      version: 2,
+      migrate: (persisted: unknown, version: number) => {
+        const state = persisted as Partial<CustomizerState>
+        if (version < 2) {
+          // v1 elements had no side — they were all front designs.
+          state.elements = (state.elements ?? []).map((el) => ({ ...el, side: el.side ?? 'front' }))
+          state.roster = state.roster ?? []
+        }
+        return state
+      },
     },
   ),
 )

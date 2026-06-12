@@ -19,15 +19,16 @@ interface Props {
 const StageCanvas = forwardRef<Konva.Stage, Props>(({ disabled }, ref) => {
   const productKey = useCustomizer((s) => s.productKey)
   const shirtColor = useCustomizer((s) => s.shirtColor)
+  const side = useCustomizer((s) => s.side)
   const selectedId = useCustomizer((s) => s.selectedId)
   const selectElement = useCustomizer((s) => s.selectElement)
   const removeElement = useCustomizer((s) => s.removeElement)
 
   const product = products[productKey]
-  const photo = useMemo(
-    () => product.colors.find((c) => c.hex === shirtColor)?.photo || product.colors[0].photo,
-    [product, shirtColor],
-  )
+  const photo = useMemo(() => {
+    const c = product.colors.find((x) => x.hex === shirtColor) || product.colors[0]
+    return side === 'back' ? (c.photoBack || c.photo) : c.photo
+  }, [product, shirtColor, side])
   const isLight = LIGHT_SHIRT_HEX.includes(shirtColor)
 
   const { ref: wrapperRef, size } = useStageSize<HTMLDivElement>()
@@ -35,14 +36,14 @@ const StageCanvas = forwardRef<Konva.Stage, Props>(({ disabled }, ref) => {
 
   // Print zone in stage-pixel coordinates — driven by per-product calibration.
   const pz = useMemo(() => {
-    const z = product.printZone
+    const z = side === 'back' ? (product.printZoneBack || product.printZone) : product.printZone
     return {
       x: (z.leftPct / 100) * size.width,
       y: (z.topPct / 100) * size.height,
       width: (z.widthPct / 100) * size.width,
       height: (z.heightPct / 100) * size.height,
     }
-  }, [size, product])
+  }, [size, product, side])
 
   // Delete/Backspace removes the selected element. Only when canvas is focused.
   useEffect(() => {

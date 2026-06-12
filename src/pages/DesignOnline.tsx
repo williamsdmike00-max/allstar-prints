@@ -4,10 +4,8 @@ import { useSearchParams } from 'react-router-dom'
 import SEO from '../components/ui/SEO'
 import StepIndicator, { type StepKey } from '../components/design-builder/StepIndicator'
 import ProductPicker, { type DesignableProductKey } from '../components/design-builder/ProductPicker'
-import ActionPanel from '../components/design-builder/ActionPanel'
+import DesignLab from '../components/design-builder/DesignLab'
 import CheckoutStep from '../components/design-builder/CheckoutStep'
-import StageCanvas from '../components/customizer/canvas/StageCanvas'
-import { PHOTO_ASPECT_RATIO } from '../components/customizer/constants'
 import { useCustomizer } from '../components/customizer'
 import { readBlankStyle } from '../lib/orders'
 
@@ -16,9 +14,11 @@ export default function DesignOnline() {
   const initialStep = (searchParams.get('step') as StepKey | null) || 'product'
   const [step, setStep] = useState<StepKey>(initialStep)
   const [pngDataURL, setPngDataURL] = useState('')
+  const [pngDataURLBack, setPngDataURLBack] = useState('')
   const stageRef = useRef<Konva.Stage>(null)
   const selectElement = useCustomizer((s) => s.selectElement)
   const setProduct = useCustomizer((s) => s.setProduct)
+  const setSide = useCustomizer((s) => s.setSide)
 
   // Keep ?step=… in the URL so back/forward + share-links work.
   useEffect(() => {
@@ -44,17 +44,37 @@ export default function DesignOnline() {
     setStep('design')
   }
 
+  const snapshot = () => {
+    try {
+      return stageRef.current?.toDataURL({ pixelRatio: 2, mimeType: 'image/png' }) || ''
+    } catch (err) {
+      console.warn('DesignOnline: stage.toDataURL failed', err)
+      return ''
+    }
+  }
+
   const handleContinueToCheckout = async () => {
     // Deselect first so transformer handles aren't baked into the snapshot.
     selectElement(null)
-    await new Promise((r) => requestAnimationFrame(() => r(null)))
-    let url = ''
-    try {
-      url = stageRef.current?.toDataURL({ pixelRatio: 2, mimeType: 'image/png' }) || ''
-    } catch (err) {
-      console.warn('DesignOnline: stage.toDataURL failed', err)
+    const { side, elements } = useCustomizer.getState()
+    const hasBack = elements.some((el) => (el.side ?? 'front') === 'back')
+    const hasFront = elements.some((el) => (el.side ?? 'front') !== 'back')
+
+    // Capture each designed side; switching sides swaps the product photo, so
+    // give the canvas a beat to load it before snapshotting.
+    const settle = (ms: number) => new Promise((r) => setTimeout(r, ms))
+    let front = ''
+    let back = ''
+    if (side !== 'front') { setSide('front'); await settle(700) } else { await settle(60) }
+    front = snapshot()
+    if (hasBack) {
+      setSide('back')
+      await settle(700)
+      back = snapshot()
+      setSide('front')
     }
-    setPngDataURL(url)
+    setPngDataURL(hasFront || !back ? front : '')
+    setPngDataURLBack(back)
     setStep('checkout')
   }
 
@@ -93,7 +113,7 @@ export default function DesignOnline() {
         {step === 'product' && <ProductPicker onSelect={handleSelectProduct} />}
 
         {step === 'design' && (
-          <DesignStep
+          <DesignLab
             stageRef={stageRef}
             onBack={() => setStep('product')}
             onContinue={handleContinueToCheckout}
@@ -101,7 +121,11 @@ export default function DesignOnline() {
         )}
 
         {step === 'checkout' && (
-          <CheckoutStep pngDataURL={pngDataURL} onBack={() => setStep('design')} />
+          <CheckoutStep
+            pngDataURL={pngDataURL}
+            pngDataURLBack={pngDataURLBack}
+            onBack={() => setStep('design')}
+          />
         )}
       </section>
     </>
@@ -121,57 +145,3 @@ function BlankStyleChip() {
   )
 }
 
-function DesignStep({
-  stageRef,
-  onBack,
-  onContinue,
-}: {
-  stageRef: React.RefObject<Konva.Stage>
-  onBack: () => void
-  onContinue: () => void
-}) {
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-6 lg:gap-8 items-start">
-      {/* Preview */}
-      <div className="rounded-2xl bg-brand-dark3 border border-white/8 p-4 sm:p-6 relative overflow-hidden">
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
-            maskImage: 'radial-gradient(ellipse at center, black 50%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(ellipse at center, black 50%, transparent 100%)',
-          }}
-        />
-        <div className="relative z-10">
-          <div className="text-[11px] font-black uppercase tracking-wider text-brand-silver/60 mb-3">
-            Live preview
-          </div>
-          <div className="flex items-center justify-center">
-            <div
-              style={{
-                position: 'relative',
-                width: '100%',
-                maxWidth: 520,
-                aspectRatio: PHOTO_ASPECT_RATIO,
-                filter: 'drop-shadow(0 30px 40px rgba(0,0,0,.45))',
-              }}
-            >
-              <StageCanvas ref={stageRef} />
-            </div>
-          </div>
-          <p className="text-xs text-brand-silver/70 text-center mt-4">
-            Click your design to drag · grab a corner to resize · top handle rotates · Delete removes
-          </p>
-        </div>
-      </div>
-
-      {/* Action panel */}
-      <div>
-        <ActionPanel onBack={onBack} onContinue={onContinue} />
-      </div>
-    </div>
-  )
-}

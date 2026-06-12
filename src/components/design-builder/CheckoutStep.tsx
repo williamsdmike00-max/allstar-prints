@@ -11,9 +11,11 @@ import { createOrderRecord, readBlankStyle, clearBlankStyle } from '../../lib/or
 
 export default function CheckoutStep({
   pngDataURL,
+  pngDataURLBack = '',
   onBack,
 }: {
   pngDataURL: string
+  pngDataURLBack?: string
   onBack: () => void
 }) {
   const productKey = useCustomizer((s) => s.productKey)
@@ -24,6 +26,7 @@ export default function CheckoutStep({
   const qty = useCustomizer((s) => s.qty)
   const printLocations = useCustomizer((s) => s.printLocations)
   const elements = useCustomizer((s) => s.elements)
+  const roster = useCustomizer((s) => s.roster)
   const product = products[productKey]
   const locationsLabel = useMemo(
     () => printLocations.join(' + ') || 'front',
@@ -51,11 +54,14 @@ export default function CheckoutStep({
       `• Print locations: ${locationsLabel}`,
       designText ? `• Text: "${designText}"` : null,
       imgCount > 0 ? `• Images on canvas: ${imgCount}` : null,
+      roster.length > 0
+        ? `• Names & numbers (${roster.length}): ${roster.map((r) => `${r.name || '—'} #${r.number || '—'} (${r.size})`).join(', ')}`
+        : null,
       '',
       'See attached preview. We\'ll redraw final art if needed and send a proof for approval.',
     ].filter(Boolean) as string[]
     return lines.join('\n')
-  }, [product, shirtName, shirtColor, inkColor, material, size, qty, locationsLabel, designText, imgCount, blankStyle])
+  }, [product, shirtName, shirtColor, inkColor, material, size, qty, locationsLabel, designText, imgCount, blankStyle, roster])
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -76,8 +82,13 @@ export default function CheckoutStep({
     setSubmitting(true)
     setError(null)
     try {
-      const file = pngDataURL ? await dataURLToFile(pngDataURL) : null
-      const fileUrls = file ? await uploadFilesToStorage([file]) : []
+      const files: File[] = []
+      const frontFile = pngDataURL ? await dataURLToFile(pngDataURL, 'design-front.png') : null
+      const backFile = pngDataURLBack ? await dataURLToFile(pngDataURLBack, 'design-back.png') : null
+      if (frontFile) files.push(frontFile)
+      if (backFile) files.push(backFile)
+      const fileUrls = files.length ? await uploadFilesToStorage(files) : []
+      const file = frontFile || backFile
       const { firstName, lastName } = splitName(name)
       await submitForm({
         subject: 'New Design Online submission — Allstar Prints',
@@ -99,6 +110,9 @@ export default function CheckoutStep({
         quantity: qty,
         print_locations: printLocations.join(', '),
         design_text: designText,
+        names_numbers: roster.length
+          ? roster.map((r) => `${r.name || '—'} #${r.number || '—'} (${r.size})`).join('; ')
+          : 'None',
         files_uploaded: file ? file.name : 'No files — see attached preview',
         download_links: fileUrls.length ? fileUrls.join('\n') : 'No file URLs',
         source: window.location.href,
@@ -106,7 +120,7 @@ export default function CheckoutStep({
 
       // Save an order record for the /admin panel (best-effort — the GHL/web3forms
       // submission above is the lead-capture source of truth).
-      const est = totals(qty, material, printLocations)
+      const est = totals(qty, material, printLocations, roster.length)
       await createOrderRecord({
         source: 'design-online',
         customerName: name,
@@ -126,8 +140,13 @@ export default function CheckoutStep({
           qty,
           printLocations,
           designText,
+          roster: roster.map((r) => ({ name: r.name, number: r.number, size: r.size })),
         },
-        files: fileUrls.map((url) => ({ name: 'design-preview.png', url, label: 'Design preview' })),
+        files: fileUrls.map((url, i) => ({
+          name: files[i]?.name ?? 'design-preview.png',
+          url,
+          label: i === 0 && frontFile ? 'Front preview' : 'Back preview',
+        })),
         estimatedTotal: est.total != null ? Number(est.total) : null,
       })
       clearBlankStyle()
@@ -161,12 +180,23 @@ export default function CheckoutStep({
           <div className="text-[11px] font-black uppercase tracking-wider text-brand-silver/60">
             Your design
           </div>
-          {pngDataURL ? (
-            <img
-              src={pngDataURL}
-              alt="Your design preview"
-              className="w-full rounded-lg border border-white/8 bg-brand-dark2"
-            />
+          {pngDataURL || pngDataURLBack ? (
+            <div className={pngDataURL && pngDataURLBack ? 'grid grid-cols-2 gap-2' : ''}>
+              {pngDataURL && (
+                <img
+                  src={pngDataURL}
+                  alt="Front design preview"
+                  className="w-full rounded-lg border border-white/8 bg-brand-dark2"
+                />
+              )}
+              {pngDataURLBack && (
+                <img
+                  src={pngDataURLBack}
+                  alt="Back design preview"
+                  className="w-full rounded-lg border border-white/8 bg-brand-dark2"
+                />
+              )}
+            </div>
           ) : (
             <div className="aspect-[4/5] rounded-lg bg-brand-dark2 flex items-center justify-center text-xs text-brand-silver/50">
               No preview captured
@@ -178,7 +208,8 @@ export default function CheckoutStep({
           <SpecRow label="Material" value={material} />
           <SpecRow label="Size / Qty" value={`${size} · ${qty}`} />
           <SpecRow label="Locations" value={locationsLabel} />
-          <PriceRow qty={qty} material={material} printLocations={printLocations} />
+          {roster.length > 0 && <SpecRow label="Names/Numbers" value={`${roster.length} × $4`} />}
+          <PriceRow qty={qty} material={material} printLocations={printLocations} nameNumbers={roster.length} />
         </div>
       </div>
 
@@ -274,12 +305,14 @@ function PriceRow({
   qty,
   material,
   printLocations,
+  nameNumbers = 0,
 }: {
   qty: number
   material: 'Standard' | 'Tri-Blend' | 'Heavy Cotton'
   printLocations: PrintLocation[]
+  nameNumbers?: number
 }) {
-  const { each, total } = totals(qty, material, printLocations)
+  const { each, total } = totals(qty, material, printLocations, nameNumbers)
   return (
     <div className="pt-3 mt-1 border-t border-white/10">
       <div className="flex items-baseline justify-between">
