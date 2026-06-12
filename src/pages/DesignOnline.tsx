@@ -9,6 +9,7 @@ import CheckoutStep from '../components/design-builder/CheckoutStep'
 import StageCanvas from '../components/customizer/canvas/StageCanvas'
 import { PHOTO_ASPECT_RATIO } from '../components/customizer/constants'
 import { useCustomizer } from '../components/customizer'
+import { readBlankStyle } from '../lib/orders'
 
 export default function DesignOnline() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -81,6 +82,7 @@ export default function DesignOnline() {
             <p className="text-brand-silver text-base md:text-lg max-w-xl mx-auto leading-relaxed">
               Pick a product, drop in your art or type, and request a quote — we handle proofing, printing, and shipping.
             </p>
+            <BlankStyleChip />
           </div>
           <StepIndicator current={step} onJump={goTo} />
         </div>
@@ -103,6 +105,19 @@ export default function DesignOnline() {
         )}
       </section>
     </>
+  )
+}
+
+/** Small banner shown when the customer arrived from Browse Blanks. */
+function BlankStyleChip() {
+  const blank = readBlankStyle()
+  if (!blank) return null
+  return (
+    <p className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-full bg-brand-red/10 border border-brand-red/30 text-xs font-bold text-white">
+      <span className="text-brand-red">★</span>
+      Designing on: {blank.brand} {blank.styleNumber}{blank.title ? ` — ${blank.title}` : ''}
+      <span className="text-brand-silver font-normal">(rides along with your quote)</span>
+    </p>
   )
 }
 

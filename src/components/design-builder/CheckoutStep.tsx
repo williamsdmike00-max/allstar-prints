@@ -7,6 +7,7 @@ import { firstTextElement } from '../customizer/state'
 import { submitForm, splitName } from '../../lib/web3forms'
 import { uploadFilesToStorage } from '../../lib/storage'
 import { dataURLToFile } from '../customizer'
+import { createOrderRecord, readBlankStyle, clearBlankStyle } from '../../lib/orders'
 
 export default function CheckoutStep({
   pngDataURL,
@@ -36,9 +37,12 @@ export default function CheckoutStep({
   const designText = useMemo(() => firstTextElement(elements)?.text || '', [elements])
   const imgCount = useMemo(() => elements.filter((e) => e.type === 'image').length, [elements])
 
+  const blankStyle = useMemo(() => readBlankStyle(), [])
+
   const defaultNotes = useMemo(() => {
     const lines = [
       'Designed in the online builder:',
+      blankStyle ? `• Requested blank: ${blankStyle.brand ?? ''} ${blankStyle.styleNumber} — ${blankStyle.title ?? ''}`.trim() : null,
       `• Product: ${product.name} (${product.sku})`,
       `• Blank color: ${shirtName} (${shirtColor.toUpperCase()})`,
       `• Ink: ${inkColor.toUpperCase()}`,
@@ -51,7 +55,7 @@ export default function CheckoutStep({
       'See attached preview. We\'ll redraw final art if needed and send a proof for approval.',
     ].filter(Boolean) as string[]
     return lines.join('\n')
-  }, [product, shirtName, shirtColor, inkColor, material, size, qty, locationsLabel, designText, imgCount])
+  }, [product, shirtName, shirtColor, inkColor, material, size, qty, locationsLabel, designText, imgCount, blankStyle])
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -99,6 +103,34 @@ export default function CheckoutStep({
         download_links: fileUrls.length ? fileUrls.join('\n') : 'No file URLs',
         source: window.location.href,
       })
+
+      // Save an order record for the /admin panel (best-effort — the GHL/web3forms
+      // submission above is the lead-capture source of truth).
+      const est = totals(qty, material, printLocations)
+      await createOrderRecord({
+        source: 'design-online',
+        customerName: name,
+        email,
+        phone,
+        notes: notes || defaultNotes,
+        details: {
+          product: product.name,
+          sku: product.sku,
+          blankStyle: blankStyle?.styleNumber ?? null,
+          blankBrand: blankStyle?.brand ?? null,
+          shirtColor: shirtName,
+          shirtHex: shirtColor,
+          inkHex: inkColor,
+          material,
+          size,
+          qty,
+          printLocations,
+          designText,
+        },
+        files: fileUrls.map((url) => ({ name: 'design-preview.png', url, label: 'Design preview' })),
+        estimatedTotal: est.total != null ? Number(est.total) : null,
+      })
+      clearBlankStyle()
       setSubmitted(true)
     } catch (err) {
       console.error('Design Online submit failed', err)
